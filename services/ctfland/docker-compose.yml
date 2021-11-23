@@ -7,8 +7,20 @@ services:
      - "7777:80"
 
     restart: always
+    depends_on:
+      - db
+    env_file:
+      - ./variables.env
     deploy:
       resources:
         limits:
           cpus: '1'
           memory: 1G
+
+  db:
+    image: 'postgres:latest'
+    restart: always
+    env_file:
+      - ./variables.env
+    volumes:
+      - ./data/postgres:/var/lib/postgresql

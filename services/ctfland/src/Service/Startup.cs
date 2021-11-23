@@ -1,3 +1,4 @@
+using System;
 using CtfLand.DataLayer.Models;
 using CtfLand.Service.Providers;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -23,9 +24,17 @@ namespace CtfLand.Service
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var host = Environment.GetEnvironmentVariable("POSTGRES_HOST");
+            var port = Environment.GetEnvironmentVariable("POSTGRES_PORT");
+            var database = Environment.GetEnvironmentVariable("POSTGRES_DB_NAME");
+            var user = Environment.GetEnvironmentVariable("POSTGRES_USER");
+            var password = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
+            var connectionString = $"Host={host};Port={port};Database={database};Username={user};Password={password}";
+
             services.AddDbContext<DbContext>(options =>
-                options.UseSqlite(
-                    Configuration.GetConnectionString("DefaultConnection")));
+            {
+                options.UseNpgsql(connectionString);
+            });
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddAuthorization();
