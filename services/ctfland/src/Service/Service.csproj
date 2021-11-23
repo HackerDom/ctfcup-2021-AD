@@ -31,4 +31,18 @@
     <Folder Include="Views\Landing" />
   </ItemGroup>
 
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Areas\Identity\Pages\_ViewStart.cshtml" />
+    <_ContentIncludedByDefault Remove="publish\publish\web.config" />
+    <_ContentIncludedByDefault Remove="publish\web.config" />
+    <_ContentIncludedByDefault Remove="publish\appsettings.Development.json" />
+    <_ContentIncludedByDefault Remove="publish\appsettings.json" />
+    <_ContentIncludedByDefault Remove="publish\publish\appsettings.Development.json" />
+    <_ContentIncludedByDefault Remove="publish\publish\appsettings.json" />
+    <_ContentIncludedByDefault Remove="publish\publish\Service.deps.json" />
+    <_ContentIncludedByDefault Remove="publish\publish\Service.runtimeconfig.json" />
+    <_ContentIncludedByDefault Remove="publish\Service.deps.json" />
+    <_ContentIncludedByDefault Remove="publish\Service.runtimeconfig.json" />
+  </ItemGroup>
+
 </Project>
