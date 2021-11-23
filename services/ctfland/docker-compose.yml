@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  ctfland:
+    image: ctfland
+    build: .
+    ports:
+     - "7777:80"
+
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
