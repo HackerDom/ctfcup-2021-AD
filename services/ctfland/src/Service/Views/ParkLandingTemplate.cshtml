@@ -1,0 +1,18 @@
+@model CtfLand.Service.Models.CreateParkRequestModel
+
+@{
+    Layout = "_Layout";
+    ViewBag.Title = Model.Name;
+}
+
+@("@model CtfLand.Service.Models.ParkLandingTemplateViewModel")
+@("@inject CtfLand.Service.Providers.UserProvider userProvider")
+<main>
+    <h2>@Model.Name</h2>
+    <p>Контакты для связи: @Model.Contact</p>
+    <p>Максимум людей: @Model.MaxVisitorsCount</p>
+    <section>@Html.Raw(Model.Description)</section>
+    @("@foreach(var attraction in Model.Attractions) {")
+        <div>@Html.Raw(Model.HtmlAttractionBlock)</div>
+    @("}")
+</main>

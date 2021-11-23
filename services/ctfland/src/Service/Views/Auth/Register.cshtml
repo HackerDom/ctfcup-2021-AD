@@ -1,0 +1,37 @@
+@model CtfLand.Service.Models.RegisterRequestModel
+
+@{
+    ViewData["Title"] = "Регистрация";
+}
+
+<h2 class="title">Регистрация</h2>
+<section class="login-block">
+    <form asp-action="Register" asp-controller="Auth" asp-anti-forgery="true" method="post">
+        <div class="validation alert alert-danger" asp-validation-summary="ModelOnly"></div>
+        <section>
+            <div class="form-group">
+                <label asp-for="Login">Введите логин</label>
+                <input type="text" asp-for="Login" class="form-control"/>
+                <span class="invalid-feedback" asp-validation-for="Login"></span>
+            </div>
+             <div class="form-group">
+                <label asp-for="Document">Введите паспортные данные</label>
+                <input type="text" asp-for="Document" class="form-control"/>
+                <span class="invalid-feedback" asp-validation-for="Document"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password">Введите пароль</label>
+                <input asp-for="Password" class="form-control"/>
+                <span class="invalid-feedback" asp-validation-for="Password"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="RepeatedPassword">Повторно введите пароль</label>
+                <input asp-for="RepeatedPassword" class="form-control"/>
+                <span class="invalid-feedback" asp-validation-for="RepeatedPassword"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Регистрация" class="btn btn-primary"/>
+            </div>
+        </section>
+    </form>
+</section>

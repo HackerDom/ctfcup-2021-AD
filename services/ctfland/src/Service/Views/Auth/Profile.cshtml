@@ -1,0 +1,17 @@
+@using CtfLand.Service
+@model CtfLand.DataLayer.Models.User
+
+@{
+    var isOwnProfile = User.GetUserId() == Model.Id;
+    var title = isOwnProfile ? "Мой профиль" : $"Профиль {Model.Login}";
+    ViewBag.Title = title;
+    Layout = "_Layout";
+}
+
+<h2 class="title">@title</h2>
+<p>Логин: @Model.Login</p>
+@if (isOwnProfile)
+{
+    <p>Паспортные данные: @Model.Document</p>
+}
+<p>Зарегистрирован @Model.RegisteredAt.ToLocalTime().ToLongDateString()</p>

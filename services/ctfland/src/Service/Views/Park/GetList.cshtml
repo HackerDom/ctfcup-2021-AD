@@ -1,0 +1,23 @@
+@model CtfLand.Service.Models.ParksListViewModel
+
+@{
+    Layout = "_Layout";
+    ViewBag.Title = "Новые парки";
+}
+
+<h2 class="title">Новые парки</h2>
+@if (!Model.Parks.Any())
+{
+    <p>Ни один парк еще не добавлен. <a asp-action="Create">Станьте</a> первым!</p>
+}
+@foreach (var park in Model.Parks)
+{
+    <section class="park-list-item">
+        <h3><a asp-action="Show" asp-route-parkId=@park.Id>@park.Name</a></h3>
+        <p>Автор: <a asp-controller="Auth" asp-action="Profile" asp-route-id=@park.Owner.Id>
+            @park.Owner.Login
+        </a></p>
+        <p>Количество аттракционов: @(park.Attractions?.Count ?? 0)</p>
+        <p>Максимальное количество посетителей: @park.MaxVisitorsCount</p>
+    </section>
+}
