@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Server.IIS.Core;
 using RouteData = Microsoft.AspNetCore.Routing.RouteData;
 
 namespace CtfLand.Service.Providers
@@ -39,10 +40,6 @@ namespace CtfLand.Service.Providers
             {
                 return await RenderTemplateFromFile($"~/{filePath}", model)
                     .ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                return null;
             }
             finally
             {
