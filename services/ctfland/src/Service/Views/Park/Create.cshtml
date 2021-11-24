@@ -28,6 +28,11 @@
                 <span class="invalid-feedback" asp-validation-for="Contact"></span>
             </div>
             <div class="form-group">
+                <label asp-for="MaxVisitorsCount" class="form-check-label">Максимальное количество посетителей</label>
+                <input asp-for="MaxVisitorsCount"  class="form-control"/>
+                <span class="invalid-feedback" asp-validation-for="MaxVisitorsCount"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="Description"><span class="btn-link" data-toggle="tooltip" title="Допустимо использовать следующие переменные: @allowedDescVariablesStr">Описание парка</span></label>
                 <textarea class="form-control" asp-for="Description" cols="30" rows="10"></textarea>
             </div>
