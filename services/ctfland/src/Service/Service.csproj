@@ -18,6 +18,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.10" />
+    <PackageReference Include="Vostok.Applications.AspNetCore" Version="0.2.16" />
+    <PackageReference Include="Vostok.Logging.Console" Version="1.0.6" />
+    <PackageReference Include="Vostok.Logging.File" Version="1.0.16" />
   </ItemGroup>
 
   <ItemGroup>

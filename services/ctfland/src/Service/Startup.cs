@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using CtfLand.DataLayer.Models;
 using CtfLand.Service.Providers;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -9,6 +10,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Vostok.Applications.AspNetCore.Middlewares;
+using Vostok.Logging.Abstractions;
+using Vostok.Logging.Console;
+using Vostok.Logging.File;
+using Vostok.Logging.File.Configuration;
+using Vostok.Throttling;
+using Vostok.Throttling.Config;
+using Vostok.Throttling.Quotas;
 using DbContext = CtfLand.DataLayer.DbContext;
 
 namespace CtfLand.Service
@@ -57,6 +66,16 @@ namespace CtfLand.Service
             services.AddScoped<UserProvider>();
             services.AddSingleton<ILandingTemplateProvider, LandingTemplateProvider>();
             services.AddSingleton<HashPasswordProvider>();
+
+            var log = new CompositeLog(
+                new ConsoleLog(new ConsoleLogSettings()),
+                new FileLog(new FileLogSettings()));
+            services.AddSingleton<ILog>(log);
+            
+            var throttlingConfiguration = new ThrottlingConfigurationBuilder()
+                .Build();
+            var provider = new ThrottlingProvider(throttlingConfiguration);
+            services.AddSingleton<IThrottlingProvider>(provider);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -70,7 +89,11 @@ namespace CtfLand.Service
             {
                 app.UseExceptionHandler("/Error");
             }
-
+            
+            app.UseMiddleware<ThrottlingMiddleware>();
+            app.UseMiddleware<LoggingMiddleware>();
+            app.UseMiddleware<UnhandledExceptionMiddleware>();
+            
             app.UseStaticFiles();
 
             app.UseRouting();
