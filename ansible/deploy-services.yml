@@ -1,0 +1,8 @@
+- hosts: vapor
+  roles:
+     - { role: service, service_name: VaporService, tags: [vapor] }
+
+- hosts: barker
+  roles:
+     - { role: service, service_name: barker, tags: [barker] }
+

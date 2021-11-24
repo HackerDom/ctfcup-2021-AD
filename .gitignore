@@ -1,0 +1,8 @@
+# terraform stuff
+shell_secrets.sh
+.terraform
+*.tfstate
+terraform.tfstate.backup
+
+# vim
+*.swp
