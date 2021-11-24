@@ -66,6 +66,10 @@ namespace CtfLand.Service.Controllers
                ModelState.AddModelError("", "Validation failed");
                return RedirectToAction("Create");
             }
+            
+            var user = await dbContext.Users.FindAsync(User.GetUserId()).ConfigureAwait(false);
+            if (user is null)
+                return RedirectToAction("Logout", "Auth");
 
             var parkWithSameName = await dbContext.Parks.FirstOrDefaultAsync(p => p.Name == requestModel.Name).ConfigureAwait(false);
             if (parkWithSameName is not null)
@@ -73,11 +77,12 @@ namespace CtfLand.Service.Controllers
 
             var template = await landingTemplateProvider.GetLandingTemplate(requestModel).ConfigureAwait(false);
             if (template is null)
-                return BadRequest("Something went wrong");
+                return BadRequest("Something wrong with template");
 
-            var user = await dbContext.Users.FindAsync(User.GetUserId()).ConfigureAwait(false);
-            if (user is null)
-                return RedirectToAction("Logout", "Auth");
+            var isValid = await landingTemplateProvider.IsTemplateValid(template, User.GetUserId())
+                .ConfigureAwait(false);
+            if (!isValid)
+                return BadRequest("Something wrong with template");
 
             var park = new Park
             {

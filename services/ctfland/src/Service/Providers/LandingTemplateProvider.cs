@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,6 +16,8 @@ namespace CtfLand.Service.Providers
         public string[] GetAllowedAttractionVariables { get; }
 
         public string[] GetAllowedDescVariables { get; }
+
+        public Task<bool> IsTemplateValid(string template, Guid userId);
     }
 
     public class LandingTemplateProvider : ILandingTemplateProvider
@@ -43,6 +46,27 @@ namespace CtfLand.Service.Providers
 
         public string[] GetAllowedDescVariables => AllowedDescVariables.Keys.ToArray();
         public string[] GetAllowedAttractionVariables => AllowedAttractionVariables.Keys.ToArray();
+
+        public async Task<bool> IsTemplateValid(string template, Guid userId)
+        {
+            var model = new ParkLandingTemplateViewModel
+            {
+                UserId = userId,
+                Attractions = new List<Attraction>
+                {
+                    new()
+                    {
+                        Cost = 150,
+                        Description = "Чудесный аттракцион",
+                        Name = "Каруселька",
+                        Id = Guid.NewGuid(),
+                    },
+                },
+            };
+            var result = await templateRenderer.RenderTemplate(template, model).ConfigureAwait(false);
+
+            return result != null;
+        }
 
         public async Task<string> GetLandingTemplate(CreateParkRequestModel createTemplateRequestModel)
         {

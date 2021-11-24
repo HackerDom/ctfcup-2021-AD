@@ -42,7 +42,6 @@ namespace CtfLand.Service.Providers
             }
             catch (Exception e)
             {
-                throw;
                 return null;
             }
             finally
@@ -66,7 +65,7 @@ namespace CtfLand.Service.Providers
                 view,
                 new ViewDataDictionary<TModel>(new EmptyModelMetadataProvider(), new ModelStateDictionary())
                 {
-                    Model = model
+                    Model = model,
                 },
                 new TempDataDictionary(actionContext.HttpContext, tempDataProvider),
                 outputStringWriter,
