@@ -63,8 +63,8 @@ namespace CtfLand.Service.Controllers
         {
             if (!ModelState.IsValid)
             {
-               ModelState.AddModelError("", "Validation failed");
-               return RedirectToAction("Create");
+               ModelState.AddModelError("", "Ошибка при создании парка");
+               return Create();
             }
             
             var user = await dbContext.Users.FindAsync(User.GetUserId()).ConfigureAwait(false);
@@ -73,16 +73,25 @@ namespace CtfLand.Service.Controllers
 
             var parkWithSameName = await dbContext.Parks.FirstOrDefaultAsync(p => p.Name == requestModel.Name).ConfigureAwait(false);
             if (parkWithSameName is not null)
-                return BadRequest("Park with same name is already added");
+            {
+                ModelState.AddModelError("", "Парк с таким именем уже создан");
+                return Create();
+            }
 
             var template = await landingTemplateProvider.GetLandingTemplate(requestModel).ConfigureAwait(false);
             if (template is null)
-                return BadRequest("Something went wrong");
+            {
+                ModelState.AddModelError("", "Ошибка при создании парка - перепроверьте описания парка и шаблон атракционов");
+                return Create();
+            }
 
             var isValid = await landingTemplateProvider.IsTemplateValid(template, User.GetUserId())
                 .ConfigureAwait(false);
             if (!isValid)
-                return BadRequest("Something went wrong");
+            {
+                ModelState.AddModelError("", "Ошибка при создании парка - перепроверьте описания парка и шаблон атракционов");
+                return Create();
+            }
 
             var park = new Park
             {

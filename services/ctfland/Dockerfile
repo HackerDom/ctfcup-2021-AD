@@ -16,6 +16,7 @@ WORKDIR /app
 
 COPY --from=build /app/Service/publish ./
 RUN mkdir logs && chmod 777 -R ./logs
+RUN mkdir -p Views/Landing && chmod 777 -R ./Views/Landing
 
 RUN adduser --system --home /app --shell /usr/sbin/nologin --no-create-home --disabled-password -u 10000 ctfland
 USER ctfland

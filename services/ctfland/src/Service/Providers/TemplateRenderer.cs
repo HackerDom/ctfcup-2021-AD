@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Vostok.Logging.Abstractions;
 using RouteData = Microsoft.AspNetCore.Routing.RouteData;
 
 namespace CtfLand.Service.Providers
@@ -18,15 +19,18 @@ namespace CtfLand.Service.Providers
         private readonly IRazorViewEngine viewEngine;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly ITempDataProvider tempDataProvider;
+        private readonly ILog log;
 
         public TemplateRenderer(
             IRazorViewEngine viewEngine,
             IHttpContextAccessor httpContextAccessor,
-            ITempDataProvider tempDataProvider)
+            ITempDataProvider tempDataProvider, 
+            ILog log)
         {
             this.viewEngine = viewEngine;
             this.httpContextAccessor = httpContextAccessor;
             this.tempDataProvider = tempDataProvider;
+            this.log = log;
         }
 
         public async Task<string> RenderTemplate<TModel>(string template, TModel model)
@@ -39,6 +43,11 @@ namespace CtfLand.Service.Providers
             {
                 return await RenderTemplateFromFile($"~/{filePath}", model)
                     .ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                log.Error(e);
+                return null;
             }
             finally
             {
