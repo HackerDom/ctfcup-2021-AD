@@ -24,11 +24,11 @@ namespace CtfLand.Service
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var host = Environment.GetEnvironmentVariable("POSTGRES_HOST");
-            var port = Environment.GetEnvironmentVariable("POSTGRES_PORT");
-            var database = Environment.GetEnvironmentVariable("POSTGRES_DB_NAME");
-            var user = Environment.GetEnvironmentVariable("POSTGRES_USER");
-            var password = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
+            var host = Environment.GetEnvironmentVariable("POSTGRES_HOST") ?? "localhost";
+            var port = Environment.GetEnvironmentVariable("POSTGRES_PORT") ?? "5432";
+            var database = Environment.GetEnvironmentVariable("POSTGRES_DB_NAME") ?? "ctfland";
+            var user = Environment.GetEnvironmentVariable("POSTGRES_USER") ?? "ctfland";
+            var password = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD") ?? "ctfland";
             var connectionString = $"Host={host};Port={port};Database={database};Username={user};Password={password}";
 
             services.AddDbContext<DbContext>(options =>
