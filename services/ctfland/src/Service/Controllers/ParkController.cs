@@ -77,12 +77,12 @@ namespace CtfLand.Service.Controllers
 
             var template = await landingTemplateProvider.GetLandingTemplate(requestModel).ConfigureAwait(false);
             if (template is null)
-                return BadRequest("Something wrong with template");
+                return BadRequest("Something went wrong");
 
             var isValid = await landingTemplateProvider.IsTemplateValid(template, User.GetUserId())
                 .ConfigureAwait(false);
             if (!isValid)
-                return BadRequest("Something wrong with template");
+                return BadRequest("Something went wrong");
 
             var park = new Park
             {

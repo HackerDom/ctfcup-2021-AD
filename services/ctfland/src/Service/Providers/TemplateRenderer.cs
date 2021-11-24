@@ -76,8 +76,9 @@ namespace CtfLand.Service.Providers
                     TimeSpan.FromSeconds(3))
                 .ConfigureAwait(false);
 
-            return renderResult.IsSuccess
-                ? outputStringWriter.ToString()
+            var result = outputStringWriter.ToString();
+            return renderResult.IsSuccess && !string.IsNullOrEmpty(result)
+                ? result
                 : null;
         }
     }
