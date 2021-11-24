@@ -12,8 +12,8 @@ namespace CtfLand.Service.Models
         public string Description { get; set; }
 
         [Required]
-        [RegularExpression(@"^[\d\w\.@+\-_\(\), ]+$", ErrorMessage = "Можно указать только Email или телефонный номер")]
-        public string Contact { get; set; }
+        [Email(ErrorMessage = "Invalid email")]
+        public string Email { get; set; }
 
         [Required]
         [Range(0, 100000, ErrorMessage = "Максимальное количество посетителей должно быть в диапазоне от 0 до 100 000")]

@@ -9,7 +9,7 @@
 @("@inject CtfLand.Service.Providers.UserProvider userProvider")
 <main>
     <h2>@Model.Name</h2>
-    <p>Контакты для связи: @Model.Contact</p>
+    <p>Email: @Model.Email</p>
     <p>Максимум людей: @Model.MaxVisitorsCount</p>
     <section>@Html.Raw(Model.Description)</section>
     @("@foreach(var attraction in Model.Attractions) {")

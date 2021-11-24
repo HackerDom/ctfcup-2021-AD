@@ -87,7 +87,7 @@ namespace CtfLand.Service.Controllers
             var park = new Park
             {
                 Id = Guid.NewGuid(),
-                Contact = requestModel.Contact,
+                Contact = requestModel.Email,
                 Name = requestModel.Name,
                 Description = requestModel.Description,
                 MaxVisitorsCount = requestModel.MaxVisitorsCount,

@@ -1,9 +1,10 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Text;
 
 namespace CtfLand.DataLayer.Models
 {
-    public class User
+    public record User
     {
         [Key]
         public Guid Id { get; set; }
@@ -26,5 +27,13 @@ namespace CtfLand.DataLayer.Models
 
         [Required]
         public byte[] Salt { get; set; }
+        
+        protected virtual bool PrintMembers(StringBuilder stringBuilder)
+        {
+            // hide password hash and salt fields from printing at logs
+            stringBuilder.Append($"Id = {Id}, Login = {Login}, ");
+            stringBuilder.Append($"Document = {Document}, Role = {Role}, RegisteredAt = {RegisteredAt}");
+            return true;
+        }
     }
 }

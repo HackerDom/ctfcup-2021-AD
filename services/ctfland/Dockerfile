@@ -14,4 +14,7 @@ COPY src/Service/Views/. ./publish/Views
 FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/Service/publish ./
+
+RUN adduser --system --home /app --shell /usr/sbin/nologin --no-create-home --disabled-password -u 10000 ctfland
+
 ENTRYPOINT ["dotnet", "Service.dll"]

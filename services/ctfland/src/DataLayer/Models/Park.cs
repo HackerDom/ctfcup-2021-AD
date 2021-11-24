@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CtfLand.DataLayer.Models
 {
-    public class Park
+    public record Park
     {
         [Key]
         public Guid Id { get; set; }
