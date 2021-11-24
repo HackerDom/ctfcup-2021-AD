@@ -85,11 +85,7 @@ namespace CtfLand.Service
                 app.UseDeveloperExceptionPage();
                 app.UseMigrationsEndPoint();
             }
-            else
-            {
-                app.UseExceptionHandler("/Error");
-            }
-            
+
             app.UseMiddleware<ThrottlingMiddleware>();
             app.UseMiddleware<LoggingMiddleware>();
             app.UseMiddleware<UnhandledExceptionMiddleware>();
