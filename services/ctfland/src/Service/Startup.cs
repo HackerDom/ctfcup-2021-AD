@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using CtfLand.DataLayer.Models;
 using CtfLand.Service.Providers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -17,7 +15,6 @@ using Vostok.Logging.File;
 using Vostok.Logging.File.Configuration;
 using Vostok.Throttling;
 using Vostok.Throttling.Config;
-using Vostok.Throttling.Quotas;
 using DbContext = CtfLand.DataLayer.DbContext;
 
 namespace CtfLand.Service
