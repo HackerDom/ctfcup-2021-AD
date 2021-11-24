@@ -94,6 +94,7 @@ namespace CtfLand.Service.Controllers
                 Owner = user,
                 Template = template,
                 CreatedAt = DateTime.UtcNow,
+                IsPublic = requestModel.IsPublic,
             };
             await dbContext.Parks.AddAsync(park).ConfigureAwait(false);
             await dbContext.SaveChangesAsync().ConfigureAwait(false);
@@ -105,7 +106,7 @@ namespace CtfLand.Service.Controllers
         [Route("")]
         public IActionResult GetList([FromQuery] int skip = 0, [FromQuery] int take = 100)
         {
-            var parks = GetParks(skip, take, false);
+            var parks = GetParks(skip, take, true, false);
             var model = new ParksListViewModel { Parks = parks };
             return View(model);
         }
@@ -114,7 +115,7 @@ namespace CtfLand.Service.Controllers
         [Route("my")]
         public IActionResult MyParks(int skip = 0, int take = 100)
         {
-            var parks = GetParks(skip, take, true);
+            var parks = GetParks(skip, take, false, true);
 
             return View(new ParksListViewModel {Parks = parks});
         }
@@ -186,7 +187,7 @@ namespace CtfLand.Service.Controllers
         }
 
 
-        private Park[] GetParks(int skip, int take, bool isOwnOnly)
+        private Park[] GetParks(int skip, int take, bool isPublicOnly, bool isOwnOnly)
         {
             var parks = dbContext.Parks
                 .AsQueryable()
@@ -194,6 +195,7 @@ namespace CtfLand.Service.Controllers
                 .Include(park => park.Attractions)
                 .AsEnumerable()
                 .Where(park => !isOwnOnly || park.Owner.Id == User.GetUserId())
+                .Where(park => !isPublicOnly || park.IsPublic)
                 .OrderByDescending(park => park.CreatedAt)
                 .Skip(skip)
                 .Take(take)

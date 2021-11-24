@@ -21,5 +21,8 @@ namespace CtfLand.Service.Models
 
         [Required]
         public string HtmlAttractionBlock { get; set; }
+        
+        [Required]
+        public bool IsPublic { get; set; }
     }
 }

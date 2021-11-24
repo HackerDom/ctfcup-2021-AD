@@ -26,6 +26,9 @@ namespace CtfLand.DataLayer.Models
 
         [Required]
         public DateTime CreatedAt { get; set; }
+        
+        [Required]
+        public bool IsPublic { get; set; }
 
         [Required]
         public virtual User Owner { get; set; }
