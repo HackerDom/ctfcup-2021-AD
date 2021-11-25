@@ -12,7 +12,7 @@ namespace CtfLand.Service
             if (value is not string email)
                 return new ValidationResult("Value is not a string");
             
-            if (!Regex.IsMatch(email, @"[a-zA-Z0-9()""]+@[a-z][a-zA-Z\.()""]+"))
+            if (!Regex.IsMatch(email, @"^[a-zA-Z0-9!#$%&*+-=_""(){}\[\],]+@[a-z][a-zA-Z0-9!#$%&*+-=_""(){}\[\],\.]+$"))
                 return new ValidationResult("Invalid email");
 
             try
