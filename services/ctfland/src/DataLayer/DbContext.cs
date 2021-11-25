@@ -8,7 +8,6 @@ namespace CtfLand.DataLayer
         public DbContext(DbContextOptions<DbContext> options)
             : base(options)
         {
-            Database.EnsureCreated();
         }
 
         public DbSet<User> Users { get; set; }

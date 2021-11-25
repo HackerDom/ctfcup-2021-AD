@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Vostok.Applications.AspNetCore.Middlewares;
+using Vostok.Applications.AspNetCore;
 using Vostok.Logging.Abstractions;
 using Vostok.Logging.Console;
 using Vostok.Logging.File;
@@ -75,7 +75,7 @@ namespace CtfLand.Service
             services.AddSingleton<IThrottlingProvider>(provider);
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DbContext dbContext)
         {
             if (env.IsDevelopment())
             {
@@ -83,9 +83,9 @@ namespace CtfLand.Service
                 app.UseMigrationsEndPoint();
             }
 
-            app.UseMiddleware<ThrottlingMiddleware>();
-            app.UseMiddleware<LoggingMiddleware>();
-            app.UseMiddleware<UnhandledExceptionMiddleware>();
+            app.UseVostokThrottling();
+            app.UseVostokRequestLogging();
+            app.UseVostokUnhandledExceptions();
             
             app.UseStaticFiles();
 
@@ -95,6 +95,8 @@ namespace CtfLand.Service
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => endpoints.MapControllers());
+            
+            dbContext.Database.EnsureCreated();
         }
     }
 }
