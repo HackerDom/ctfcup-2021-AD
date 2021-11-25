@@ -11,11 +11,15 @@ services:
       - db
     env_file:
       - ./variables.env
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 1G
+      
+    stop_grace_period: 1s
+    mem_limit: 1G
+    memswap_limit: 1G
+    pids_limit: 80
+    ulimits:
+      nofile:
+        soft: 12000
+        hard: 12000
 
   db:
     image: 'postgres:latest'
