@@ -118,7 +118,7 @@ namespace CtfLand.Service.Controllers
 
         private async Task<ICollection<PurchaseViewModel>> GetPurchasesViewModel(User user)
         {
-            if (user.IsVisitor())
+            if (!user.IsVisitor())
                 return new List<PurchaseViewModel>();
 
             var names = await db.UserPurchases

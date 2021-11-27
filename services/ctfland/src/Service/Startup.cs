@@ -64,7 +64,7 @@ namespace CtfLand.Service
             services.AddScoped<UserProvider>();
             services.AddSingleton<ILandingTemplateProvider, LandingTemplateProvider>();
             services.AddSingleton<HashPasswordProvider>();
-            services.AddSingleton<IParksProvider, ParksProvider>();
+            services.AddScoped<IParksProvider, ParksProvider>();
 
             var log = new CompositeLog(
                 new ConsoleLog(new ConsoleLogSettings()),

@@ -15,7 +15,7 @@
     @("@foreach(var attraction in Model.Attractions) {")
         <div>@Html.Raw(Model.HtmlAttractionBlock)</div>
         @("@if (Model.ShowBuyButton) {")
-        <form method="post" asp-controller="Attraction" asp-action="Buy" asp-route-attractionId="@("attraction.Id")">
+        <form method="post" action="/attraction/@("@attraction.Id")/buy">
             <button class="btn btn-primary">Купить билет</button>
         </form>
         @("}")

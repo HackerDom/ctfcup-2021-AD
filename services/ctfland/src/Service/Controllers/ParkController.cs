@@ -149,7 +149,8 @@ namespace CtfLand.Service.Controllers
 
             if (park.Owner.Id != User.GetUserId())
                 return Forbid();
-
+            
+            dbContext.Attractions.RemoveRange(park.Attractions);
             dbContext.Parks.Remove(park);
             await dbContext.SaveChangesAsync().ConfigureAwait(false);
 

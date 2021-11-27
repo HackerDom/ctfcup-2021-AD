@@ -57,18 +57,20 @@ namespace CtfLand.Service.Controllers
                 Name = model.Name,
                 Description = model.Description,
                 TicketKey = model.TicketKey,
+                Park = park,
             };
 
             await dbContext.Attractions.AddAsync(attraction).ConfigureAwait(false);
             park.Attractions.Add(attraction);
+            dbContext.Parks.Update(park);
 
             await dbContext.SaveChangesAsync().ConfigureAwait(false);
             return RedirectToAction("MyParks", "Park");
         }
 
         [HttpPost]
-        [Route("{attractionId:guid}/buy")]
         [Access(UserRole.Visitor)]
+        [Route("{attractionId:guid}/buy")]
         public async Task<IActionResult> Buy(Guid attractionId)
         {
             if (!User.IsVisitor())
