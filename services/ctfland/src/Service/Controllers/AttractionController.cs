@@ -1,14 +1,17 @@
 using System;
 using System.Threading.Tasks;
-using CtfLand.DataLayer;
 using CtfLand.DataLayer.Models;
 using CtfLand.Service.Models;
 using CtfLand.Service.Providers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using DbContext = CtfLand.DataLayer.DbContext;
 
 
 namespace CtfLand.Service.Controllers
 {
+    [Authorize]
     [Route("attraction")]
     public class AttractionController : Controller
     {
@@ -22,6 +25,7 @@ namespace CtfLand.Service.Controllers
         }
 
         [HttpGet]
+        [Access(UserRole.Moderator)]
         [Route("{parkId:guid}/add")]
         public async Task<IActionResult> Add(Guid parkId)
         {
@@ -36,6 +40,7 @@ namespace CtfLand.Service.Controllers
         }
 
         [HttpPost]
+        [Access(UserRole.Moderator)]
         [Route("{parkId:guid}/add")]
         public async Task<IActionResult> Add(Guid parkId, AddAttractionRequestModel model)
         {
@@ -59,6 +64,44 @@ namespace CtfLand.Service.Controllers
 
             await dbContext.SaveChangesAsync().ConfigureAwait(false);
             return RedirectToAction("MyParks", "Park");
+        }
+
+        [HttpPost]
+        [Route("{attractionId:guid}/buy")]
+        [Access(UserRole.Visitor)]
+        public async Task<IActionResult> Buy(Guid attractionId)
+        {
+            if (!User.IsVisitor())
+                return BadRequest($"{User.GetUserRole():G} can't buy tickets to attraction");
+
+            var attraction = await dbContext.Attractions
+                .AsQueryable()
+                .Include(attraction => attraction.Park)
+                .FirstOrDefaultAsync(attraction => attraction.Id == attractionId)
+                .ConfigureAwait(false);
+            if (attraction is null)
+                return NotFound();
+
+            var userId = User.GetUserId();
+            
+            await using var transaction = await dbContext.Database.BeginTransactionAsync();
+            var userBalance = await dbContext.UserBalances.FindAsync(userId).ConfigureAwait(false);
+            if (userBalance.Balance < attraction.Cost)
+                return BadRequest("Failed to buy ticket - not enough money");
+
+            userBalance.Balance -= attraction.Cost;
+            var userPurchase = new UserPurchase
+            {
+                Name = attraction.Name,
+                ParkId = attraction.Park.Id,
+                UserId = userId,
+            };
+            await dbContext.UserPurchases.AddAsync(userPurchase).ConfigureAwait(false);
+            dbContext.UserBalances.Update(userBalance);
+            await dbContext.SaveChangesAsync().ConfigureAwait(false);
+            await transaction.CommitAsync().ConfigureAwait(false);
+            
+            return RedirectToAction("Profile", "Auth", new {id = userId});
         }
     }
 }

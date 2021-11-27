@@ -7,6 +7,8 @@ namespace CtfLand.Service.Models
     public class ParkLandingTemplateViewModel
     {
         public Guid UserId { get; set; }
+        
+        public bool ShowBuyButton { get; set; }
 
         public ICollection<Attraction> Attractions { get; set; }
     }

@@ -21,5 +21,7 @@ namespace CtfLand.DataLayer.Models
         
         [Required]
         public string TicketKey { get; set; }
+        
+        public virtual Park Park { get; set; }
     }
 }

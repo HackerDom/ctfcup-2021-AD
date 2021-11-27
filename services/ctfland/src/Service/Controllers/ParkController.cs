@@ -35,6 +35,7 @@ namespace CtfLand.Service.Controllers
 
         [HttpGet]
         [Route("create")]
+        [Access(UserRole.Moderator)]
         public IActionResult Create()
         {
             return View(new CreateParkViewModel
@@ -56,6 +57,7 @@ namespace CtfLand.Service.Controllers
             {
                 UserId = User.GetUserId(),
                 Attractions = park.Attractions ?? new List<Attraction>(),
+                ShowBuyButton = User.IsVisitor(),
             };
             var template = await templateRenderer.RenderTemplate(park.Template, model).ConfigureAwait(false);
 
@@ -64,6 +66,7 @@ namespace CtfLand.Service.Controllers
 
         [HttpPost]
         [Route("create")]
+        [Access(UserRole.Moderator)]
         public async Task<IActionResult> Create(CreateParkRequestModel requestModel)
         {
             if (!ModelState.IsValid)
@@ -127,6 +130,7 @@ namespace CtfLand.Service.Controllers
 
         [HttpGet]
         [Route("my")]
+        [Access(UserRole.Moderator)]
         public IActionResult MyParks([FromQuery] int skip = 0, [FromQuery] int take = 100)
         {
             var parks = parksProvider.GetParks(skip, take, false, User.GetUserId());
@@ -136,6 +140,7 @@ namespace CtfLand.Service.Controllers
 
         [HttpPost]
         [Route("{id:guid}/delete")]
+        [Access(UserRole.Moderator)]
         public async Task<IActionResult> Delete(Guid id)
         {
             var park = await parksProvider.GetPark(id).ConfigureAwait(false);
