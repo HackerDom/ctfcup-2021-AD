@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using CtfLand.DataLayer.Models;
@@ -101,7 +102,43 @@ namespace CtfLand.Service.Controllers
         public async Task<IActionResult> Profile(Guid id)
         {
             var user = await db.Users.FindAsync(id).ConfigureAwait(false);
-            return View(user);
+            var userBalanceMaybe = user.IsVisitor()
+                ? await db.UserBalances.FindAsync(id).ConfigureAwait(false)
+                : null;
+
+            var userPurchases = await GetPurchasesViewModel(user).ConfigureAwait(false);
+            var model = new ProfileViewModel
+            {
+                User = user, 
+                CurrentBalance = userBalanceMaybe?.Balance,
+                Purchases = userPurchases,
+            };
+            return View(model);
+        }
+
+        private async Task<ICollection<PurchaseViewModel>> GetPurchasesViewModel(User user)
+        {
+            if (user.IsVisitor())
+                return new List<PurchaseViewModel>();
+
+            var names = await db.UserPurchases
+                .Where(purchase => purchase.UserId == user.Id)
+                .Select(purchase => purchase.Name)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+            var attractions = await db.Attractions
+                .Where(attraction => names.Contains(attraction.Name))
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+            return attractions
+                .Select(attraction => new PurchaseViewModel
+                    {
+                        AttractionName = attraction.Name,
+                        TicketKey = attraction.TicketKey,
+                    })
+                .ToList();
         }
 
         private async Task<User> AddUser(RegisterRequestModel model)
@@ -121,6 +158,12 @@ namespace CtfLand.Service.Controllers
                 RegisteredAt = DateTime.UtcNow,
             };
             var entityEntry = await db.Users.AddAsync(user).ConfigureAwait(false);
+
+            if (model.Role == UserRole.Visitor)
+            {
+                var userBalance = new UserBalance { Balance = 1000, UserId = entityEntry.Entity.Id };
+                await db.UserBalances.AddAsync(userBalance).ConfigureAwait(false);
+            }
             await db.SaveChangesAsync().ConfigureAwait(false);
             return entityEntry.Entity;
         }
@@ -131,7 +174,7 @@ namespace CtfLand.Service.Controllers
             {
                 new(ClaimTypes.Name, user.Login),
                 new(ClaimTypes.Role, user.Role.ToString("G")),
-                new(ClaimTypes.Sid, user.Id.ToString())
+                new(ClaimTypes.Sid, user.Id.ToString()),
             };
             var identity = new ClaimsIdentity(claims,
                 "ApplicationCookie",

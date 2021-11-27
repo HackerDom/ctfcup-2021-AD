@@ -1,19 +1,33 @@
 @using CtfLand.Service
 @using CtfLand.DataLayer.Models
-@model CtfLand.DataLayer.Models.User
+@model CtfLand.Service.Models.ProfileViewModel
 
 @{
-    var isOwnProfile = User.GetUserId() == Model.Id;
-    var title = isOwnProfile ? "Мой профиль" : $"Профиль {Model.Login}";
+    var isOwnProfile = User.GetUserId() == Model.User.Id;
+    var isVisitor = Model.User.Role == UserRole.Visitor;
+    var title = isOwnProfile ? "Мой профиль" : $"Профиль {Model.User.Login}";
     ViewBag.Title = title;
     Layout = "_Layout";
 }
 
 <h2 class="title">@title</h2>
-<p>Логин: @Model.Login</p>
-<p>Роль: @(Model.Role == UserRole.Visitor ? "Покупатель" : "Продавец")</p>
+<p>Логин: @Model.User.Login</p>
+<p>Роль: @(isVisitor ? "Покупатель" : "Продавец")</p>
 @if (isOwnProfile)
 {
-    <p>Паспортные данные: @Model.Document</p>
+    <p>Паспортные данные: @Model.User.Document</p>
 }
-<p>Зарегистрирован @Model.RegisteredAt.ToLocalTime().ToLongDateString()</p>
+<p>Зарегистрирован @Model.User.RegisteredAt.ToLocalTime().ToLongDateString()</p>
+
+@if (isVisitor && isOwnProfile)
+{
+    <p>Текущий баланс: @Model.CurrentBalance</p>
+    @if (Model.Purchases.Any())
+    {
+        <p>Текущие купленные билеты на аттракционы:</p>
+    }
+    @foreach (var purchase in Model.Purchases)
+    {
+        <p><i>@purchase.AttractionName</i> - <b>@purchase.TicketKey</b></p>
+    }
+}
