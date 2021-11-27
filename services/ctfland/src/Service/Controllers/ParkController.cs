@@ -56,7 +56,6 @@ namespace CtfLand.Service.Controllers
             {
                 UserId = User.GetUserId(),
                 Attractions = park.Attractions ?? new List<Attraction>(),
-                ShowBuyButton = false,
             };
             var template = await templateRenderer.RenderTemplate(park.Template, model).ConfigureAwait(false);
 

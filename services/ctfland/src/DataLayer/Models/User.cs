@@ -1,9 +1,11 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace CtfLand.DataLayer.Models
 {
+    [PublicAPI]
     public record User
     {
         [Key]
