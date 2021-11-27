@@ -53,6 +53,9 @@ class Client:
     def get_last_parks(self, skip, take):
         return self._get("park", params={"skip": skip, "take": take})
 
+    def get_profile(self, user_id):
+        return self._get(f"auth/profile/{user_id}")
+
     @staticmethod
     def _result(r, failed_url):
         return None if r is None or r.url == failed_url else r

@@ -1,3 +1,5 @@
+import json
+
 from gornilo import Verdict, Checker, PutRequest, GetRequest, CheckRequest
 
 from ctfland.client import Client, HttpError
@@ -41,9 +43,44 @@ async def check_service(request: CheckRequest) -> Verdict:
 
 @checker.define_put(vuln_num=1, vuln_rate=1)
 def put_flag_into_the_service(request: PutRequest) -> Verdict:
-    pass
+    try:
+        client = PrettyClient(Client(request.hostname, 7777))
+
+        login, password = get_random_creds()
+        user_id = client.register_and_login(login, password, request.flag)
+
+        flag_id = {
+            "login": login,
+            "password": password,
+            "user_id": user_id,
+        }
+        return Verdict.OK(json.dumps(flag_id))
+    except HttpError as e:
+        print(e)
+        return e.verdict
+    except Exception as e:
+        print(e)
+        return Verdict.MUMBLE(str(e))
 
 
 @checker.define_get(vuln_num=1)
 def get_flag_from_the_service(request: GetRequest) -> Verdict:
-    pass
+    try:
+        flag_id = json.loads(request.flag_id)
+        client = PrettyClient(Client(request.hostname, 7777))
+
+        user_id = client.login(flag_id["login"], flag_id["password"])
+        if user_id != flag_id["user_id"]:
+            return Verdict.MUMBLE("Something wrong with registration or login")
+
+        user = client.get_profile(user_id)
+        if user.document != request.flag:
+            return Verdict.CORRUPT("")
+
+        return Verdict.OK()
+    except HttpError as e:
+        print(e)
+        return e.verdict
+    except Exception as e:
+        print(e)
+        return Verdict.MUMBLE(str(e))
