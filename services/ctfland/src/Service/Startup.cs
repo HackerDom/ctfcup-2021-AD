@@ -55,7 +55,8 @@ namespace CtfLand.Service
 
             services.AddControllersWithViews();
 
-            services.AddRazorPages()
+            services
+                .AddRazorPages()
                 .AddRazorRuntimeCompilation();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -63,6 +64,7 @@ namespace CtfLand.Service
             services.AddScoped<UserProvider>();
             services.AddSingleton<ILandingTemplateProvider, LandingTemplateProvider>();
             services.AddSingleton<HashPasswordProvider>();
+            services.AddSingleton<IParksProvider, ParksProvider>();
 
             var log = new CompositeLog(
                 new ConsoleLog(new ConsoleLogSettings()),

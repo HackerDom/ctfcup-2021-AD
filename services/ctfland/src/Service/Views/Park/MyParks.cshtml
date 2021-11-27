@@ -13,11 +13,11 @@
 @foreach (var park in Model.Parks)
 {
     <section class="park-list-item">
-        <h3><a asp-action="Show" asp-route-parkId=@park.Id>@park.Name</a></h3>
+        <h3><a asp-action="Get" asp-route-parkId=@park.Id>@park.Name</a></h3>
         <p>Количество аттракционов: @(park.Attractions?.Count ?? 0)</p>
         <p>Максимальное количество посетителей: @park.MaxVisitorsCount</p>
         <section class="btn-group">
-            <a class="btn btn-primary mr-1" asp-action="AddAttraction" asp-route-parkId="@park.Id">
+            <a class="btn btn-primary mr-1" asp-action="Add" asp-controller="Attraction" asp-route-parkId="@park.Id">
                 Добавить аттракцион
             </a>
             <form method="post" asp-action="Delete" asp-route-id="@park.Id">

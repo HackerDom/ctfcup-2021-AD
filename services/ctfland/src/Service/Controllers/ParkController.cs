@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CtfLand.DataLayer.Models;
@@ -20,12 +19,18 @@ namespace CtfLand.Service.Controllers
         private readonly DbContext dbContext;
         private readonly ILandingTemplateProvider landingTemplateProvider;
         private readonly TemplateRenderer templateRenderer;
+        private readonly IParksProvider parksProvider;
 
-        public ParkController(DbContext dbContext, ILandingTemplateProvider landingTemplateProvider, TemplateRenderer templateRenderer)
+        public ParkController(
+            DbContext dbContext,
+            ILandingTemplateProvider landingTemplateProvider,
+            TemplateRenderer templateRenderer,
+            IParksProvider parksProvider)
         {
             this.dbContext = dbContext;
             this.landingTemplateProvider = landingTemplateProvider;
             this.templateRenderer = templateRenderer;
+            this.parksProvider = parksProvider;
         }
 
         [HttpGet]
@@ -41,9 +46,9 @@ namespace CtfLand.Service.Controllers
 
         [HttpGet]
         [Route("{parkId:guid}")]
-        public async Task<IActionResult> Show(Guid parkId)
+        public async Task<IActionResult> Get(Guid parkId)
         {
-            var park = await GetPark(parkId).ConfigureAwait(false);
+            var park = await parksProvider.GetPark(parkId).ConfigureAwait(false);
             if (park is null)
                 return NotFound();
 
@@ -51,6 +56,7 @@ namespace CtfLand.Service.Controllers
             {
                 UserId = User.GetUserId(),
                 Attractions = park.Attractions ?? new List<Attraction>(),
+                ShowBuyButton = false,
             };
             var template = await templateRenderer.RenderTemplate(park.Template, model).ConfigureAwait(false);
 
@@ -108,23 +114,23 @@ namespace CtfLand.Service.Controllers
             await dbContext.Parks.AddAsync(park).ConfigureAwait(false);
             await dbContext.SaveChangesAsync().ConfigureAwait(false);
 
-            return RedirectToAction("Show", new {parkId = park.Id});
+            return RedirectToAction("Get", new {parkId = park.Id});
         }
 
         [HttpGet]
         [Route("")]
         public IActionResult GetList([FromQuery] int skip = 0, [FromQuery] int take = 100)
         {
-            var parks = GetParks(skip, take, true, false);
+            var parks = parksProvider.GetParks(skip, take, true, null);
             var model = new ParksListViewModel { Parks = parks };
             return View(model);
         }
 
         [HttpGet]
         [Route("my")]
-        public IActionResult MyParks(int skip = 0, int take = 100)
+        public IActionResult MyParks([FromQuery] int skip = 0, [FromQuery] int take = 100)
         {
-            var parks = GetParks(skip, take, false, true);
+            var parks = parksProvider.GetParks(skip, take, false, User.GetUserId());
 
             return View(new ParksListViewModel {Parks = parks});
         }
@@ -133,7 +139,7 @@ namespace CtfLand.Service.Controllers
         [Route("{id:guid}/delete")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var park = await GetPark(id).ConfigureAwait(false);
+            var park = await parksProvider.GetPark(id).ConfigureAwait(false);
             if (park is null)
                 return NotFound();
 
@@ -144,72 +150,6 @@ namespace CtfLand.Service.Controllers
             await dbContext.SaveChangesAsync().ConfigureAwait(false);
 
             return RedirectToAction("MyParks");
-        }
-
-        [HttpGet]
-        [Route("{parkId:guid}/addAttraction")]
-        public async Task<IActionResult> AddAttraction(Guid parkId)
-        {
-            var park = await GetPark(parkId).ConfigureAwait(false);
-            if (park is null)
-                return NotFound();
-
-            if (park.Owner.Id != User.GetUserId())
-                return Forbid();
-
-            return View();
-        }
-
-        [HttpPost]
-        [Route("{parkId:guid}/addAttraction")]
-        public async Task<IActionResult> AddAttraction(Guid parkId, AddAttractionRequestModel model)
-        {
-            var park = await GetPark(parkId).ConfigureAwait(false);
-            if (park is null)
-                return NotFound();
-
-            if (park.Owner.Id != User.GetUserId())
-                return Forbid();
-
-            var attraction = new Attraction
-            {
-                Cost = model.Cost,
-                Name = model.Name,
-                Description = model.Description,
-            };
-
-            await dbContext.Attractions.AddAsync(attraction).ConfigureAwait(false);
-            park.Attractions.Add(attraction);
-
-            await dbContext.SaveChangesAsync().ConfigureAwait(false);
-            return RedirectToAction("MyParks");
-        }
-
-        private async Task<Park> GetPark(Guid id)
-        {
-            return await dbContext.Parks
-                .AsQueryable()
-                .Include(park => park.Owner)
-                .Include(park => park.Attractions)
-                .FirstOrDefaultAsync(park => park.Id == id)
-                .ConfigureAwait(false);
-        }
-
-
-        private Park[] GetParks(int skip, int take, bool isPublicOnly, bool isOwnOnly)
-        {
-            var parks = dbContext.Parks
-                .AsQueryable()
-                .Include(park => park.Owner)
-                .Include(park => park.Attractions)
-                .AsEnumerable()
-                .Where(park => !isOwnOnly || park.Owner.Id == User.GetUserId())
-                .Where(park => !isPublicOnly || park.IsPublic)
-                .OrderByDescending(park => park.CreatedAt)
-                .Skip(skip)
-                .Take(take)
-                .ToArray();
-            return parks;
         }
     }
 }

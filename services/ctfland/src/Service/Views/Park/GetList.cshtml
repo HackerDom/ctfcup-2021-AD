@@ -13,7 +13,7 @@
 @foreach (var park in Model.Parks)
 {
     <section class="park-list-item">
-        <h3><a asp-action="Show" asp-route-parkId=@park.Id>@park.Name</a></h3>
+        <h3><a asp-action="Get" asp-route-parkId=@park.Id>@park.Name</a></h3>
         <p>Автор: <a asp-controller="Auth" asp-action="Profile" asp-route-id=@park.Owner.Id>
             @park.Owner.Login
         </a></p>
