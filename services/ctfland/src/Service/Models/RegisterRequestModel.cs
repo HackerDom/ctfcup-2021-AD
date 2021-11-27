@@ -18,7 +18,7 @@ namespace CtfLand.Service.Models
         public string RepeatedPassword { get; set; }
 
         [Required(ErrorMessage = "Не выбрана роль")]
-        public UserRole Role { get; set; } = UserRole.Moderator;
+        public UserRole Role { get; set; }
 
         [Required(ErrorMessage = "Не указаны паспортные данные")]
         public string Document { get; set; }

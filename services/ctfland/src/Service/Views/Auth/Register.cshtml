@@ -1,3 +1,4 @@
+@using CtfLand.DataLayer.Models
 @model CtfLand.Service.Models.RegisterRequestModel
 
 @{
@@ -13,6 +14,15 @@
                 <label asp-for="Login">Введите логин</label>
                 <input type="text" asp-for="Login" class="form-control"/>
                 <span class="invalid-feedback" asp-validation-for="Login"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Role">Выберете роль</label>
+                <select asp-for="Role" class="form-select">
+                    <option selected>Не выбрана</option>
+                    <option value="@UserRole.Moderator">Продавец</option>
+                    <option value="@UserRole.Visitor">Покупатель</option>
+                </select>
+                <span class="invalid-feedback" asp-validation-for="Role"></span>
             </div>
              <div class="form-group">
                 <label asp-for="Document">Введите паспортные данные</label>

@@ -11,10 +11,10 @@ namespace CtfLand.DataLayer
         }
 
         public DbSet<User> Users { get; set; }
-
         public DbSet<Park> Parks { get; set; }
-
         public DbSet<Attraction> Attractions { get; set; }
+        public DbSet<UserBalance> UserBalances { get; set; }
+        public DbSet<UserPurchase> UserPurchases { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
