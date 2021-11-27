@@ -1,6 +1,16 @@
 import requests
+from gornilo import Verdict
 
 THROTTLING_RESPONSE_CODE = 429
+
+
+class HttpError(Exception):
+    def __init__(self, verdict: Verdict, *args, **kwargs):
+        super(*args, **kwargs)
+        self.verdict = verdict
+
+    def __str__(self):
+        return str(self.verdict)
 
 
 class Client:
@@ -55,8 +65,8 @@ class Client:
 
     def _wrapped_post(self, relative_url, **kwargs):
         r = self._post(relative_url, **kwargs)
-        is_validation_failed = r is not None and r.url == relative_url
-        if r is None or is_validation_failed:
+        is_validation_failed = r.url == relative_url
+        if is_validation_failed:
             return None
 
         return r
@@ -70,14 +80,17 @@ class Client:
 
         for i in range(self.retries_count):
             print(f"Attempt #{i+1}")
-            r = method(url, allow_redirects=True, **kwargs)
+            try:
+                r = method(url, allow_redirects=True, **kwargs)
+            except requests.RequestException as e:
+                raise HttpError(Verdict.DOWN(str(e)))
+
             if r.status_code == THROTTLING_RESPONSE_CODE:
                 print(f"Rejected by throttling. Will try again.")
                 continue
 
             if r.status_code >= 400:
-                print(f"Failed! See more:\r\n {r.__dict__}")
-                return None
+                raise HttpError(Verdict.MUMBLE(f"Failed! See more:\r\n {r.__dict__}"))
 
             return r
 
