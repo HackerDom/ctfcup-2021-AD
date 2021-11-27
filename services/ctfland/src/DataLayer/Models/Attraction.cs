@@ -16,5 +16,8 @@ namespace CtfLand.DataLayer.Models
 
         [Required]
         public int Cost { get; set; }
+        
+        [Required]
+        public string TicketKey { get; set; }
     }
 }
