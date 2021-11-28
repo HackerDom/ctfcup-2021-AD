@@ -156,5 +156,24 @@ namespace CtfLand.Service.Controllers
 
             return RedirectToAction("MyParks");
         }
+
+        [HttpPost]
+        [Route("{id:guid}/change-visibility")]
+        [Access(UserRole.Moderator)]
+        public async Task<IActionResult> ChangeVisibility(Guid id)
+        {
+            var park = await parksProvider.GetPark(id).ConfigureAwait(false);
+            if (park is null)
+                return NotFound();
+
+            if (park.Owner.Id != User.GetUserId())
+                return Forbid();
+
+            park.IsPublic = !park.IsPublic;
+            dbContext.Update(park);
+            await dbContext.SaveChangesAsync().ConfigureAwait(false);
+
+            return RedirectToAction("MyParks");
+        }
     }
 }
