@@ -1,23 +1,95 @@
 @model CtfLand.Service.Models.CreateParkRequestModel
 
-@{
-    Layout = "_Layout";
-    ViewBag.Title = Model.Name;
-}
-
+@("@using CtfLand.Service")
 @("@model CtfLand.Service.Models.ParkLandingTemplateViewModel")
 @("@inject CtfLand.Service.Providers.UserProvider userProvider")
-<main>
-    <h2>@Model.Name</h2>
-    <p>Email: @Model.Email</p>
-    <p>Максимум людей: @Model.MaxVisitorsCount</p>
-    <section>@Html.Raw(Model.Description)</section>
-    @("@foreach(var attraction in Model.Attractions) {")
-        <div>@Html.Raw(Model.HtmlAttractionBlock)</div>
-        @("@if (Model.ShowBuyButton) {")
-        <form method="post" action="/attraction/@("@attraction.Id")/buy">
-            <button class="btn btn-primary">Купить билет</button>
-        </form>
-        @("}")
-    @("}")
-</main>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@Model.Name - CtfLand</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <div class="container">
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CtfLand</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <ul class="navbar-nav flex-grow-1">
+                    @("@if (User.Identity?.IsAuthenticated ?? false) {")
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Park" asp-action="GetList">Новые парки</a>
+                        </li>
+                        @("@if (!User.IsVisitor()) {")
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Park" asp-action="MyParks">Мои парки</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Park" asp-action="Create">Создать парк</a>
+                            </li>
+                        @("}")
+                    @("}")
+                </ul>
+                <ul class="navbar-nav">
+                    @("@if (User.Identity?.IsAuthenticated ?? false) {")
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Auth" asp-action="Profile" asp-route-id="@("@User.GetUserId()")">
+                                Привет, @("@User.Identity!.Name")
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <form class="form-inline" asp-controller="Auth" asp-action="Logout" asp-route-returnUrl="@Url.Action("Index", "Home")">
+                                <button  type="submit" class="nav-link btn btn-link text-dark">Выйти</button>
+                            </form>
+                        </li>
+                    @("}")
+                    @("else {")
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Auth" asp-action="Register">Регистрация</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Auth" asp-action="Login">Войти</a>
+                        </li>
+                    @("}")
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+<div class="container">
+    <main role="main" class="pb-3">
+        <main>
+            <h1>@Model.Name</h1>
+            <p>Email: @Model.Email</p>
+            <p>Максимум людей: @Model.MaxVisitorsCount</p>
+            <section>@Html.Raw(Model.Description)</section>
+            @("@foreach(var attraction in Model.Attractions) {")
+            <div>@Html.Raw(Model.HtmlAttractionBlock)</div>
+            @("@if (Model.ShowBuyButton) {")
+            <form method="post" action="/attraction/@("@attraction.Id")/buy">
+                <button class="btn btn-primary">Купить билет</button>
+            </form>
+            @("}")
+            @("}")
+        </main>
+    </main>
+</div>
+<footer class="border-top footer text-muted">
+    <div class="container">
+        &copy; 2021 - CtfLand
+    </div>
+</footer>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+<partial name="_ValidationScriptsPartial"/>
+</body>
+</html>

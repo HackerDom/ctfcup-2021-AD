@@ -5,7 +5,7 @@ namespace CtfLand.Service.Models
     public record CreateParkRequestModel
     {
         [Required]
-        [RegularExpression(@"[\w\s\d\-]+")]
+        [RegularExpression(@"^[a-zA-ZА-Яа-яЁё\s\d\-]+$")]
         public string Name { get; set; }
 
         [Required]
