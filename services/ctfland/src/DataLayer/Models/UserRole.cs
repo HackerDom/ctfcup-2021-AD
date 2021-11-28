@@ -5,7 +5,7 @@ namespace CtfLand.DataLayer.Models
     [PublicAPI]
     public enum UserRole
     {
-        Visitor,
-        Moderator,
+        Visitor = 0,
+        Moderator = 1,
     }
 }
