@@ -29,14 +29,14 @@ namespace CtfLand.Service.Controllers
 
         [HttpGet]
         [Route("login")]
-        public IActionResult Login()
+        public IActionResult Login(string returnUrl = null)
         {
-            return View();
+            return View(new LoginRequestModel {ReturnUrl = returnUrl});
         }
 
         [HttpPost]
         [Route("login")]
-        public async Task<IActionResult> Login(LoginRequestModel model, string returnUrl = null)
+        public async Task<IActionResult> Login(LoginRequestModel model, [FromQuery] string returnUrl = null)
         {
             if (!ModelState.IsValid)
             {

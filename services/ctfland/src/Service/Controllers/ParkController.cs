@@ -34,18 +34,6 @@ namespace CtfLand.Service.Controllers
         }
 
         [HttpGet]
-        [Route("create")]
-        [Access(UserRole.Moderator)]
-        public IActionResult Create()
-        {
-            return View(new CreateParkViewModel
-            {
-                AllowedAttractionVariables = landingTemplateProvider.GetAllowedAttractionVariables,
-                AllowedDescVariables = landingTemplateProvider.GetAllowedDescVariables,
-            });
-        }
-
-        [HttpGet]
         [Route("{parkId:guid}")]
         public async Task<IActionResult> Get(Guid parkId)
         {
@@ -62,6 +50,18 @@ namespace CtfLand.Service.Controllers
             var template = await templateRenderer.RenderTemplate(park.Template, model).ConfigureAwait(false);
 
             return Content(template, "text/html", Encoding.UTF8);
+        }
+        
+        [HttpGet]
+        [Route("create")]
+        [Access(UserRole.Moderator)]
+        public IActionResult Create()
+        {
+            return View(new CreateParkViewModel
+            {
+                AllowedAttractionVariables = landingTemplateProvider.GetAllowedAttractionVariables,
+                AllowedDescVariables = landingTemplateProvider.GetAllowedDescVariables,
+            });
         }
 
         [HttpPost]

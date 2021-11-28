@@ -82,3 +82,21 @@ body {
 .invalid-feedback {
   display: block !important;
 }
+
+#donate-modal .modal-dialog {
+  max-width: none !important;
+  width: calc(900px + 2rem);
+}
+
+#donate-button {
+  display: inline-block;
+  font-size: 14px;
+  position: relative;
+  left: 0;
+  top: -20px;
+  margin-bottom: 0;
+}
+
+#donate-button:hover {
+  cursor: pointer;
+}

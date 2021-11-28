@@ -6,7 +6,7 @@
 
 <h2 class="title">Войти</h2>
 <section class="login-block">
-    <form asp-action="Login" asp-controller="Auth" asp-anti-forgery="true" method="post">
+    <form asp-action="Login" asp-controller="Auth" asp-anti-forgery="true" method="post" asp-route-returnUrl="@Model.ReturnUrl">
         <div class="validation alert alert-danger" asp-validation-summary="ModelOnly"></div>
         <section>
             <div class="form-group">
