@@ -41,7 +41,7 @@
                 <ul class="navbar-nav">
                     @("@if (User.Identity?.IsAuthenticated ?? false) {")
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Auth" asp-action="Profile" asp-route-id="@("@User.GetUserId()")">
+                            <a id="auth-username" class="nav-link" asp-controller="Auth" asp-action="Profile" asp-route-id="@("@User.GetUserId()")">
                                 Привет, @("@User.Identity!.Name")
                             </a>
                         </li>
@@ -68,11 +68,11 @@
     <main role="main" class="pb-3">
         <main>
             <h1>@Model.Name</h1>
-            <p>Email: @Model.Email</p>
-            <p>Максимум людей: @Model.MaxVisitorsCount</p>
-            <section>@Html.Raw(Model.Description)</section>
+            <p id="park-email">Email: @Model.Email</p>
+            <p id="park-max-visitors">Максимум людей: @Model.MaxVisitorsCount</p>
+            <section id="park-description">@Html.Raw(Model.Description)</section>
             @("@foreach(var attraction in Model.Attractions) {")
-            <div>@Html.Raw(Model.HtmlAttractionBlock)</div>
+            <div class="park-attraction">@Html.Raw(Model.HtmlAttractionBlock)</div>
             @("@if (Model.ShowBuyButton) {")
             <form method="post" action="/attraction/@("@attraction.Id")/buy">
                 <button class="btn btn-primary">Купить билет</button>

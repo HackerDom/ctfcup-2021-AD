@@ -11,17 +11,17 @@
 }
 
 <h2 class="title">@title</h2>
-<p>Логин: @Model.User.Login</p>
-<p>Роль: @(isVisitor ? "Покупатель" : "Продавец")</p>
+<p id="profile-login">Логин: @Model.User.Login</p>
+<p id="profile-role">Роль: @(isVisitor ? "Покупатель" : "Продавец")</p>
 @if (isOwnProfile)
 {
-    <p>Паспортные данные: @Model.User.Document</p>
+    <p id="profile-document">Паспортные данные: @Model.User.Document</p>
 }
 <p>Зарегистрирован @Model.User.RegisteredAt.ToLocalTime().ToLongDateString()</p>
 
 @if (isVisitor && isOwnProfile)
 {
-    <p>Текущий баланс: @Model.CurrentBalance</p>
+    <p id="profile-balance">Текущий баланс: @Model.CurrentBalance</p>
     <p class="btn-link" id="donate-button" data-toggle="modal" data-target="#donate-modal">Задонатить</p>
     @if (Model.Purchases.Any())
     {
@@ -29,7 +29,7 @@
     }
     @foreach (var purchase in Model.Purchases)
     {
-        <p><i>@purchase.AttractionName</i> - <b>@purchase.TicketKey</b></p>
+        <p id="profile-purchases"><i>@purchase.AttractionName</i> - <b>@purchase.TicketKey</b></p>
     }
     
     <div class="modal" tabindex="-1" role="dialog" id="donate-modal">

@@ -3,7 +3,7 @@
 @if (User.Identity?.IsAuthenticated ?? false)
 {
     <li class="nav-item">
-        <a class="nav-link" asp-controller="Auth" asp-action="Profile" asp-route-id=@User.GetUserId()>
+        <a id="auth-username" class="nav-link" asp-controller="Auth" asp-action="Profile" asp-route-id=@User.GetUserId()>
             Привет, @User.Identity!.Name
         </a>
     </li>
