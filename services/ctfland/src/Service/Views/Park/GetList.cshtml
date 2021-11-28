@@ -11,6 +11,10 @@
 {
     <p>Ни один парк еще не добавлен. @if (!User.IsVisitor()) {<span><a asp-action="Create">Станьте</a> первым!</span>}</p>
 }
+else
+{
+    <p class="counter">Всего парков: @Model.Parks.Count</p>
+}
 @foreach (var park in Model.Parks)
 {
     <section class="park-list-item">

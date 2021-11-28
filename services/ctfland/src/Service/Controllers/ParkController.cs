@@ -121,21 +121,27 @@ namespace CtfLand.Service.Controllers
 
         [HttpGet]
         [Route("")]
-        public IActionResult GetList([FromQuery] int skip = 0, [FromQuery] int take = 100)
+        public async Task<IActionResult> GetList([FromQuery] int skip = 0, [FromQuery] int take = 100)
         {
-            var parks = parksProvider.GetParks(skip, take, true, null);
-            var model = new ParksListViewModel { Parks = parks };
-            return View(model);
+            var filter = new ParksListFilter(true, null);
+            
+            var parks = await parksProvider.GetParks(skip, take, filter).ConfigureAwait(false);
+            var totalCount = await parksProvider.Count(filter).ConfigureAwait(false);
+            
+            return View(new ParksListViewModel { Parks = parks, TotalCount = totalCount});
         }
 
         [HttpGet]
         [Route("my")]
         [Access(UserRole.Moderator)]
-        public IActionResult MyParks([FromQuery] int skip = 0, [FromQuery] int take = 100)
+        public async Task<IActionResult> MyParks([FromQuery] int skip = 0, [FromQuery] int take = 100)
         {
-            var parks = parksProvider.GetParks(skip, take, false, User.GetUserId());
+            var filter = new ParksListFilter(false, User.GetUserId());
+            
+            var parks = await parksProvider.GetParks(skip, take, filter).ConfigureAwait(false);
+            var totalCount = await parksProvider.Count(filter).ConfigureAwait(false);
 
-            return View(new ParksListViewModel {Parks = parks});
+            return View(new ParksListViewModel {Parks = parks, TotalCount = totalCount});
         }
 
         [HttpPost]

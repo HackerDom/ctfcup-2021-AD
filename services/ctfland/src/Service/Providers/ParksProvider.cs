@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CtfLand.DataLayer.Models;
@@ -7,10 +8,23 @@ using DbContext = CtfLand.DataLayer.DbContext;
 
 namespace CtfLand.Service.Providers
 {
+    public class ParksListFilter
+    {
+        public bool IsPublicOnly { get; set; }
+        public Guid? OwnerId { get; set; }
+        
+        public ParksListFilter(bool isPublicOnly, Guid? ownerId)
+        {
+            IsPublicOnly = isPublicOnly;
+            OwnerId = ownerId;
+        }
+    }
+    
     public interface IParksProvider
     {
         Task<Park> GetPark(Guid id);
-        Park[] GetParks(int skip, int take, bool isPublicOnly, Guid? ownerId);
+        Task<IList<Park>> GetParks(int skip, int take, ParksListFilter filter);
+        Task<int> Count(ParksListFilter filter);
     }
 
     public class ParksProvider : IParksProvider
@@ -33,19 +47,30 @@ namespace CtfLand.Service.Providers
         }
 
 
-        public Park[] GetParks(int skip, int take, bool isPublicOnly, Guid? ownerId)
+        public async Task<IList<Park>> GetParks(int skip, int take, ParksListFilter filter)
         {
-            return dbContext.Parks
+            return await dbContext.Parks
                 .AsQueryable()
                 .Include(park => park.Owner)
                 .Include(park => park.Attractions)
-                .AsEnumerable()
-                .Where(park => ownerId is null || park.Owner.Id == ownerId)
-                .Where(park => !isPublicOnly || park.IsPublic)
+                .Where(park => filter.OwnerId == null || park.Owner.Id == filter.OwnerId)
+                .Where(park => !filter.IsPublicOnly || park.IsPublic)
                 .OrderByDescending(park => park.CreatedAt)
                 .Skip(skip)
                 .Take(take)
-                .ToArray();
+                .ToListAsync();
+        }
+
+        public async Task<int> Count(ParksListFilter filter)
+        {
+            return await dbContext.Parks
+                .AsQueryable()
+                .Include(park => park.Owner)
+                .Include(park => park.Attractions)
+                .Where(park => filter.OwnerId == null || park.Owner.Id == filter.OwnerId)
+                .Where(park => !filter.IsPublicOnly || park.IsPublic)
+                .OrderByDescending(park => park.CreatedAt)
+                .CountAsync();
         }
     }
 }
