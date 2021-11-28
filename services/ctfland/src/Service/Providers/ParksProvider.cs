@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CtfLand.DataLayer.Models;
+using CtfLand.Service.Models;
 using Microsoft.EntityFrameworkCore;
 using DbContext = CtfLand.DataLayer.DbContext;
 
@@ -25,6 +26,9 @@ namespace CtfLand.Service.Providers
         Task<Park> GetPark(Guid id);
         Task<IList<Park>> GetParks(int skip, int take, ParksListFilter filter);
         Task<int> Count(ParksListFilter filter);
+        Task Remove(Park park);
+        Task<Park> Create(CreateParkRequestModel model, string template, User owner);
+        Task ChangeVisibility(Park park);
     }
 
     public class ParksProvider : IParksProvider
@@ -71,6 +75,39 @@ namespace CtfLand.Service.Providers
                 .Where(park => !filter.IsPublicOnly || park.IsPublic)
                 .OrderByDescending(park => park.CreatedAt)
                 .CountAsync();
+        }
+
+        public async Task Remove(Park park)
+        {
+            dbContext.Attractions.RemoveRange(park.Attractions);
+            dbContext.Parks.Remove(park);
+            await dbContext.SaveChangesAsync().ConfigureAwait(false);
+        }
+
+        public async Task<Park> Create(CreateParkRequestModel model, string template, User owner)
+        {
+            var park = new Park
+            {
+                Contact = model.Email,
+                Name = model.Name,
+                Description = model.Description,
+                MaxVisitorsCount = model.MaxVisitorsCount,
+                Owner = owner,
+                Template = template,
+                CreatedAt = DateTime.UtcNow,
+                IsPublic = model.IsPublic,
+            };
+            var result = await dbContext.Parks.AddAsync(park).ConfigureAwait(false);
+            await dbContext.SaveChangesAsync().ConfigureAwait(false);
+
+            return result.Entity;
+        }
+
+        public async Task ChangeVisibility(Park park)
+        {
+            park.IsPublic = !park.IsPublic;
+            dbContext.Update(park);
+            await dbContext.SaveChangesAsync().ConfigureAwait(false);
         }
     }
 }

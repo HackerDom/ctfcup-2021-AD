@@ -101,20 +101,7 @@ namespace CtfLand.Service.Controllers
                 return Create();
             }
 
-            var park = new Park
-            {
-                Id = Guid.NewGuid(),
-                Contact = requestModel.Email,
-                Name = requestModel.Name,
-                Description = requestModel.Description,
-                MaxVisitorsCount = requestModel.MaxVisitorsCount,
-                Owner = user,
-                Template = template,
-                CreatedAt = DateTime.UtcNow,
-                IsPublic = requestModel.IsPublic,
-            };
-            await dbContext.Parks.AddAsync(park).ConfigureAwait(false);
-            await dbContext.SaveChangesAsync().ConfigureAwait(false);
+            var park = await parksProvider.Create(requestModel, template, user).ConfigureAwait(false);
 
             return RedirectToAction("Get", new {parkId = park.Id});
         }
@@ -155,10 +142,8 @@ namespace CtfLand.Service.Controllers
 
             if (park.Owner.Id != User.GetUserId())
                 return Forbid();
-            
-            dbContext.Attractions.RemoveRange(park.Attractions);
-            dbContext.Parks.Remove(park);
-            await dbContext.SaveChangesAsync().ConfigureAwait(false);
+
+            await parksProvider.Remove(park).ConfigureAwait(false);
 
             return RedirectToAction("MyParks");
         }
@@ -175,9 +160,7 @@ namespace CtfLand.Service.Controllers
             if (park.Owner.Id != User.GetUserId())
                 return Forbid();
 
-            park.IsPublic = !park.IsPublic;
-            dbContext.Update(park);
-            await dbContext.SaveChangesAsync().ConfigureAwait(false);
+            await parksProvider.ChangeVisibility(park).ConfigureAwait(false);
 
             return RedirectToAction("MyParks");
         }
