@@ -1,6 +1,8 @@
 import requests
 from gornilo import Verdict
 
+from ctfland.models import *
+
 THROTTLING_RESPONSE_CODE = 429
 
 
@@ -20,32 +22,39 @@ class Client:
         self.port = port
         self.retries_count = retries_count
 
-    def register(self, login, password, document):
-        data = {"Login": login, "Password": password, "RepeatedPassword": password, "Document": document}
+    def register(self, request: RegisterRequest):
+        data = {
+            "Login": request.login,
+            "Password": request.password,
+            "RepeatedPassword": request.password,
+            "Document": request.document,
+            "Role": request.role,
+        }
         return self._wrapped_post("auth/register", data=data)
 
     def login(self, login, password):
         data = {"Login": login, "Password": password}
         return self._wrapped_post("auth/login", data=data)
 
-    def create_park(self, name, description, email, max_visitors, attraction_block, is_public):
+    def create_park(self, request: CreateParkRequest):
         data = {
-            "Name": name,
-            "Description": description,
-            "Email": email,
-            "MaxVisitorsCount": max_visitors,
-            "HtmlAttractionBlock": attraction_block,
-            "IsPublic": is_public,
+            "Name": request.name,
+            "Description": request.description,
+            "Email": request.email,
+            "MaxVisitorsCount": request.max_visitors,
+            "HtmlAttractionBlock": request.attraction_block,
+            "IsPublic": request.is_public,
         }
         return self._wrapped_post("park/create", data=data)
 
-    def add_attraction(self, park_id, name, description, cost):
+    def add_attraction(self, park_id, request: AddAttractionRequest):
         data = {
-            "Name": name,
-            "Description": description,
-            "Cost": cost,
+            "Name": request.name,
+            "Description": request.description,
+            "Cost": request.cost,
+            "TicketKey": request.ticket,
         }
-        return self._wrapped_post(f"park/{park_id}/addAttraction", data=data)
+        return self._wrapped_post(f"attraction/{park_id}/add", data=data)
 
     def get_my_parks(self, skip, take):
         return self._get("park/my", params={"skip": skip, "take": take})

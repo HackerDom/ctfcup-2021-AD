@@ -2,6 +2,8 @@ import random
 import string
 import uuid
 
+from ctfland.models import CreateParkRequest, AddAttractionRequest
+
 
 def get_random_creds():
     return f"user-{uuid.uuid4()}", uuid.uuid4()
@@ -11,23 +13,24 @@ def get_random_document():
     return f"document-{uuid.uuid4()}"
 
 
-def get_attraction_data():
-    return {
-        "name": f"attraction-{uuid.uuid4()}",
-        "description": "Великолепное произведение исскуства!",
-        "cost": random.randint(450, 700),
-    }
+def get_attraction_data() -> AddAttractionRequest:
+    return AddAttractionRequest(
+        name=f"attraction-{uuid.uuid4()}",
+        description="Великолепное произведение исскуства!",
+        cost=random.randint(450, 700),
+        ticket=f"ticket-{uuid.uuid4()}"
+    )
 
 
-def get_random_park_data(is_public=True):
-    return {
-        "name": f"park-{uuid.uuid4()}",
-        "description": get_random_park_description(),
-        "email": get_random_email(),
-        "max_visitors": random.randint(50, 10_000),
-        "attraction_block": get_random_park_attraction_block(),
-        "is_public": is_public,
-    }
+def get_random_park_data(is_public=True) -> CreateParkRequest:
+    return CreateParkRequest(
+        name=f"park-{uuid.uuid4()}",
+        description=get_random_park_description(),
+        email=get_random_email(),
+        max_visitors=random.randint(50, 10_000),
+        attraction_block=get_random_park_attraction_block(),
+        is_public=is_public
+    )
 
 
 def get_random_email():
