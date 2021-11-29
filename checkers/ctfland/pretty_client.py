@@ -8,7 +8,8 @@ from ctfland.models import *
 
 class Attraction(BaseModel):
     name: str
-    ticket: str
+    ticket: t.Optional[str]
+    cost: int
 
 
 class Purchase(BaseModel):
@@ -22,7 +23,7 @@ class ParkItem(BaseModel):
     max_visitors: int
     attractions_count: int
     user_id: t.Optional[str]
-    attractions: t.Optional[t.List[Attraction]]
+    attractions: t.List[Attraction]
 
 
 class UserPurchasesInfo(BaseModel):
@@ -131,11 +132,11 @@ class PrettyClient:
         max_visitors = item.find(class_="park-max-visitors")
         attractions_count = item.find(class_="attractions-counter")
 
-        attractions = item.select(".attractions li")
-        attractions = [Attraction(name=x.i.string, ticket=x.b.string) for x in item.select(".attractions li")] \
-            if any(attractions) \
-            else None
-
+        attractions = [Attraction(
+            name=x.i.string,
+            ticket=x.b.string if x.b else None,
+            cost=x.span.string[1:-6])
+            for x in item.select(".attractions li")]
         return ParkItem(
             id=item.h3.a['href'].split('/')[-1],
             name=item.h3.a.string,
