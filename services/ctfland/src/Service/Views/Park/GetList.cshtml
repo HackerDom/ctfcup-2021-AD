@@ -26,7 +26,10 @@ else
         <ul class="attractions">
             @foreach (var attraction in park.Attractions ?? new List<Attraction>())
             {
-                <li><i>@attraction.Name</i> <span>(@attraction.Cost руб.)</span></li>
+                <li>
+                    <input type="hidden" class="attraction-id" value="@attraction.Id"/>
+                    <i>@attraction.Name</i> <span>(@attraction.Cost руб.)</span>
+                </li>
             }
         </ul>
         <p class="park-max-visitors">Максимальное количество посетителей: @park.MaxVisitorsCount</p>
