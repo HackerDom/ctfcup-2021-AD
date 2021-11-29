@@ -19,9 +19,10 @@ namespace CtfLand.DataLayer
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-
-            builder.Entity<User>(entity => entity.HasIndex(u => u.Login).IsUnique());
-            builder.Entity<Park>(entity => entity.HasIndex(u => u.Name).IsUnique());
+            
+            builder.Entity<User>().HasIndex(u => u.Login).IsUnique();
+            builder.Entity<Park>().HasIndex(u => u.Name).IsUnique();
+            builder.Entity<Attraction>().HasIndex(a => a.Name);
         }
     }
 }

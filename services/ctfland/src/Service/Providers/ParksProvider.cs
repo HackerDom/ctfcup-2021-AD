@@ -55,13 +55,13 @@ namespace CtfLand.Service.Providers
         {
             return await dbContext.Parks
                 .AsQueryable()
-                .Include(park => park.Owner)
-                .Include(park => park.Attractions)
                 .Where(park => filter.OwnerId == null || park.Owner.Id == filter.OwnerId)
                 .Where(park => !filter.IsPublicOnly || park.IsPublic)
                 .OrderByDescending(park => park.CreatedAt)
                 .Skip(skip)
                 .Take(take)
+                .Include(park => park.Owner)
+                .Include(park => park.Attractions)
                 .ToListAsync();
         }
 
@@ -69,11 +69,11 @@ namespace CtfLand.Service.Providers
         {
             return await dbContext.Parks
                 .AsQueryable()
-                .Include(park => park.Owner)
-                .Include(park => park.Attractions)
                 .Where(park => filter.OwnerId == null || park.Owner.Id == filter.OwnerId)
                 .Where(park => !filter.IsPublicOnly || park.IsPublic)
                 .OrderByDescending(park => park.CreatedAt)
+                .Include(park => park.Owner)
+                .Include(park => park.Attractions)
                 .CountAsync();
         }
 

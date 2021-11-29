@@ -122,12 +122,14 @@ namespace CtfLand.Service.Controllers
                 return new List<PurchaseViewModel>();
 
             var names = await db.UserPurchases
+                .AsQueryable()
                 .Where(purchase => purchase.UserId == user.Id)
                 .Select(purchase => purchase.Name)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
             var attractions = await db.Attractions
+                .AsQueryable()
                 .Where(attraction => names.Contains(attraction.Name))
                 .ToListAsync()
                 .ConfigureAwait(false);
@@ -143,7 +145,9 @@ namespace CtfLand.Service.Controllers
 
         private async Task<User> AddUser(RegisterRequestModel model)
         {
-            var userWithSameLogin = await db.Users.FirstOrDefaultAsync(user => user.Login == model.Login).ConfigureAwait(false);
+            var userWithSameLogin = await db.Users
+                .FirstOrDefaultAsync(user => user.Login == model.Login)
+                .ConfigureAwait(false);
             if (userWithSameLogin != null)
                 return null;
 
@@ -180,7 +184,9 @@ namespace CtfLand.Service.Controllers
                 "ApplicationCookie",
                 ClaimsIdentity.DefaultNameClaimType,
                 ClaimsIdentity.DefaultRoleClaimType);
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity))
+            await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme, 
+                    new ClaimsPrincipal(identity))
                 .ConfigureAwait(false);
         }
     }
