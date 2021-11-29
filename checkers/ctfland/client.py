@@ -28,7 +28,6 @@ class Client:
             "Password": request.password,
             "RepeatedPassword": request.password,
             "Document": request.document,
-            "Role": request.role.value[0],
         }
         return self._wrapped_post("auth/register", data=data)
 

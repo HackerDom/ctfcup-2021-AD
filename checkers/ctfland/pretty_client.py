@@ -1,4 +1,3 @@
-from pydantic import BaseModel
 import typing as t
 
 from ctfland.client import Client
@@ -7,10 +6,14 @@ from bs4 import BeautifulSoup
 from ctfland.models import *
 
 
+class Attraction(BaseModel):
+    name: str
+    ticket: str
+
+
 class Purchase(BaseModel):
     name: str
     ticket: str
-    id: t.Optional[str]
 
 
 class ParkItem(BaseModel):
@@ -19,7 +22,7 @@ class ParkItem(BaseModel):
     max_visitors: int
     attractions_count: int
     user_id: t.Optional[str]
-    attractions: t.Optional[t.List[Purchase]]
+    attractions: t.Optional[t.List[Attraction]]
 
 
 class UserPurchasesInfo(BaseModel):
@@ -31,7 +34,6 @@ class User(BaseModel):
     id: str
     login: str
     document: str
-    role: UserRole
     purchasesInfo: t.Optional[UserPurchasesInfo]
 
 
@@ -80,7 +82,7 @@ class PrettyClient:
         r = self._client.get_last_parks(skip, take)
         return self._parse_parks_list(r.text)
 
-    def add_attraction(self, park_id, request: AddAttractionRequest):
+    def add_attraction(self, park_id, request: AddAttractionRequest) -> ParkItem:
         r = self._client.add_attraction(park_id, request)
         parks = self._parse_parks_list(r.text)
         return [park for park in parks.parks if park.id == park_id][0]
@@ -91,13 +93,11 @@ class PrettyClient:
 
     def _parse_profile(self, text, user_id):
         soup = BeautifulSoup(text, "lxml")
-        role = UserRole.Visitor if self._get_value(soup.find(id="profile-role")) == "Покупатель" else UserRole.Moderator
         return User(
             id=user_id,
             login=self._get_value(soup.find(id="profile-login")),
-            role=role,
             document=self._get_value(soup.find(id="profile-document")),
-            purchasesInfo=None if role == UserRole.Moderator else self._parse_purchases_info(soup)
+            purchasesInfo=self._parse_purchases_info(soup)
         )
 
     def logout(self):
@@ -130,7 +130,12 @@ class PrettyClient:
         owner = item.find(class_="park-owner")
         max_visitors = item.find(class_="park-max-visitors")
         attractions_count = item.find(class_="attractions-counter")
-        attractions = [Purchase(name=x.i.string, ticket=x.b.string) for x in item.select(".attractions li")]
+
+        attractions = item.select(".attractions li")
+        attractions = [Attraction(name=x.i.string, ticket=x.b.string) for x in item.select(".attractions li")] \
+            if any(attractions) \
+            else None
+
         return ParkItem(
             id=item.h3.a['href'].split('/')[-1],
             name=item.h3.a.string,

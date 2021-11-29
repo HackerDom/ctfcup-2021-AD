@@ -4,7 +4,7 @@ from gornilo import Verdict, Checker, PutRequest, GetRequest, CheckRequest
 
 from ctfland.client import Client, HttpError
 from ctfland.data import get_random_creds, get_random_document, get_park_request, get_attraction_request
-from ctfland.models import RegisterRequest, UserRole
+from ctfland.models import RegisterRequest
 from ctfland.pretty_client import PrettyClient
 
 checker = Checker()
@@ -20,8 +20,7 @@ def check_service(request: CheckRequest) -> Verdict:
             request = RegisterRequest(
                 login=login,
                 password=password,
-                document=get_random_document(),
-                role=UserRole.Moderator
+                document=get_random_document()
             )
             user_id = client.register_and_login(request)
             if user_id is None:
@@ -50,13 +49,12 @@ def check_service(request: CheckRequest) -> Verdict:
 
         def check_visitor():
             login, password = get_random_creds()
-            request = RegisterRequest(
+            register_request = RegisterRequest(
                 login=login,
                 password=password,
-                document=get_random_document(),
-                role=UserRole.Moderator
+                document=get_random_document()
             )
-            user_id = client.register_and_login(request)
+            user_id = client.register_and_login(register_request)
             if user_id is None:
                 return Verdict.MUMBLE("Failed to register and login")
 
@@ -66,18 +64,6 @@ def check_service(request: CheckRequest) -> Verdict:
             attraction_request = get_attraction_request()
             attraction_request.cost = 15
             client.add_attraction(park_id, attraction_request)
-            client.logout()
-
-            login, password = get_random_creds()
-            request = RegisterRequest(
-                login=login,
-                password=password,
-                document=get_random_document(),
-                role=UserRole.Visitor
-            )
-            user_id = client.register_and_login(request)
-            if user_id is None:
-                return Verdict.MUMBLE("Failed to register and login")
 
             last_parks = client.get_last_parks()
             created_parks = [park for park in last_parks.parks if park.id == park_id]
@@ -114,7 +100,7 @@ def put_flag_into_the_service1(request: PutRequest) -> Verdict:
         client = PrettyClient(Client(request.hostname, 7777))
 
         login, password = get_random_creds()
-        register_request = RegisterRequest(login=login, password=password, document=request.flag, role=UserRole.Moderator)
+        register_request = RegisterRequest(login=login, password=password, document=request.flag)
         user_id = client.register_and_login(register_request)
 
         flag_id = {
@@ -160,7 +146,7 @@ def put_flag_into_the_service2(request: PutRequest) -> Verdict:
         client = PrettyClient(Client(request.hostname, 7777))
 
         login, password = get_random_creds()
-        register_request = RegisterRequest(login=login, password=password, document=request.flag, role=UserRole.Moderator)
+        register_request = RegisterRequest(login=login, password=password, document=request.flag)
         user_id = client.register_and_login(register_request)
 
         park_id = client.create_park(get_park_request(True))
