@@ -69,14 +69,16 @@
             <p id="park-email">Email: @Model.Email</p>
             <p id="park-max-visitors">Максимум людей: @Model.MaxVisitorsCount</p>
             <section id="park-description">@Html.Raw(Model.Description)</section>
-            @("@foreach(var attraction in Model.Attractions) {")
-            <div class="park-attraction">
-                @Html.Raw(Model.HtmlAttractionBlock)
-                <form method="post" action="/attraction/@("@attraction.Id")/buy">
-                    <button class="btn btn-primary">Купить билет</button>
-                </form>
-            </div>
-            @("}")
+            <section class="park-attractions">
+                @("@foreach(var attraction in Model.Attractions) {")
+                <div class="park-attraction">
+                    @Html.Raw(Model.HtmlAttractionBlock)
+                    <form method="post" action="/attraction/@("@attraction.Id")/buy" class="">
+                        <button class="btn btn-primary btn-buy">Купить билет</button>
+                    </form>
+                </div>
+                @("}")
+            </section>
         </main>
     </main>
 </div>
