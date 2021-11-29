@@ -7,6 +7,7 @@ from ctfland.models import *
 
 
 class Attraction(BaseModel):
+    id: str
     name: str
     ticket: t.Optional[str]
     cost: int
@@ -55,7 +56,7 @@ class PrettyClient:
     def __init__(self, client: Client):
         self._client = client
 
-    def login(self, login, password):
+    def login(self, login, password) -> str or None:
         r = self._client.login(login, password)
         if r is None:
             return None
@@ -64,11 +65,11 @@ class PrettyClient:
         user_id = soup.header.find(id="auth-username")['href'].split("/")[-1]
         return user_id
 
-    def register_and_login(self, request: RegisterRequest):
+    def register_and_login(self, request: RegisterRequest) -> str or None:
         self._client.register(request)
         return self.login(request.login, request.password)
 
-    def create_park(self, request: CreateParkRequest):
+    def create_park(self, request: CreateParkRequest) -> str or None:
         r = self._client.create_park(request)
         if r is None:
             return None
@@ -83,16 +84,18 @@ class PrettyClient:
         r = self._client.get_last_parks(skip, take)
         return self._parse_parks_list(r.text)
 
-    def add_attraction(self, park_id, request: AddAttractionRequest) -> ParkItem:
+    def add_attraction(self, park_id, request: AddAttractionRequest) -> Attraction or None:
         r = self._client.add_attraction(park_id, request)
+        if r is None:
+            return None
         parks = self._parse_parks_list(r.text)
-        return [park for park in parks.parks if park.id == park_id][0]
+        return [park for park in parks.parks if park.id == park_id][0].attractions[0]
 
-    def get_profile(self, user_id):
+    def get_profile(self, user_id) -> User:
         r = self._client.get_profile(user_id)
         return self._parse_profile(r.text, user_id)
 
-    def _parse_profile(self, text, user_id):
+    def _parse_profile(self, text, user_id) -> User:
         soup = BeautifulSoup(text, "lxml")
         return User(
             id=user_id,
@@ -133,6 +136,7 @@ class PrettyClient:
         attractions_count = item.find(class_="attractions-counter")
 
         attractions = [Attraction(
+            id=x.input['value'],
             name=x.i.string,
             ticket=x.b.string if x.b else None,
             cost=x.span.string[1:-6])
