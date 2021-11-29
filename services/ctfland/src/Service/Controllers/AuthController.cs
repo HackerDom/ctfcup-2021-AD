@@ -102,15 +102,13 @@ namespace CtfLand.Service.Controllers
         public async Task<IActionResult> Profile(Guid id)
         {
             var user = await db.Users.FindAsync(id).ConfigureAwait(false);
-            var userBalanceMaybe = user.IsVisitor()
-                ? await db.UserBalances.FindAsync(id).ConfigureAwait(false)
-                : null;
+            var userBalance =  await db.UserBalances.FindAsync(id).ConfigureAwait(false);
 
             var userPurchases = await GetPurchasesViewModel(user).ConfigureAwait(false);
             var model = new ProfileViewModel
             {
                 User = user, 
-                CurrentBalance = userBalanceMaybe?.Balance,
+                CurrentBalance = userBalance.Balance,
                 Purchases = userPurchases,
             };
             return View(model);
@@ -118,9 +116,6 @@ namespace CtfLand.Service.Controllers
 
         private async Task<ICollection<PurchaseViewModel>> GetPurchasesViewModel(User user)
         {
-            if (!user.IsVisitor())
-                return new List<PurchaseViewModel>();
-
             var names = await db.UserPurchases
                 .AsQueryable()
                 .Where(purchase => purchase.UserId == user.Id)
@@ -155,7 +150,6 @@ namespace CtfLand.Service.Controllers
             var user = new User
             {
                 Login = model.Login,
-                Role = model.Role,
                 PasswordHash = hash,
                 Salt = salt,
                 Document = model.Document,
@@ -163,11 +157,9 @@ namespace CtfLand.Service.Controllers
             };
             var entityEntry = await db.Users.AddAsync(user).ConfigureAwait(false);
 
-            if (model.Role == UserRole.Visitor)
-            {
-                var userBalance = new UserBalance { Balance = 1000, UserId = entityEntry.Entity.Id };
-                await db.UserBalances.AddAsync(userBalance).ConfigureAwait(false);
-            }
+            var userBalance = new UserBalance { Balance = 1000, UserId = entityEntry.Entity.Id };
+            await db.UserBalances.AddAsync(userBalance).ConfigureAwait(false);
+            
             await db.SaveChangesAsync().ConfigureAwait(false);
             return entityEntry.Entity;
         }
@@ -177,7 +169,6 @@ namespace CtfLand.Service.Controllers
             var claims = new List<Claim>
             {
                 new(ClaimTypes.Name, user.Login),
-                new(ClaimTypes.Role, user.Role.ToString("G")),
                 new(ClaimTypes.Sid, user.Id.ToString()),
             };
             var identity = new ClaimsIdentity(claims,

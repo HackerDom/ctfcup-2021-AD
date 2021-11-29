@@ -19,9 +19,6 @@ namespace CtfLand.DataLayer.Models
         public string Document { get; set; }
 
         [Required]
-        public UserRole Role { get; set; }
-
-        [Required]
         public DateTime RegisteredAt { get; set; }
 
         [Required]
@@ -34,7 +31,7 @@ namespace CtfLand.DataLayer.Models
         {
             // hide password hash and salt fields from printing at logs
             stringBuilder.Append($"Id = {Id}, Login = {Login}, ");
-            stringBuilder.Append($"Document = {Document}, Role = {Role}, RegisteredAt = {RegisteredAt}");
+            stringBuilder.Append($"Document = {Document}, RegisteredAt = {RegisteredAt}");
             return true;
         }
     }

@@ -17,9 +17,6 @@ namespace CtfLand.Service.Models
         [Compare(nameof(Password), ErrorMessage = "Пароли не совпадают")]
         public string RepeatedPassword { get; set; }
 
-        [Required(ErrorMessage = "Не выбрана роль")]
-        public UserRole Role { get; set; }
-
         [Required(ErrorMessage = "Не указаны паспортные данные")]
         public string Document { get; set; }
     }

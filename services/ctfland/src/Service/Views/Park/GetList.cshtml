@@ -1,4 +1,3 @@
-@using CtfLand.Service
 @model CtfLand.Service.Models.ParksListViewModel
 
 @{
@@ -9,7 +8,7 @@
 <h2 class="title">Новые парки</h2>
 @if (!Model.Parks.Any())
 {
-    <p>Ни один парк еще не добавлен. @if (!User.IsVisitor()) {<span><a asp-action="Create">Станьте</a> первым!</span>}</p>
+    <p>Ни один парк еще не добавлен. <a asp-action="Create">Станьте</a> первым!</p>
 }
 else
 {

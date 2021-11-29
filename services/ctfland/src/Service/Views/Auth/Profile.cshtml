@@ -1,10 +1,8 @@
 @using CtfLand.Service
-@using CtfLand.DataLayer.Models
 @model CtfLand.Service.Models.ProfileViewModel
 
 @{
     var isOwnProfile = User.GetUserId() == Model.User.Id;
-    var isVisitor = Model.User.Role == UserRole.Visitor;
     var title = isOwnProfile ? "Мой профиль" : $"Профиль {Model.User.Login}";
     ViewBag.Title = title;
     Layout = "_Layout";
@@ -12,14 +10,13 @@
 
 <h2 class="title">@title</h2>
 <p id="profile-login">Логин: @Model.User.Login</p>
-<p id="profile-role">Роль: @(isVisitor ? "Покупатель" : "Продавец")</p>
 @if (isOwnProfile)
 {
     <p id="profile-document">Паспортные данные: @Model.User.Document</p>
 }
 <p>Зарегистрирован @Model.User.RegisteredAt.ToLocalTime().ToLongDateString()</p>
 
-@if (isVisitor && isOwnProfile)
+@if (isOwnProfile)
 {
     <p id="profile-balance">Текущий баланс: @Model.CurrentBalance</p>
     <p class="btn-link" id="donate-button" data-toggle="modal" data-target="#donate-modal">Задонатить</p>

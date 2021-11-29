@@ -25,7 +25,6 @@ namespace CtfLand.Service.Controllers
         }
 
         [HttpGet]
-        [Access(UserRole.Moderator)]
         [Route("{parkId:guid}/add")]
         public async Task<IActionResult> Add(Guid parkId)
         {
@@ -40,7 +39,6 @@ namespace CtfLand.Service.Controllers
         }
 
         [HttpPost]
-        [Access(UserRole.Moderator)]
         [Route("{parkId:guid}/add")]
         public async Task<IActionResult> Add(Guid parkId, AddAttractionRequestModel model)
         {
@@ -69,13 +67,9 @@ namespace CtfLand.Service.Controllers
         }
 
         [HttpPost]
-        [Access(UserRole.Visitor)]
         [Route("{attractionId:guid}/buy")]
         public async Task<IActionResult> Buy(Guid attractionId)
         {
-            if (!User.IsVisitor())
-                return BadRequest($"{User.GetUserRole():G} can't buy tickets to attraction");
-
             var attraction = await dbContext.Attractions
                 .AsQueryable()
                 .Include(attraction => attraction.Park)

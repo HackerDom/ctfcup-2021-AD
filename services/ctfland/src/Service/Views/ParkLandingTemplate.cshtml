@@ -28,37 +28,35 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Park" asp-action="GetList">Новые парки</a>
                         </li>
-                        @("@if (!User.IsVisitor()) {")
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Park" asp-action="MyParks">Мои парки</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Park" asp-action="Create">Создать парк</a>
-                            </li>
-                        @("}")
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Park" asp-action="MyParks">Мои парки</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Park" asp-action="Create">Создать парк</a>
+                        </li>
                     @("}")
                 </ul>
                 <ul class="navbar-nav">
-                    @("@if (User.Identity?.IsAuthenticated ?? false) {")
-                        <li class="nav-item">
-                            <a id="auth-username" class="nav-link" asp-controller="Auth" asp-action="Profile" asp-route-id="@("@User.GetUserId()")">
-                                Привет, @("@User.Identity!.Name")
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <form class="form-inline" asp-controller="Auth" asp-action="Logout" asp-route-returnUrl="@Url.Action("Index", "Home")">
-                                <button  type="submit" class="nav-link btn btn-link text-dark">Выйти</button>
-                            </form>
-                        </li>
-                    @("}")
-                    @("else {")
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Auth" asp-action="Register">Регистрация</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Auth" asp-action="Login">Войти</a>
-                        </li>
-                    @("}")
+                @("@if (User.Identity?.IsAuthenticated ?? false) {")
+                    <li class="nav-item">
+                        <a id="auth-username" class="nav-link" asp-controller="Auth" asp-action="Profile" asp-route-id="@("@User.GetUserId()")">
+                            Привет, @("@User.Identity!.Name")
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <form class="form-inline" asp-controller="Auth" asp-action="Logout" asp-route-returnUrl="@Url.Action("Index", "Home")">
+                            <button  type="submit" class="nav-link btn btn-link text-dark">Выйти</button>
+                        </form>
+                    </li>
+                @("}")
+                @("else {")
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-controller="Auth" asp-action="Register">Регистрация</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-controller="Auth" asp-action="Login">Войти</a>
+                    </li>
+                @("}")
                 </ul>
             </div>
         </div>
@@ -74,11 +72,9 @@
             @("@foreach(var attraction in Model.Attractions) {")
             <div class="park-attraction">
                 @Html.Raw(Model.HtmlAttractionBlock)
-                @("@if (Model.ShowBuyButton) {")
                 <form method="post" action="/attraction/@("@attraction.Id")/buy">
                     <button class="btn btn-primary">Купить билет</button>
                 </form>
-                @("}")
             </div>
             @("}")
         </main>

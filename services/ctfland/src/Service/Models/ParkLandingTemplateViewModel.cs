@@ -8,8 +8,6 @@ namespace CtfLand.Service.Models
     {
         public Guid UserId { get; set; }
         
-        public bool ShowBuyButton { get; set; }
-
         public ICollection<Attraction> Attractions { get; set; }
     }
 }
