@@ -6,7 +6,7 @@ from ctfland.models import CreateParkRequest, AddAttractionRequest
 
 
 def get_random_creds():
-    return f"user-{uuid.uuid4()}", uuid.uuid4()
+    return f"user-{uuid.uuid4()}", str(uuid.uuid4())
 
 
 def get_random_document():
@@ -37,7 +37,7 @@ def get_random_email():
     symbols = string.digits + string.ascii_letters + "_-"
     domains = ["test.ctf", "mail.ctf", "yandex.ctf", "google.ctf"]
 
-    return f"{random.sample(symbols, random.randint(5, 13))}@{random.choice(domains)}"
+    return f"{get_random_string(symbols, 5, 13)}@{random.choice(domains)}"
 
 
 def get_random_park_attraction_block():
@@ -52,3 +52,7 @@ def get_random_park_description():
         "Привет, $userLogin! Вон ты какой вымахал, пора бы уже и в парк аттракционов наш сходить",
     ]
     return random.choice(known_desc)
+
+
+def get_random_string(alphabet, min_count, max_count):
+    return "".join(random.sample(alphabet, random.randint(min_count, max_count)))

@@ -10,6 +10,7 @@ from ctfland.models import *
 class Purchase(BaseModel):
     name: str
     ticket: str
+    id: t.Optional[str]
 
 
 class ParkItem(BaseModel):
@@ -39,12 +40,22 @@ class ParksList(BaseModel):
     parks: t.List[ParkItem]
 
 
+class Park(BaseModel):
+    name: str
+    email: str
+    max_visitors: int
+    description: str
+    attractions_ids: t.List[str]
+
+
 class PrettyClient:
     def __init__(self, client: Client):
         self._client = client
 
     def login(self, login, password):
         r = self._client.login(login, password)
+        if r is None:
+            return None
 
         soup = BeautifulSoup(r.text, 'lxml')
         user_id = soup.header.find(id="auth-username")['href'].split("/")[-1]
@@ -56,6 +67,8 @@ class PrettyClient:
 
     def create_park(self, request: CreateParkRequest):
         r = self._client.create_park(request)
+        if r is None:
+            return None
         park_id = r.url.split('/')[-1]
         return park_id
 
@@ -74,7 +87,10 @@ class PrettyClient:
 
     def get_profile(self, user_id):
         r = self._client.get_profile(user_id)
-        soup = BeautifulSoup(r.text, "lxml")
+        return self._parse_profile(r.text, user_id)
+
+    def _parse_profile(self, text, user_id):
+        soup = BeautifulSoup(text, "lxml")
         role = UserRole.Visitor if self._get_value(soup.find(id="profile-role")) == "Покупатель" else UserRole.Moderator
         return User(
             id=user_id,
@@ -83,6 +99,25 @@ class PrettyClient:
             document=self._get_value(soup.find(id="profile-document")),
             purchasesInfo=None if role == UserRole.Moderator else self._parse_purchases_info(soup)
         )
+
+    def logout(self):
+        return self._client.logout()
+
+    def get_park(self, park_id) -> Park:
+        r = self._client.get_park(park_id)
+        soup = BeautifulSoup(r.text, "lxml")
+        attractions_ids = [x.find_all("form")[-1]['action'].split('/')[-2] for x in soup.select(".park-attraction")]
+        return Park(
+            name=soup.h1.string,
+            email=self._get_value(soup.find(id="park-email")),
+            max_visitors=int(self._get_value(soup.find(id="park-max-visitors"))),
+            description=soup.find(id="park-description").string,
+            attractions_ids=attractions_ids,
+        )
+
+    def buy_ticket(self, attraction_id, user_id) -> User:
+        self._client.buy_ticket(attraction_id)
+        return self.get_profile(user_id)
 
     def _parse_parks_list(self, text) -> ParksList:
         soup = BeautifulSoup(text, 'lxml')

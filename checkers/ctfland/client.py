@@ -28,7 +28,7 @@ class Client:
             "Password": request.password,
             "RepeatedPassword": request.password,
             "Document": request.document,
-            "Role": request.role,
+            "Role": request.role.value[0],
         }
         return self._wrapped_post("auth/register", data=data)
 
@@ -65,6 +65,15 @@ class Client:
     def get_profile(self, user_id):
         return self._get(f"auth/profile/{user_id}")
 
+    def get_park(self, park_id):
+        return self._get(f"park/{park_id}")
+
+    def logout(self):
+        return self._post("auth/logout")
+
+    def buy_ticket(self, attraction_id):
+        return self._wrapped_post(f"attraction/{attraction_id}/buy")
+
     @staticmethod
     def _result(r, failed_url):
         return None if r is None or r.url == failed_url else r
@@ -77,7 +86,7 @@ class Client:
 
     def _wrapped_post(self, relative_url, **kwargs):
         r = self._post(relative_url, **kwargs)
-        is_validation_failed = r.url == relative_url
+        is_validation_failed = r.url.endswith(relative_url)
         if is_validation_failed:
             return None
 

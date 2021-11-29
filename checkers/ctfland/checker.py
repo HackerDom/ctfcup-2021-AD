@@ -1,9 +1,11 @@
+import asyncio
 import json
 
 from gornilo import Verdict, Checker, PutRequest, GetRequest, CheckRequest
 
 from ctfland.client import Client, HttpError
 from ctfland.data import get_random_creds, get_random_document, get_random_park_data, get_attraction_data
+from ctfland.models import RegisterRequest, CreateParkRequest, AddAttractionRequest, UserRole
 from ctfland.pretty_client import PrettyClient
 
 checker = Checker()
@@ -14,23 +16,89 @@ async def check_service(request: CheckRequest) -> Verdict:
     try:
         client = PrettyClient(Client(request.hostname, 7777))
 
-        login, password = get_random_creds()
-        user_id = client.register_and_login(login, password, get_random_document())
-        park_id = client.create_park(**get_random_park_data())
+        def check_moderator():
+            login, password = get_random_creds()
+            request = RegisterRequest(
+                login=login,
+                password=password,
+                document=get_random_document(),
+                role=UserRole.Moderator
+            )
+            user_id = client.register_and_login(request)
+            if user_id is None:
+                return Verdict.MUMBLE("Failed to register and login")
 
-        last_parks = client.get_last_parks()
-        created_park = [park for park in last_parks if park.id == park_id and park.user_id == user_id]
-        if len(created_park) != 1:
-            return Verdict.MUMBLE("Failed to find created park in last parks list")
+            park_id = client.create_park(get_random_park_data(True))
+            if park_id is None:
+                return Verdict.MUMBLE("Failed to create park")
 
-        my_parks = client.get_my_parks()
-        created_park = [park for park in my_parks if park.id == park_id and park.user_id == user_id]
-        if len(created_park) != 1:
-            return Verdict.MUMBLE("Failed to find created park in my parks list")
+            last_parks = client.get_last_parks()
+            created_park = [park for park in last_parks.parks if park.id == park_id and park.user_id == user_id]
+            if len(created_park) != 1:
+                return Verdict.MUMBLE("Failed to find created park in last parks list")
 
-        park = client.add_attraction(created_park[0].id, **get_attraction_data())
-        if created_park[0].attractions_count + 1 != park.attractions_count:
-            return Verdict.MUMBLE(f"Failed to add attraction to park {park}")
+            my_parks = client.get_my_parks()
+            created_park = [park for park in my_parks.parks if park.id == park_id]
+            if len(created_park) != 1:
+                return Verdict.MUMBLE("Failed to find created park in my parks list")
+
+            park = client.add_attraction(created_park[0].id, get_attraction_data())
+            if created_park[0].attractions_count + 1 != park.attractions_count:
+                return Verdict.MUMBLE(f"Failed to add attraction to park {park}")
+
+            client.logout()
+            return None
+
+        def check_visitor():
+            login, password = get_random_creds()
+            request = RegisterRequest(
+                login=login,
+                password=password,
+                document=get_random_document(),
+                role=UserRole.Moderator
+            )
+            user_id = client.register_and_login(request)
+            if user_id is None:
+                return Verdict.MUMBLE("Failed to register and login")
+
+            park_id = client.create_park(get_random_park_data(True))
+            if park_id is None:
+                return Verdict.MUMBLE("Failed to create park")
+            attraction_request = get_attraction_data()
+            attraction_request.cost = 15
+            client.add_attraction(park_id, attraction_request)
+            client.logout()
+
+            login, password = get_random_creds()
+            request = RegisterRequest(
+                login=login,
+                password=password,
+                document=get_random_document(),
+                role=UserRole.Visitor
+            )
+            user_id = client.register_and_login(request)
+            if user_id is None:
+                return Verdict.MUMBLE("Failed to register and login")
+
+            last_parks = client.get_last_parks()
+            created_parks = [park for park in last_parks.parks if park.id == park_id]
+            if not any(created_parks):
+                return Verdict.MUMBLE("Failed to find created park in last parks")
+            park = client.get_park(park_id)
+
+            user_info = client.buy_ticket(park.attractions_ids[0], user_id)
+            if not any([x for x in user_info.purchasesInfo.purchases if x.name == attraction_request.name and x.ticket == attraction_request.ticket]):
+                return Verdict.MUMBLE("Failed to find bought ticket")
+
+            return None
+
+        verdict_maybe = check_moderator()
+        if verdict_maybe is not None:
+            return verdict_maybe
+
+        verdict_maybe = check_visitor()
+        if verdict_maybe is not None:
+            return verdict_maybe
 
         return Verdict.OK()
     except HttpError as e:
@@ -84,3 +152,12 @@ def get_flag_from_the_service(request: GetRequest) -> Verdict:
     except Exception as e:
         print(e)
         return Verdict.MUMBLE(str(e))
+
+
+async def main():
+    res = await check_service(CheckRequest(hostname="localhost"))
+    print(res._code, res._public_message)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
