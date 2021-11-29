@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import Enum
 
 from pydantic import BaseModel
@@ -8,6 +9,7 @@ class UserRole(Enum):
     Moderator = 1,
 
 
+@dataclass(frozen=True)
 class RegisterRequest(BaseModel):
     login: str
     password: str

@@ -1,18 +1,17 @@
-import asyncio
 import json
 
 from gornilo import Verdict, Checker, PutRequest, GetRequest, CheckRequest
 
 from ctfland.client import Client, HttpError
-from ctfland.data import get_random_creds, get_random_document, get_random_park_data, get_attraction_data
-from ctfland.models import RegisterRequest, CreateParkRequest, AddAttractionRequest, UserRole
+from ctfland.data import get_random_creds, get_random_document, get_park_request, get_attraction_request
+from ctfland.models import RegisterRequest, UserRole
 from ctfland.pretty_client import PrettyClient
 
 checker = Checker()
 
 
 @checker.define_check
-async def check_service(request: CheckRequest) -> Verdict:
+def check_service(request: CheckRequest) -> Verdict:
     try:
         client = PrettyClient(Client(request.hostname, 7777))
 
@@ -28,7 +27,7 @@ async def check_service(request: CheckRequest) -> Verdict:
             if user_id is None:
                 return Verdict.MUMBLE("Failed to register and login")
 
-            park_id = client.create_park(get_random_park_data(True))
+            park_id = client.create_park(get_park_request(True))
             if park_id is None:
                 return Verdict.MUMBLE("Failed to create park")
 
@@ -42,7 +41,7 @@ async def check_service(request: CheckRequest) -> Verdict:
             if len(created_park) != 1:
                 return Verdict.MUMBLE("Failed to find created park in my parks list")
 
-            park = client.add_attraction(created_park[0].id, get_attraction_data())
+            park = client.add_attraction(created_park[0].id, get_attraction_request())
             if created_park[0].attractions_count + 1 != park.attractions_count:
                 return Verdict.MUMBLE(f"Failed to add attraction to park {park}")
 
@@ -61,10 +60,10 @@ async def check_service(request: CheckRequest) -> Verdict:
             if user_id is None:
                 return Verdict.MUMBLE("Failed to register and login")
 
-            park_id = client.create_park(get_random_park_data(True))
+            park_id = client.create_park(get_park_request(True))
             if park_id is None:
                 return Verdict.MUMBLE("Failed to create park")
-            attraction_request = get_attraction_data()
+            attraction_request = get_attraction_request()
             attraction_request.cost = 15
             client.add_attraction(park_id, attraction_request)
             client.logout()
@@ -115,7 +114,8 @@ def put_flag_into_the_service(request: PutRequest) -> Verdict:
         client = PrettyClient(Client(request.hostname, 7777))
 
         login, password = get_random_creds()
-        user_id = client.register_and_login(login, password, request.flag)
+        request = RegisterRequest(login=login, password=password, document=request.flag, role=UserRole.Moderator)
+        user_id = client.register_and_login(request)
 
         flag_id = {
             "login": login,
@@ -143,7 +143,7 @@ def get_flag_from_the_service(request: GetRequest) -> Verdict:
 
         user = client.get_profile(user_id)
         if user.document != request.flag:
-            return Verdict.CORRUPT("")
+            return Verdict.CORRUPT("Failed to find flag")
 
         return Verdict.OK()
     except HttpError as e:
@@ -152,12 +152,3 @@ def get_flag_from_the_service(request: GetRequest) -> Verdict:
     except Exception as e:
         print(e)
         return Verdict.MUMBLE(str(e))
-
-
-async def main():
-    res = await check_service(CheckRequest(hostname="localhost"))
-    print(res._code, res._public_message)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())

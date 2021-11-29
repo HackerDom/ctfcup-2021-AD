@@ -13,7 +13,7 @@ def get_random_document():
     return f"document-{uuid.uuid4()}"
 
 
-def get_attraction_data() -> AddAttractionRequest:
+def get_attraction_request() -> AddAttractionRequest:
     return AddAttractionRequest(
         name=f"attraction-{uuid.uuid4()}",
         description="Великолепное произведение исскуства!",
@@ -22,7 +22,7 @@ def get_attraction_data() -> AddAttractionRequest:
     )
 
 
-def get_random_park_data(is_public=True) -> CreateParkRequest:
+def get_park_request(is_public=True) -> CreateParkRequest:
     return CreateParkRequest(
         name=f"park-{uuid.uuid4()}",
         description=get_random_park_description(),
