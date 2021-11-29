@@ -29,7 +29,7 @@
     }
     @foreach (var purchase in Model.Purchases)
     {
-        <p id="profile-purchases"><i>@purchase.AttractionName</i> - <b>@purchase.TicketKey</b></p>
+        <p class="profile-purchase"><i>@purchase.AttractionName</i> - <b>@purchase.TicketKey</b></p>
     }
     
     <div class="modal" tabindex="-1" role="dialog" id="donate-modal">

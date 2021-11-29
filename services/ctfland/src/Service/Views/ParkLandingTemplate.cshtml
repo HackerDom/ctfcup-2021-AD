@@ -72,12 +72,14 @@
             <p id="park-max-visitors">Максимум людей: @Model.MaxVisitorsCount</p>
             <section id="park-description">@Html.Raw(Model.Description)</section>
             @("@foreach(var attraction in Model.Attractions) {")
-            <div class="park-attraction">@Html.Raw(Model.HtmlAttractionBlock)</div>
-            @("@if (Model.ShowBuyButton) {")
-            <form method="post" action="/attraction/@("@attraction.Id")/buy">
-                <button class="btn btn-primary">Купить билет</button>
-            </form>
-            @("}")
+            <div class="park-attraction">
+                @Html.Raw(Model.HtmlAttractionBlock)
+                @("@if (Model.ShowBuyButton) {")
+                <form method="post" action="/attraction/@("@attraction.Id")/buy">
+                    <button class="btn btn-primary">Купить билет</button>
+                </form>
+                @("}")
+            </div>
             @("}")
         </main>
     </main>
