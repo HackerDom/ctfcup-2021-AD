@@ -102,6 +102,12 @@ def put_flag_into_the_service1(request: PutRequest) -> Verdict:
         login, password = get_random_creds()
         register_request = RegisterRequest(login=login, password=password, document=request.flag)
         user_id = client.register_and_login(register_request)
+        if user_id is None:
+            return Verdict.MUMBLE("Failed to register and login")
+
+        park_id = client.create_park(get_park_request(True))
+        if park_id is None:
+            return Verdict.MUMBLE("Failed to create park")
 
         flag_id = {
             "login": login,
@@ -148,11 +154,18 @@ def put_flag_into_the_service2(request: PutRequest) -> Verdict:
         login, password = get_random_creds()
         register_request = RegisterRequest(login=login, password=password, document=request.flag)
         user_id = client.register_and_login(register_request)
+        if user_id is None:
+            return Verdict.MUMBLE("Failed to register and login")
 
         park_id = client.create_park(get_park_request(True))
+        if park_id is None:
+            return Verdict.MUMBLE("Failed to create park")
+
         attraction_request = get_attraction_request()
         attraction_request.ticket = request.flag
-        client.add_attraction(park_id, attraction_request)
+        attraction = client.add_attraction(park_id, attraction_request)
+        if attraction is None:
+            return Verdict.MUMBLE("Failed to add attraction to park")
 
         flag_id = {
             "login": login,
