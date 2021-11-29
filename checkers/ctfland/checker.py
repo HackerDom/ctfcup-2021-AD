@@ -109,13 +109,13 @@ def check_service(request: CheckRequest) -> Verdict:
 
 
 @checker.define_put(vuln_num=1, vuln_rate=1)
-def put_flag_into_the_service(request: PutRequest) -> Verdict:
+def put_flag_into_the_service1(request: PutRequest) -> Verdict:
     try:
         client = PrettyClient(Client(request.hostname, 7777))
 
         login, password = get_random_creds()
-        request = RegisterRequest(login=login, password=password, document=request.flag, role=UserRole.Moderator)
-        user_id = client.register_and_login(request)
+        register_request = RegisterRequest(login=login, password=password, document=request.flag, role=UserRole.Moderator)
+        user_id = client.register_and_login(register_request)
 
         flag_id = {
             "login": login,
@@ -132,7 +132,7 @@ def put_flag_into_the_service(request: PutRequest) -> Verdict:
 
 
 @checker.define_get(vuln_num=1)
-def get_flag_from_the_service(request: GetRequest) -> Verdict:
+def get_flag_from_the_service1(request: GetRequest) -> Verdict:
     try:
         flag_id = json.loads(request.flag_id)
         client = PrettyClient(Client(request.hostname, 7777))
@@ -143,6 +143,62 @@ def get_flag_from_the_service(request: GetRequest) -> Verdict:
 
         user = client.get_profile(user_id)
         if user.document != request.flag:
+            return Verdict.CORRUPT("Failed to find flag")
+
+        return Verdict.OK()
+    except HttpError as e:
+        print(e)
+        return e.verdict
+    except Exception as e:
+        print(e)
+        return Verdict.MUMBLE(str(e))
+
+
+@checker.define_put(vuln_num=2, vuln_rate=1)
+def put_flag_into_the_service2(request: PutRequest) -> Verdict:
+    try:
+        client = PrettyClient(Client(request.hostname, 7777))
+
+        login, password = get_random_creds()
+        register_request = RegisterRequest(login=login, password=password, document=request.flag, role=UserRole.Moderator)
+        user_id = client.register_and_login(register_request)
+
+        park_id = client.create_park(get_park_request(True))
+        attraction_request = get_attraction_request()
+        attraction_request.ticket = request.flag
+        client.add_attraction(park_id, attraction_request)
+
+        flag_id = {
+            "login": login,
+            "password": password,
+            "user_id": user_id,
+            "park_id": park_id,
+        }
+        return Verdict.OK(json.dumps(flag_id))
+    except HttpError as e:
+        print(e)
+        return e.verdict
+    except Exception as e:
+        print(e)
+        return Verdict.MUMBLE(str(e))
+
+
+@checker.define_get(vuln_num=2)
+def get_flag_from_the_service2(request: GetRequest) -> Verdict:
+    try:
+        flag_id = json.loads(request.flag_id)
+        client = PrettyClient(Client(request.hostname, 7777))
+
+        user_id = client.login(flag_id["login"], flag_id["password"])
+        if user_id != flag_id["user_id"]:
+            return Verdict.MUMBLE("Something wrong with registration or login")
+
+        my_parks = client.get_my_parks()
+        created_parks = [x for x in my_parks.parks if x.id == flag_id["park_id"]]
+        if not any(created_parks) and created_parks[0].attractions_count < 1:
+            return Verdict.MUMBLE("Failed to created park info")
+        attractions = [x for x in created_parks[0].attractions if x.ticket == request.flag]
+        if len(attractions) != 1:
             return Verdict.CORRUPT("Failed to find flag")
 
         return Verdict.OK()
