@@ -7,7 +7,8 @@ source "yandex" "ubuntu-with-docker" {
   source_image_family = "ubuntu-2004-lts"
   disk_type           = "network-ssd"
   zone                = "ru-central1-a"
-  subnet_id           = "e9b8lfbfakbgk6sj2qkb"
+  folder_id           = "b1gqbgd717du7hpdjk5a"
+  subnet_id           = "e9bmofj21dc41puiih8l"
   use_ipv4_nat        = true
 
   ssh_username        = "ubuntu"
