@@ -2,7 +2,7 @@ import random
 import string
 import uuid
 
-from ctfland.models import CreateParkRequest, AddAttractionRequest
+from models import CreateParkRequest, AddAttractionRequest
 
 
 def get_random_creds():

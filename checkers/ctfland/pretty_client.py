@@ -1,9 +1,9 @@
 import typing as t
 
-from ctfland.client import Client
+from client import Client
+from models import *
 from bs4 import BeautifulSoup
 
-from ctfland.models import *
 
 
 class Attraction(BaseModel):

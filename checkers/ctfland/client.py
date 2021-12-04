@@ -1,7 +1,7 @@
 import requests
 from gornilo import Verdict
 
-from ctfland.models import *
+from models import *
 
 THROTTLING_RESPONSE_CODE = 429
 
