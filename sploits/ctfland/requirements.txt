@@ -1,0 +1,4 @@
+gornilo
+beautifulsoup4==4.9.1
+pydantic==1.5
+requests
