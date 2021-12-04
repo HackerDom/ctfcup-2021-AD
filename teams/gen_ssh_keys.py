@@ -3,6 +3,7 @@ from os import system as r
 import random
 import string
 
+r("ssh-keygen -t rsa -N '' -f {}/for_devs.ssh_key".format(i))
 
 for i in range(101, 105):
     r('mkdir -p {}'.format(i))
