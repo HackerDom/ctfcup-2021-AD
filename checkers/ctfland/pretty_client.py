@@ -84,12 +84,13 @@ class PrettyClient:
         r = self._client.get_last_parks(skip, take)
         return self._parse_parks_list(r.text)
 
-    def add_attraction(self, park_id, request: AddAttractionRequest) -> Attraction or None:
+    def add_attraction(self, park_id, request: AddAttractionRequest) -> (ParkItem, Attraction) or None:
         r = self._client.add_attraction(park_id, request)
         if r is None:
             return None
         parks = self._parse_parks_list(r.text)
-        return [park for park in parks.parks if park.id == park_id][0].attractions[0]
+        park = [park for park in parks.parks if park.id == park_id][0]
+        return (park, park.attractions[0])
 
     def get_profile(self, user_id) -> User:
         r = self._client.get_profile(user_id)

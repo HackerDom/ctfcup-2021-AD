@@ -45,7 +45,7 @@ def check_service(request: CheckRequest) -> Verdict:
             if len(created_park) != 1:
                 return Verdict.MUMBLE("Failed to find created park in my parks list")
 
-            park = client.add_attraction(created_park[0].id, get_attraction_request())
+            (park, attraction) = client.add_attraction(created_park[0].id, get_attraction_request())
             if created_park[0].attractions_count + 1 != park.attractions_count:
                 return Verdict.MUMBLE(f"Failed to add attraction to park {park}")
 
