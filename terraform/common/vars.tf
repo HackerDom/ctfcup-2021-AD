@@ -1,8 +1,3 @@
-### This module is mostly just data-source for other modules
-output "zone_id" {
-  value = "ru-central1-b"
-}
-
 ### Subnets
 locals {
   base_subnet = "10.118.0.0/16"
