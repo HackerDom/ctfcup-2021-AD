@@ -76,7 +76,6 @@ public:
 
 
 struct Trigger {
-    unsigned int user;
     unsigned int group;
     bool includes;
 };
@@ -140,7 +139,7 @@ void load(const string& filename, Schema& schema) {
 void print_schema(Schema &schema) {
     cout << "rules: " << endl;
     for (auto& rule: schema.rules) {
-        cout << rule.trigger.user << " " << rule.trigger.group << " " << rule.trigger.includes << " " << rule.action << endl;
+        cout << rule.trigger.group << " " << rule.trigger.includes << " " << rule.action << endl;
     }
     cout << "groups: " << endl;
     for (auto& group: schema.groups) {
@@ -156,10 +155,8 @@ bool check(Schema& schema, unsigned int user) {
     unordered_set<int> user_groups(schema.groups[user].begin(), schema.groups[user].end());
 
     for (auto& rule: schema.rules) {
-        if (rule.trigger.user == user) {
-            if (rule.trigger.includes == (user_groups.find(rule.trigger.group) != user_groups.end())) {
-                return rule.action == Action::ALLOW;
-            }
+        if (rule.trigger.includes == (user_groups.find(rule.trigger.group) != user_groups.end())) {
+            return rule.action == Action::ALLOW;
         }
     }
 
@@ -178,10 +175,10 @@ void p() {
 Schema get_schema() {
     return Schema({
                           {
-                                  Rule({Trigger({12, 54, true}), Action::DENY}),
-                                  Rule({Trigger({34, 43, false}), Action::ALLOW}),
-                                  Rule({Trigger({56, 32, true}), Action::DENY}),
-                                  Rule({Trigger({78, 21, true}), Action::DENY}),
+                                  Rule({Trigger({54, true}), Action::DENY}),
+                                  Rule({Trigger({43, false}), Action::ALLOW}),
+                                  Rule({Trigger({32, true}), Action::DENY}),
+                                  Rule({Trigger({21, true}), Action::DENY}),
                           },
                           {
                                   {0, 1, 2},
@@ -251,7 +248,7 @@ struct ParseState {
     bool collect_rules = false;
     bool collect_groups = false;
 
-    unsigned int parts_buffer[4] = {};
+    unsigned int parts_buffer[3] = {};
     unsigned int parts_buffer_size = 0;
 };
 
@@ -264,23 +261,22 @@ bool is_end(string_view part) {
 void consume_rule_part(Schema& schema, ParseState& state, string_view part) {
     if (part != "\":[[" && part != "," && part != "],[" && !is_end(part)) {
 //        cout << "Add num: " << part << endl;
-        if (state.parts_buffer_size == 4) {
+        if (state.parts_buffer_size == 3) {
             throw invalid_argument("Invalid rules array size");
         }
         state.parts_buffer[state.parts_buffer_size++] = stoul(part.data());
     } else if (part == "],[" || is_end(part)) {
 //        cout << "flush rules: " << state.parts_buffer_size << endl;
-        if (state.parts_buffer_size != 4) {
+        if (state.parts_buffer_size != 3) {
             throw invalid_argument("Invalid rules array size at the end");
         }
 
         schema.rules.push_back({
                                        {
                                                state.parts_buffer[0],
-                                               state.parts_buffer[1],
-                                               (bool) state.parts_buffer[2],
+                                               (bool) state.parts_buffer[1],
                                        },
-                                       (Action) state.parts_buffer[3]
+                                       (Action) state.parts_buffer[2]
                                });
         state.parts_buffer_size = 0;
         if (is_end(part)) {
@@ -350,13 +346,23 @@ Schema parse_schema(string_view text) {
 }
 
 
-extern "C" int add_func(int a, int b) {
-    return a + b;
+int main(int argc, char** argv) {
+    if (argc < 4) {
+        return 1;
+    }
+    if (!strcmp(argv[1], "dump")) {
+        string filename = argv[2];
+        string raw_schema = argv[3];
+        auto schema = parse_schema(raw_schema);
+        dump(filename, schema);
+    } else if (!strcmp(argv[1], "check")) {
+        string filename = argv[2];
+        int user = stoul(argv[3]);
+        Schema schema;
+        load(filename, schema);
+        if (check(schema, user)) {
+            return 0;
+        }
+        return 1;
+    }
 }
-
-
-
-//extern "C" void check_schema(char* path, unsigned int user) {
-//    auto schema = parse_schema(raw_schema);
-//    check(schema, user);
-//}

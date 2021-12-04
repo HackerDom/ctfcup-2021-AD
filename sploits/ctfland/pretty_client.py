@@ -1,9 +1,9 @@
 import typing as t
 
 from client import Client
-from models import *
 from bs4 import BeautifulSoup
 
+from models import *
 
 
 class Attraction(BaseModel):

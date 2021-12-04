@@ -1,4 +1,4 @@
-package server
+package common
 
 import (
 	"errors"
@@ -8,12 +8,10 @@ import (
 	"strconv"
 )
 
-
 type RedisStorage struct {
 	redisPool *redis.Pool
-	prefix string
+	prefix    string
 }
-
 
 func (rs *RedisStorage) Init(number int, prefix string) {
 	log.Println("Init redis store with prefix: " + prefix + " and number: " + strconv.Itoa(number))
@@ -32,23 +30,21 @@ func (rs *RedisStorage) Init(number int, prefix string) {
 	}
 }
 
-
 func (rs *RedisStorage) Set(key, value string) error {
 	conn := rs.redisPool.Get()
 	defer conn.Close()
 
-	if _, err := conn.Do("SET", rs.prefix + "/" + key, value); err != nil {
+	if _, err := conn.Do("SET", rs.prefix+"/"+key, value); err != nil {
 		return err
 	}
 	return nil
 }
 
-
 func (rs *RedisStorage) Get(key string) (*string, error) {
 	conn := rs.redisPool.Get()
 	defer conn.Close()
 
-	value, err := conn.Do("GET", rs.prefix + "/" + key)
+	value, err := conn.Do("GET", rs.prefix+"/"+key)
 	if err != nil {
 		return nil, err
 	}
@@ -67,17 +63,15 @@ func (rs *RedisStorage) Get(key string) (*string, error) {
 	}
 }
 
-
 func (rs *RedisStorage) Del(key string) error {
 	conn := rs.redisPool.Get()
 	defer conn.Close()
 
-	if _, err := conn.Do("DEL", rs.prefix + "/" + key); err != nil {
+	if _, err := conn.Do("DEL", rs.prefix+"/"+key); err != nil {
 		return err
 	}
 	return nil
 }
-
 
 func (rs *RedisStorage) IncUserCounter(key string) (uint64, error) {
 	conn := rs.redisPool.Get()
@@ -88,12 +82,12 @@ func (rs *RedisStorage) IncUserCounter(key string) (uint64, error) {
 		return 0, err
 	}
 
-	err = conn.Send("INCR", rs.prefix + "/" + key)
+	err = conn.Send("INCR", rs.prefix+"/"+key)
 	if err != nil {
 		return 0, err
 	}
 
-	err = conn.Send("GET", rs.prefix + "/" + key)
+	err = conn.Send("GET", rs.prefix+"/"+key)
 	if err != nil {
 		return 0, err
 	}
