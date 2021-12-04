@@ -1,0 +1,40 @@
+@model CtfLand.Service.Models.AddAttractionRequestModel
+
+@{
+    ViewBag.Title = "Добавить аттракцион";
+    Layout = "_Layout";
+}
+
+<h2 class="title">Добавить аттракцион</h2>
+<form asp-action="Add" asp-controller="Attraction" asp-anti-forgery="true" method="post">
+    <div class="validation alert alert-danger" asp-validation-summary="ModelOnly"></div>
+    <section>
+        <div class="form-group">
+            <label asp-for="Name">Название аттракциона</label>
+            <input type="text" asp-for="Name" class="form-control"/>
+            <span class="invalid-feedback" asp-validation-for="Name"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Cost">Стоимость катания</label>
+            <input asp-for="Cost" class="form-control"/>
+            <span class="invalid-feedback" asp-validation-for="Cost"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Description">Описание</label>
+            <textarea class="form-control" asp-for="Description" cols="30" rows="10"></textarea>
+            <span class="invalid-feedback" asp-validation-for="Description"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="TicketKey">
+                <span class="btn-link" data-toggle="tooltip" title="Выдается пользователю про покупке билета. Используется при входе на аттракцион">
+                    Ключ билета
+                </span>
+            </label>
+            <input asp-for="TicketKey" class="form-control"/>
+            <span class="invalid-feedback" asp-validation-for="TicketKey"></span>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Добавить" class="btn btn-primary"/>
+        </div>
+    </section>
+</form>

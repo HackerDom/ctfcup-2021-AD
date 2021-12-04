@@ -1,0 +1,45 @@
+@using CtfLand.DataLayer.Models
+@model CtfLand.Service.Models.ParksListViewModel
+
+@{
+    ViewBag.Title = "Мои парки";
+    Layout = "_Layout";
+}
+
+<h2 class="title">Мои парки</h2>
+@if (!Model.Parks.Any())
+{
+    <p>Ни один парк еще не добавлен. <a asp-action="Create">Добавьте</a> первый!</p>
+}
+else
+{
+    <p id="parks-counter">Всего парков: @Model.Parks.Count</p>
+}
+@foreach (var park in Model.Parks)
+{
+    <section class="park-list-item">
+        <h3><a asp-action="Get" asp-route-parkId=@park.Id>@park.Name</a></h3>
+        <p class="attractions-counter">Количество аттракционов: @(park.Attractions?.Count ?? 0)</p>
+        <ul class="attractions">
+        @foreach (var attraction in park.Attractions ?? new List<Attraction>())
+        {
+            <li>
+                <input type="hidden" class="attraction-id" value="@attraction.Id"/>
+                <i>@attraction.Name</i> <span>(@attraction.Cost руб.)</span> - <b>@attraction.TicketKey</b>
+            </li>
+        }
+        </ul>
+        <p class="park-max-visitors">Максимальное количество посетителей: @park.MaxVisitorsCount</p>
+        <section class="btn-group">
+            <a class="btn btn-primary mr-1" asp-action="Add" asp-controller="Attraction" asp-route-parkId="@park.Id">
+                Добавить аттракцион
+            </a>
+            <form method="post" asp-action="ChangeVisibility" asp-route-id="@park.Id">
+                <button class="btn btn-info mr-1" id="park-public-button">Сделать @(park.IsPublic ? "приватным" : "публичным")</button>
+            </form>
+            <form method="post" asp-action="Delete" asp-route-id="@park.Id">
+                <button class="btn btn-danger">Удалить</button>
+            </form>
+        </section>
+    </section>
+}

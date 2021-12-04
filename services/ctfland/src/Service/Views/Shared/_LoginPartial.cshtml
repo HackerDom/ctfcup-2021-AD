@@ -1,0 +1,25 @@
+@using CtfLand.Service
+<ul class="navbar-nav">
+@if (User.Identity?.IsAuthenticated ?? false)
+{
+    <li class="nav-item">
+        <a id="auth-username" class="nav-link" asp-controller="Auth" asp-action="Profile" asp-route-id=@User.GetUserId()>
+            Привет, @User.Identity!.Name
+        </a>
+    </li>
+    <li class="nav-item">
+        <form class="form-inline" asp-controller="Auth" asp-action="Logout" asp-route-returnUrl="@Url.Action("Index", "Home")">
+            <button  type="submit" class="nav-link btn btn-link text-dark">Выйти</button>
+        </form>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-controller="Auth" asp-action="Register">Регистрация</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-controller="Auth" asp-action="Login">Войти</a>
+    </li>
+}
+</ul>

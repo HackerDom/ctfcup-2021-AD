@@ -1,0 +1,52 @@
+@model CtfLand.Service.Models.CreateParkViewModel
+
+@{
+    var allowedAttractionVariablesStr = string.Join(", ", Model.AllowedAttractionVariables);
+    var allowedDescVariablesStr = string.Join(", ", Model.AllowedDescVariables);
+    ViewBag.Title = "Создать новый парк";
+    Layout = "_Layout";
+}
+
+<h2 class="title">Создать новый парк</h2>
+<section class="login-block">
+    <form asp-action="Create" asp-controller="Park" asp-anti-forgery="true" method="post">
+        <div class="validation alert alert-danger" asp-validation-summary="ModelOnly"></div>
+        <section>
+            <div class="form-group">
+                <label asp-for="Name">Имя парка</label>
+                <input type="text" asp-for="Name" class="form-control" />
+                <span class="invalid-feedback" asp-validation-for="Name"></span>
+            </div>
+            <div class="form-group">
+                <input type="checkbox" asp-for="IsPublic" checked/>
+                <label asp-for="IsPublic" class="form-check-label">Сделать публичным</label>
+                <span class="invalid-feedback" asp-validation-for="IsPublic"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email">Email</label>
+                <input asp-for="Email" class="form-control"/>
+                <span class="invalid-feedback" asp-validation-for="Email"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MaxVisitorsCount" class="form-check-label">Максимальное количество посетителей</label>
+                <input asp-for="MaxVisitorsCount"  class="form-control"/>
+                <span class="invalid-feedback" asp-validation-for="MaxVisitorsCount"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description"><span class="btn-link" data-toggle="tooltip" title="Допустимо использовать следующие переменные: @allowedDescVariablesStr">Описание парка</span></label>
+                <textarea class="form-control" asp-for="Description" cols="30" rows="10"></textarea>
+            </div>
+            <div class="form-group">
+                <label asp-for="HtmlAttractionBlock">
+                    Вставьте <span class="btn-link" data-toggle="tooltip" title="Допустимо использовать следующие переменные: @allowedAttractionVariablesStr">
+                        HTML код
+                    </span> отображения атракциона в парке
+                </label>
+                <textarea class="form-control" asp-for="HtmlAttractionBlock" cols="30" rows="10"></textarea>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Создать" class="btn btn-primary"/>
+            </div>
+        </section>
+    </form>
+</section>

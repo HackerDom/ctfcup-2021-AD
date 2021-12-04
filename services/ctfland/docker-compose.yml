@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  ctfland:
+    image: ctfland
+    build: .
+    ports:
+     - "7777:80"
+
+    restart: always
+    depends_on:
+      - db
+    env_file:
+      - ./variables.env
+      
+    stop_grace_period: 1s
+    mem_limit: 1G
+    memswap_limit: 1G
+    pids_limit: 80
+    ulimits:
+      nofile:
+        soft: 12000
+        hard: 12000
+
+  db:
+    image: 'postgres:latest'
+    restart: always
+    env_file:
+      - ./variables.env
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data

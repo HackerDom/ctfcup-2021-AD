@@ -1,0 +1,49 @@
+@using CtfLand.Service
+@model CtfLand.Service.Models.ProfileViewModel
+
+@{
+    var isOwnProfile = User.GetUserId() == Model.User.Id;
+    var title = isOwnProfile ? "Мой профиль" : $"Профиль {Model.User.Login}";
+    ViewBag.Title = title;
+    Layout = "_Layout";
+}
+
+<h2 class="title">@title</h2>
+<p id="profile-login">Логин: @Model.User.Login</p>
+@if (isOwnProfile)
+{
+    <p id="profile-document">Паспортные данные: @Model.User.Document</p>
+}
+<p>Зарегистрирован @Model.User.RegisteredAt.ToLocalTime().ToLongDateString()</p>
+
+@if (isOwnProfile)
+{
+    <p id="profile-balance">Текущий баланс: @Model.CurrentBalance</p>
+    <p class="btn-link" id="donate-button" data-toggle="modal" data-target="#donate-modal">Задонатить</p>
+    @if (Model.Purchases.Any())
+    {
+        <p>Текущие купленные билеты на аттракционы:</p>
+    }
+    @foreach (var purchase in Model.Purchases)
+    {
+        <p class="profile-purchase"><i>@purchase.AttractionName</i> - <b>@purchase.TicketKey</b></p>
+    }
+    
+    <div class="modal" tabindex="-1" role="dialog" id="donate-modal">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <iframe
+                        width="900"
+                        height="506"
+                        src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0"
+                        title="Never Gonna Give You Up"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                    >
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+}
