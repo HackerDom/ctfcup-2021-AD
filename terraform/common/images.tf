@@ -1,5 +1,5 @@
 data "yandex_resourcemanager_folder" "ctf" {
-  name = "ctf"
+  name = "ctfcup2021-ad"
 }
 
 data "yandex_compute_image" "ubuntu-with-docker" {
