@@ -1,5 +1,7 @@
 cs_user: cs
 cs_dir:  /home/cs/checksystem
+cs_repo: https://github.com/xelez/checksystem.git
+cs_version: ctfcup2021
 cs_scoreboard_dir: /home/cs/ctf-scoreboard-client
 
 pg_cs_user: cs

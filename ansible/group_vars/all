@@ -1,4 +1,6 @@
 cs_user: cs
+cs_repo: https://github.com/HackerDom/checksystem.git
+cs_version: master
 cs_dir:  /home/cs/checksystem
 cs_scoreboard_dir: /home/cs/ctf-scoreboard-client
 
