@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import json
+import random
 
 from gornilo import Verdict, Checker, PutRequest, GetRequest, CheckRequest
 
@@ -10,6 +11,8 @@ from models import RegisterRequest
 from pretty_client import PrettyClient
 
 checker = Checker()
+
+START_BALANCE = 1000
 
 
 @checker.define_check
@@ -165,6 +168,7 @@ def put_flag_into_the_service2(request: PutRequest) -> Verdict:
 
         attraction_request = get_attraction_request()
         attraction_request.ticket = request.flag
+        attraction_request.cost = random.randint(START_BALANCE + 300, START_BALANCE + 4000)
         attraction = client.add_attraction(park_id, attraction_request)
         if attraction is None:
             return Verdict.MUMBLE("Failed to add attraction to park")
