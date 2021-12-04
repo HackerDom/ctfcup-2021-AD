@@ -3,5 +3,5 @@
 set -ex
 
 for f in */requirements.txt; do
-    pip3 install -r "$f";
+    python3.9 -m pip install -r "$f";
 done
