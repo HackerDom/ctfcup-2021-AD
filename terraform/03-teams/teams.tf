@@ -7,14 +7,19 @@ variable "team_count" {
 variable "services" {
   default = [
     {
-      "name": "vapor",
+      "name": "atm-machine",
       "template": "setup_empty.sh",
       "id": 1,
     },
     {
-      "name": "barker",
+      "name": "ctfland",
       "template": "setup_empty.sh",
       "id": 2,
+    },
+    {
+      "name": "resoccessor",
+      "template": "setup_empty.sh",
+      "id": 3,
     },
   ]
 }
