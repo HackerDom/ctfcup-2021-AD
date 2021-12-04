@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import json
 
 from gornilo import Verdict, Checker, PutRequest, GetRequest, CheckRequest
