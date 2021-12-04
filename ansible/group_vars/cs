@@ -31,7 +31,7 @@ cs_static_path: '/home/cs/ctf-scoreboard-client/scoreboard/build'
 
 cs_base_url: http://10.118.0.10/
 cs_admin_auth: root:YswhZ2vWH7aJZl3r
-cs_ctf_name: CupCTF 2020 Final AD
+cs_ctf_name: CTFCup 2021 AD
 cs_flags_secret: YWxDwTDinhPlmJlm
 cs_round_length: 60
 cs_flag_life_time: 12
