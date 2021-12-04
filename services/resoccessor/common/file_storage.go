@@ -1,4 +1,4 @@
-package server
+package common
 
 import (
 	"io/ioutil"
@@ -10,7 +10,6 @@ type FileStorage struct {
 	dir string
 }
 
-
 func isDirExists(path string) bool {
 	fileInfo, err := os.Stat(path)
 	if err != nil {
@@ -20,7 +19,6 @@ func isDirExists(path string) bool {
 	return fileInfo.IsDir()
 }
 
-
 func (fs *FileStorage) ensureDir(path string) {
 	if !isDirExists(path) {
 		if err := os.MkdirAll(path, os.ModePerm); err != nil {
@@ -28,7 +26,6 @@ func (fs *FileStorage) ensureDir(path string) {
 		}
 	}
 }
-
 
 func (fs *FileStorage) ensureSubdir(subdir string) {
 	fs.ensureDir(path.Join(fs.dir, subdir))
@@ -39,12 +36,10 @@ func (fs *FileStorage) Init(dir string) {
 	fs.dir = dir
 }
 
-
 func (fs *FileStorage) Put(subdir, filename string, value []byte) error {
 	fs.ensureSubdir(subdir)
 	return ioutil.WriteFile(path.Join(fs.dir, subdir, filename), value, 0644)
 }
-
 
 func (fs *FileStorage) Get(subdir, filename string) ([]byte, error) {
 	fs.ensureSubdir(subdir)
@@ -56,6 +51,10 @@ func (fs *FileStorage) Get(subdir, filename string) ([]byte, error) {
 	return data, nil
 }
 
+func (fs *FileStorage) Exists(subdir, filename string) bool {
+	fs.ensureSubdir(subdir)
+	return isFileExists(path.Join(fs.dir, subdir, filename))
+}
 
 func (fs *FileStorage) List(subdir string) ([]string, error) {
 	fs.ensureSubdir(subdir)
