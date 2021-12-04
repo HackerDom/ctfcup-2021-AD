@@ -1,0 +1,68 @@
+
+name: Check ctfland
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'services/ctfland/**'
+      - 'checkers/ctfland/**'
+  workflow_dispatch:
+    inputs:
+      cleanup_before_deploy:
+        description: 'Stops and fully removes service (with volumes!) before deploying again. Type "yes" to do it.'
+        required: false
+        default: "no"
+
+jobs:
+  check_ctfland:
+    name: Check ctfland
+    runs-on: ubuntu-20.04
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v2
+
+    - name: Run prebuilt hook
+      run: if [ -f services/ctfland/before_image_build.sh ]; then (cd ./services/ctfland && ./before_image_build.sh); fi
+
+    - name: Setup ctfland
+      run: (cd ./services/ctfland && docker-compose pull && docker-compose build && docker-compose up --build -d)
+
+    - name: Prepare python for checker
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Setup checker libraries
+      run: if [ -f checkers/ctfland/requirements.txt ]; then python -m pip install -r checkers/ctfland/requirements.txt; fi
+
+    - name: Test checker on service
+      run: checkers/ctfland/checker.py TEST 127.0.0.1
+
+  update_ctfland:
+    name: Deploy service using ansible to first teams
+    needs: check_ctfland
+    runs-on: ubuntu-20.04
+    if: ${{ false }} # disable on game just in case
+
+    steps:
+    - name: install ansible
+      run: sudo apt-get install -y ansible
+
+    - name: Checkout repo
+      uses: actions/checkout@v2
+
+    - name: change permission for ssh key
+      run: chmod 0600 ./vuln_image/keys/id_rsa
+
+    - name: Run prebuilt hook
+      run: if [ -f services/ctfland/before_image_build.sh ]; then (cd ./services/ctfland && ./before_image_build.sh); fi
+
+    - name: stop ctfland, destroy volumes and cleanup service before fresh deploy
+      if: ${{ github.event.inputs.cleanup_before_deploy == 'yes' }}
+      run: ./vuln_image/cleanup_first_ten_teams.sh ctfland
+
+    - name: try to deploy ctfland
+      run: ./vuln_image/update_first_ten_teams.sh ctfland
+
