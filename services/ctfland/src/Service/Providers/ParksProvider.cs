@@ -24,7 +24,7 @@ namespace CtfLand.Service.Providers
     public interface IParksProvider
     {
         Task<Park> GetPark(Guid id);
-        Task<IList<Park>> GetParks(int skip, int take, ParksListFilter filter);
+        Task<List<Park>> GetParks(int skip, int take, ParksListFilter filter);
         Task<int> Count(ParksListFilter filter);
         Task Remove(Park park);
         Task<Park> Create(CreateParkRequestModel model, string template, User owner);
@@ -51,9 +51,9 @@ namespace CtfLand.Service.Providers
         }
 
 
-        public async Task<IList<Park>> GetParks(int skip, int take, ParksListFilter filter)
+        public Task<List<Park>> GetParks(int skip, int take, ParksListFilter filter)
         {
-            return await dbContext.Parks
+            return dbContext.Parks
                 .AsQueryable()
                 .Where(park => filter.OwnerId == null || park.Owner.Id == filter.OwnerId)
                 .Where(park => !filter.IsPublicOnly || park.IsPublic)
@@ -65,15 +65,11 @@ namespace CtfLand.Service.Providers
                 .ToListAsync();
         }
 
-        public async Task<int> Count(ParksListFilter filter)
+        public Task<int> Count(ParksListFilter filter)
         {
-            return await dbContext.Parks
-                .AsQueryable()
+            return dbContext.Parks
                 .Where(park => filter.OwnerId == null || park.Owner.Id == filter.OwnerId)
                 .Where(park => !filter.IsPublicOnly || park.IsPublic)
-                .OrderByDescending(park => park.CreatedAt)
-                .Include(park => park.Owner)
-                .Include(park => park.Attractions)
                 .CountAsync();
         }
 
