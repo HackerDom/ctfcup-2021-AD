@@ -2,7 +2,7 @@ import random
 import string
 import uuid
 
-from models import CreateParkRequest, AddAttractionRequest
+from models import CreateParkRequest, AddAttractionRequest, RegisterRequest
 
 
 def get_random_creds():
@@ -11,6 +11,15 @@ def get_random_creds():
 
 def get_random_document():
     return f"document-{uuid.uuid4()}"
+
+
+def get_register_request() -> RegisterRequest:
+    login, password = get_random_creds()
+    return RegisterRequest(
+        login=login,
+        password=password,
+        document=get_random_document(),
+    )
 
 
 def get_attraction_request() -> AddAttractionRequest:
@@ -37,7 +46,9 @@ def get_random_email():
     symbols = string.digits + string.ascii_letters + "_-"
     domains = ["test.ctf", "mail.ctf", "yandex.ctf", "google.ctf"]
 
-    return f"{get_random_string(symbols, 5, 13)}@{random.choice(domains)}"
+    a, b = get_random_string(string.ascii_letters, 2, 2)
+    first_part = f"{a}{get_random_string(symbols, 5, 13)}{b}"
+    return f"{first_part}@{random.choice(domains)}"
 
 
 def get_random_park_attraction_block():

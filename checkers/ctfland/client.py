@@ -108,14 +108,16 @@ class Client:
             try:
                 r = method(url, allow_redirects=True, **kwargs)
             except requests.RequestException as e:
-                raise HttpError(Verdict.DOWN(str(e)))
+                print(e)
+                raise HttpError(Verdict.DOWN(f"Failed to send request to {relative_url}"))
 
             if r.status_code == THROTTLING_RESPONSE_CODE:
                 print(f"Rejected by throttling. Will try again.")
                 continue
 
             if r.status_code >= 400:
-                raise HttpError(Verdict.MUMBLE(f"Failed! See more:\r\n {r.__dict__}"))
+                print(f"Request to {relative_url} failed with status code {r.status_code}. See more:\r\n{r.__dict__}")
+                raise HttpError(Verdict.MUMBLE(f"Request to {relative_url} failed with status code {r.status_code}"))
 
             return r
 
