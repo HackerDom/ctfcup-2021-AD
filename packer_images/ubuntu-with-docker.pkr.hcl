@@ -23,7 +23,7 @@ build {
         "sudo apt-get update -y",
         "while PID=$(pidof -s apt-get); do tail --pid=$PID -f /dev/null; done",
         "sudo apt-get upgrade -y",
-        "sudo apt-get install -y docker.io docker-compose htop atop mc tmux rsync git vim"
+        "sudo apt-get install -y docker.io docker-compose htop atop mc tmux rsync git vim silversearcher-ag"
     ]
   }
 }
