@@ -18,8 +18,13 @@ class HttpError(Exception):
 class Client:
     def __init__(self, host, port, retries_count=3):
         self._session = requests.Session()
-        self.host = host
-        self.port = port
+        if ':' in host:
+            host, port = host.rsplit(':', 1)
+            self.host = host
+            self.port = int(port)
+        else:
+            self.host = host
+            self.port = port
         self.retries_count = retries_count
 
     def register(self, request: RegisterRequest):

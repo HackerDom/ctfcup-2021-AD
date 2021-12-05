@@ -17,7 +17,7 @@ variable "prod_resources" {
 }
 
 locals {
-  resources = var.prod_resources
+  resources = var.dev_resources
 }
 
 module "cs-main" {

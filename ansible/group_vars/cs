@@ -1,9 +1,11 @@
 cs_user: cs
 cs_dir:  /home/cs/checksystem
+cs_repo: https://github.com/xelez/checksystem.git
+cs_version: ctfcup2021
 cs_scoreboard_dir: /home/cs/ctf-scoreboard-client
 
 pg_cs_user: cs
-pg_cs_pass: LcgHZnBFTHtydHhE
+pg_cs_pass: 8R4beicD0jWEUvCGsP1Q
 pg_cs_db: cs
 pg_cs_host: 10.118.0.10
 pg_cs_port: 5432
@@ -25,18 +27,17 @@ cs_hypnotoad_accepts: 1024
 cs_nginx_upstream_keepalive: 32
 cs_nginx_workers: 4
 cs_nginx_listen: 80
+cs_static_path: '/home/cs/ctf-scoreboard-client/scoreboard/build'
 
 cs_base_url: http://10.118.0.10/
-cs_admin_auth: root:adSebjCGrXlJYoJo
-cs_ctf_name: CupCTF 2020 Final AD
+cs_admin_auth: root:YswhZ2vWH7aJZl3r
+cs_ctf_name: CTFCup 2021 AD
 cs_flags_secret: YWxDwTDinhPlmJlm
 cs_round_length: 60
 cs_flag_life_time: 12
-cs_time: "['2020-12-12 07:30:00', '2020-12-12 11:29:59']"
-#cs_time: "['2020-11-30 11:30:00', '2020-12-30 15:59:59']"
+cs_time: "['2021-12-04 00:00:00', '2021-12-11 23:59:00']"
 #cs_time: "['2019-10-15 10:00:00', '2019-10-15 17:00:00'], ['2019-10-16 10:00:00', '2019-10-16 17:00:00'], ['2019-10-17 07:59:59', '2019-10-17 15:59:00']"
 
-cs_static_path: '/home/cs/ctf-scoreboard-client/scoreboard/build'
 
 cs_checkers_hostname_cb: |
   sub { my ($team, $service) = @_; "10.118.0.20:$service->{port_prefix}$team->{team_id}" }
@@ -49,6 +50,7 @@ teams: |
 
 
 services: |
-  {name => 'VaporService', path => 'checkers/VaporService/checker.py', timeout => 30, port_prefix => '1'},
-  {name => 'barker',       path => 'checkers/barker/checker.py',       timeout => 30, port_prefix => '2'},
+  {name => 'ATM-machine',  path => 'checkers/ATM-machine/checker.py', timeout => 30, port_prefix => '1'},
+  {name => 'ctfland',      path => 'checkers/ctfland/checker.py',     timeout => 30, port_prefix => '2'},
+  {name => 'resoccessor',  path => 'checkers/resoccessor/checker.py', timeout => 30, port_prefix => '3'},
 

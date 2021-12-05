@@ -1,8 +1,12 @@
-- hosts: vapor
+- hosts: atm-machine
   roles:
-     - { role: service, service_name: VaporService, tags: [vapor] }
+     - { role: service, service_name: ATM-machine, tags: [atm-machine] }
 
-- hosts: barker
+- hosts: ctfland
   roles:
-     - { role: service, service_name: barker, tags: [barker] }
+     - { role: service, service_name: ctfland, tags: [ctfland] }
+
+- hosts: resoccessor
+  roles:
+     - { role: service, service_name: resoccessor, tags: [resoccessor] }
 
