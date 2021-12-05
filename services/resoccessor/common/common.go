@@ -3,7 +3,6 @@ package common
 import (
 	"crypto/md5"
 	b64 "encoding/base64"
-	"errors"
 	"os"
 	"strings"
 	"unicode"
@@ -38,8 +37,7 @@ func RemoveWhitespaces(str string) string {
 	return b.String()
 }
 
-func isFileExists(path string) bool {
+func IsFileExists(path string) bool {
 	_, err := os.Stat(path)
-	errors.Is(err, os.ErrNotExist)
-	return err != nil
+	return err == nil
 }
