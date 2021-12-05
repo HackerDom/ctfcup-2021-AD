@@ -5,7 +5,6 @@ from models import *
 from bs4 import BeautifulSoup
 
 
-
 class Attraction(BaseModel):
     id: str
     name: str
@@ -90,7 +89,7 @@ class PrettyClient:
             return None
         parks = self._parse_parks_list(r.text)
         park = [park for park in parks.parks if park.id == park_id][0]
-        return (park, park.attractions[0])
+        return park, park.attractions[0]
 
     def get_profile(self, user_id) -> User:
         r = self._client.get_profile(user_id)
