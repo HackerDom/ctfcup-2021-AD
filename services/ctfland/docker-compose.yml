@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.7'
 services:
   ctfland:
     image: ctfland
@@ -13,8 +13,8 @@ services:
       - ./variables.env
       
     stop_grace_period: 1s
-    mem_limit: 1G
-    memswap_limit: 1G
+    mem_limit: 2G
+    memswap_limit: 2G
     pids_limit: 80
     ulimits:
       nofile:
