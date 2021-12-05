@@ -23,8 +23,8 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v2
 
-    - name: Run prebuilt hook
-      run: if [ -f services/ctfland/before_image_build.sh ]; then (cd ./services/ctfland && ./before_image_build.sh); fi
+    #- name: Run prebuilt hook
+    #  run: if [ -f services/ctfland/before_image_build.sh ]; then (cd ./services/ctfland && ./before_image_build.sh); fi
 
     - name: Setup ctfland
       run: (cd ./services/ctfland && docker-compose pull && docker-compose build && docker-compose up --build -d)
@@ -43,26 +43,23 @@ jobs:
   update_ctfland:
     name: Deploy service using ansible to first teams
     needs: check_ctfland
-    runs-on: ubuntu-20.04
-    if: ${{ false }} # disable on game just in case
+    runs-on: deployer
+    #if: ${{ false }} # disable on game just in case
 
     steps:
-    - name: install ansible
-      run: sudo apt-get install -y ansible
+    #- name: install ansible
+    #  run: sudo apt-get install -y ansible
 
     - name: Checkout repo
       uses: actions/checkout@v2
 
     - name: change permission for ssh key
-      run: chmod 0600 ./vuln_image/keys/id_rsa
+      run: chmod 0600 ./teams/for_devs.ssh_key
 
-    - name: Run prebuilt hook
-      run: if [ -f services/ctfland/before_image_build.sh ]; then (cd ./services/ctfland && ./before_image_build.sh); fi
+    #- name: Run prebuilt hook
+    #  run: if [ -f services/ctfland/before_image_build.sh ]; then (cd ./services/ctfland && ./before_image_build.sh); fi
 
-    - name: stop ctfland, destroy volumes and cleanup service before fresh deploy
+    - name: deploy ctfland
       if: ${{ github.event.inputs.cleanup_before_deploy == 'yes' }}
-      run: ./vuln_image/cleanup_first_ten_teams.sh ctfland
-
-    - name: try to deploy ctfland
-      run: ./vuln_image/update_first_ten_teams.sh ctfland
+      run: ansible-playbook --extra-vars cleanup_docker_volumes=${{ github.event.inputs.cleanup_before_deploy }} -t ctfland deploy-services.yml)
 

@@ -3,6 +3,13 @@
   debug:
     msg: "Uploading {{ service_name }}"
 
+- name: Cleanup volumes if needed
+  when: cleanup_docker_volumes is defined and cleanup_docker_volumes
+  command:
+    cmd: docker-compose down --volumes --rmi local
+    chdir: "/home/ctfcup/{{ service_name }}"
+  ignore_errors: yes
+
 - name: Copy service {{ service_name }}
   synchronize:
     src: "{{ playbook_dir }}/../services/{{ service_name }}/"
