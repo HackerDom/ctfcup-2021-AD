@@ -109,8 +109,8 @@ namespace CtfLand.Service.Controllers
         {
             var filter = new ParksListFilter(true, null);
             
-            var parks = await parksProvider.GetParks(skip, take, filter).ConfigureAwait(false);
             var totalCount = await parksProvider.Count(filter).ConfigureAwait(false);
+            var parks = await parksProvider.GetParks(skip, take, filter).ConfigureAwait(false);
             
             return View(new ParksListViewModel { Parks = parks, TotalCount = totalCount});
         }
@@ -121,8 +121,8 @@ namespace CtfLand.Service.Controllers
         {
             var filter = new ParksListFilter(false, User.GetUserId());
             
-            var parks = await parksProvider.GetParks(skip, take, filter).ConfigureAwait(false);
             var totalCount = await parksProvider.Count(filter).ConfigureAwait(false);
+            var parks = await parksProvider.GetParks(skip, take, filter).ConfigureAwait(false);
 
             return View(new ParksListViewModel {Parks = parks, TotalCount = totalCount});
         }
