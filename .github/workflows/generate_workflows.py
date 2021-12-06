@@ -51,28 +51,27 @@ jobs:
   update_{service}:
     name: Deploy service using ansible to first teams
     needs: check_{service}
-    runs-on: ubuntu-20.04
-    if: ${{{{ false }}}} # disable on game just in case
+    runs-on: deployer
+    #if: ${{{{ false }}}} # disable on game just in case
 
     steps:
-    - name: install ansible
-      run: sudo apt-get install -y ansible
+    #- name: install ansible
+    #  run: sudo apt-get install -y ansible
 
     - name: Checkout repo
       uses: actions/checkout@v2
 
     - name: change permission for ssh key
-      run: chmod 0600 ./vuln_image/keys/id_rsa
+      run: chmod 0600 ./teams/for_devs.ssh_key
 
     - name: Run prebuilt hook
       run: if [ -f services/{service}/before_image_build.sh ]; then (cd ./services/{service} && ./before_image_build.sh); fi
 
-    - name: stop {service}, destroy volumes and cleanup service before fresh deploy
-      if: ${{{{ github.event.inputs.cleanup_before_deploy == 'yes' }}}}
-      run: ./vuln_image/cleanup_first_ten_teams.sh {service}
+    - name: update checkers
+      run: cd ./ansible && ansible-playbook cs-checkers.yml
 
-    - name: try to deploy {service}
-      run: ./vuln_image/update_first_ten_teams.sh {service}
+    - name: deploy ctfland
+      run: cd ./ansible && ansible-playbook --extra-vars cleanup_service=${{{{ github.event.inputs.cleanup_before_deploy }}}} -t {service} deploy-services.yml
 
 '''
 

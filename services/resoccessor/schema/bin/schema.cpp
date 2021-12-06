@@ -2,34 +2,13 @@
 #include <fstream>
 #include <vector>
 #include <unordered_set>
-
-using namespace std;
-
-
-int set_bit(int value, int bit) {
-    return value | (1 << bit);
-}
-
-
-int clear_bit(int value, int bit) {
-    return value & ~(1 << bit);
-}
-
-
-int get_code(const vector<unsigned int>& groups) {
-    int res = 0;
-    for (auto group: groups) {
-        res = set_bit(res, group);
-    }
-    return res;
-}
-
+#include <regex>
 
 
 class FileWriter {
 public:
-    explicit FileWriter(const string& filename)
-            : file(filename, ios::out | ios::binary)
+    explicit FileWriter(const std::string& filename)
+            : file(filename, std::ios::out | std::ios::binary)
     {
     }
     ~FileWriter() {
@@ -42,18 +21,18 @@ public:
     }
 
     template<typename T>
-    void write_vector(vector<T> &obj) {
+    void write_vector(std::vector<T> &obj) {
         file.write((char*)obj.data(), obj.size() * sizeof(T));
     }
 
-    ofstream file;
+    std::ofstream file;
 };
 
 
 class FileReader {
 public:
-    explicit FileReader(const string& filename)
-            : file(filename, ios::in | ios::binary)
+    explicit FileReader(const std::string& filename)
+            : file(filename, std::ios::in | std::ios::binary)
     {
     }
     ~FileReader() {
@@ -66,11 +45,11 @@ public:
     }
 
     template<typename T>
-    void read_vector(vector<T> &obj) {
+    void read_vector(std::vector<T> &obj) {
         file.read((char*)obj.data(), obj.size() * sizeof(T));
     }
 
-    ifstream file;
+    std::ifstream file;
 };
 
 
@@ -94,12 +73,12 @@ struct Rule {
 
 
 struct Schema {
-    vector<Rule> rules;
-    vector<vector<unsigned int>> groups;
+    std::vector<Rule> rules;
+    std::vector<std::vector<unsigned int>> groups;
 };
 
 
-void dump(const string& filename, Schema& schema) {
+void dump(const std::string& filename, Schema& schema) {
     FileWriter file(filename);
 
     auto rules_size = schema.rules.size();
@@ -116,7 +95,7 @@ void dump(const string& filename, Schema& schema) {
 }
 
 
-void load(const string& filename, Schema& schema) {
+void load(const std::string& filename, Schema& schema) {
     FileReader file(filename);
 
     unsigned long rules_size;
@@ -137,22 +116,24 @@ void load(const string& filename, Schema& schema) {
 
 
 void print_schema(Schema &schema) {
-    cout << "rules: " << endl;
+    // std::cout << "rules: " << std::endl;
     for (auto& rule: schema.rules) {
-        cout << rule.trigger.group << " " << rule.trigger.includes << " " << rule.action << endl;
+        // std::cout << rule.trigger.group << " " << rule.trigger.includes << " " << rule.action << std::endl;
     }
-    cout << "groups: " << endl;
+    // std::cout << "groups: " << std::endl;
     for (auto& group: schema.groups) {
         for (auto el: group) {
-            cout << el << " ";
+            // std::cout << el << " ";
         }
-        cout << endl;
+        // std::cout << std::endl;
     }
 }
 
 
 bool check(Schema& schema, unsigned int user) {
-    unordered_set<int> user_groups(schema.groups[user].begin(), schema.groups[user].end());
+    print_schema(schema);
+
+    std::unordered_set<unsigned int> user_groups(schema.groups[user].begin(), schema.groups[user].end());
 
     for (auto& rule: schema.rules) {
         if (rule.trigger.includes == (user_groups.find(rule.trigger.group) != user_groups.end())) {
@@ -164,59 +145,23 @@ bool check(Schema& schema, unsigned int user) {
 }
 
 
-static int print_cnt = 0;
-
-
-void p() {
-    cout << "debug print " << print_cnt++ << endl;
-}
-
-
-Schema get_schema() {
-    return Schema({
-                          {
-                                  Rule({Trigger({54, true}), Action::DENY}),
-                                  Rule({Trigger({43, false}), Action::ALLOW}),
-                                  Rule({Trigger({32, true}), Action::DENY}),
-                                  Rule({Trigger({21, true}), Action::DENY}),
-                          },
-                          {
-                                  {0, 1, 2},
-                                  {0},
-                                  {0, 1, 2},
-                                  {1, 2},
-                                  {1, 2},
-                                  {1},
-                                  {0, 1},
-                                  {1},
-                                  {1},
-                                  {1},
-                                  {1},
-                          }
-                  });
-}
-
-
-void _find_rules() {
-
-}
-
-
 char get_char_type(char c) {
     if (isspace(c)) {
         return 0;
     } else if (isalpha(c)) {
         return 1;
-    } else if (ispunct(c)) {
+    } else if (c == '"') {
         return 2;
+    } else if (ispunct(c)) {
+        return 3;
     } else {
-        return 5;
+        return 4;
     }
 }
 
 
 template <typename T>
-void split(string_view text, T consume) {
+void split(std::string_view text, T consume) {
     if (text.empty()) {
         return;
     } else if (text.size() == 1) {
@@ -228,9 +173,9 @@ void split(string_view text, T consume) {
     int last_index = 0;
     char last_is_w = get_char_type(text[last_index]);
     for (int i = 1; i < text.size(); ++i) {
-//        cout << "Compare '" << text[last_index] << "' and '" << text[i] << "'" << endl;
+// std::cout << "Compare '" << text[last_index] << "' and '" << text[i] << "'" << std::endl;
         if (last_is_w != get_char_type(text[i])) {
-//            cout << "set: " << i << " " << text[last_index] << endl;
+// std::cout << "set: " << i << " " << text[last_index] << std::endl;
             if (!isspace(text[last_index])) {
                 consume(text.substr(last_index, i - last_index));
             }
@@ -244,41 +189,60 @@ void split(string_view text, T consume) {
 }
 
 
+template<typename T>
+struct Buffer {
+    unsigned int size = 0;
+    T data[3] = {};
+
+    void add(T element) {
+        data[size] = element;
+        size++;
+    }
+
+    void clear() {
+        size = 0;
+    }
+};
+
+
+using UIntBuffer = Buffer<unsigned>;
+
+
 struct ParseState {
     bool collect_rules = false;
     bool collect_groups = false;
 
-    unsigned int parts_buffer[3] = {};
-    unsigned int parts_buffer_size = 0;
+    UIntBuffer buffer;
 };
 
 
-bool is_end(string_view part) {
-    return part == "]],\"" || part == "]]}";
+bool is_end(std::string_view part) {
+    return part == "]]," || part == "]]}";
 }
 
 
-void consume_rule_part(Schema& schema, ParseState& state, string_view part) {
-    if (part != "\":[[" && part != "," && part != "],[" && !is_end(part)) {
-//        cout << "Add num: " << part << endl;
-        if (state.parts_buffer_size == 3) {
-            throw invalid_argument("Invalid rules array size");
+void consume_rule_part(Schema& schema, ParseState& state, std::string_view part) {
+    if (part != ":[[" && part != "," && part != "],[" && part != "\"" && !is_end(part)) {
+        // std::cout << "Add num: " << part << std::endl;
+        if (state.buffer.size == 3) {
+            throw std::invalid_argument("Invalid rules array size");
         }
-        state.parts_buffer[state.parts_buffer_size++] = stoul(part.data());
+        state.buffer.add(std::stoul(part.data()));
+
     } else if (part == "],[" || is_end(part)) {
-//        cout << "flush rules: " << state.parts_buffer_size << endl;
-        if (state.parts_buffer_size != 3) {
-            throw invalid_argument("Invalid rules array size at the end");
+// std::cout << "flush rules: " << state.buffer.size << std::endl;
+        if (state.buffer.size != 3) {
+            throw std::invalid_argument("Invalid rules array size at the end");
         }
 
         schema.rules.push_back({
                                        {
-                                               state.parts_buffer[0],
-                                               (bool) state.parts_buffer[1],
+                                               state.buffer.data[0],
+                                               (bool) state.buffer.data[1],
                                        },
-                                       (Action) state.parts_buffer[2]
+                                       (Action) state.buffer.data[2]
                                });
-        state.parts_buffer_size = 0;
+        state.buffer.clear();
         if (is_end(part)) {
             state.collect_rules = false;
         }
@@ -286,48 +250,50 @@ void consume_rule_part(Schema& schema, ParseState& state, string_view part) {
 }
 
 
-void consume_group_part(Schema& schema, ParseState& state, string_view part) {
-//    cout << "!" << part << "!" << endl;
-    if (part != "\":[[" && part != "," && part != "],[" && !is_end(part)) {
-//        cout << "part: " << part << " !" << endl;
-        state.parts_buffer[state.parts_buffer_size++] = stoul(part.data());
+void consume_group_part(Schema& schema, ParseState& state, std::string_view part) {
+// std::cout << "!" << part << "!" << std::endl;
+    if (part != ":[[" && part != ":[[],[" && part != "," && part != "],[" && part != "\"" && !is_end(part)) {
+        // std::cout << "add part: " << part << " to index " << state.buffer.size << std::endl;
+        auto int_part = std::stoul(part.data());
+        // std::cout << "parts_buffer_size: " << state.buffer.size << std::endl;
+        state.buffer.add(int_part);
+        // std::cout << "parts_buffer_size: " << state.buffer.size << " -> " << state.buffer.size + 1 << std::endl;
 
-//        cout << "new part!: " << part << endl;
+        // std::cout << "new part!: " << part << std::endl;
     } else if (part == "],[" || is_end(part)) {
-//        cout << "flush parts, buffer size = " << state.parts_buffer_size << endl;
-//        vector<unsigned int> group(state.parts_buffer, state.parts_buffer + state.parts_buffer_size);
-        vector<unsigned int> group;
-        group.reserve(state.parts_buffer_size);
+// std::cout << "flush parts, buffer size = " << state.buffer.size << std::endl;
+        std::vector<unsigned int> group;
+        group.reserve(state.buffer.size);
 
-        for (int i = 0; i < state.parts_buffer_size; ++i) {
-//            cout << "add part: " << state.parts_buffer[i] << endl;
-            group.push_back(state.parts_buffer[i]);
+        for (int i = 0; i < state.buffer.size; ++i) {
+// std::cout << "add part: " << state.buffer.data[i] << std::endl;
+            group.push_back(state.buffer.data[i]);
         }
         schema.groups.push_back(group);
-        state.parts_buffer_size = 0;
-//        cout << "new group!" << endl;
+        state.buffer.clear();
+        // std::cout << "new group!" << std::endl;
         if (is_end(part)) {
-//            cout << "end of group collecting" << endl;
+// std::cout << "end of group collecting" << std::endl;
             state.collect_groups = false;
         }
     }
 }
 
 
-void consume_part(Schema& schema, ParseState& state, string_view part) {
+void consume_part(Schema& schema, ParseState& state, std::string_view part) {
     if (part == "rules") {
         if (state.collect_rules) {
-            throw invalid_argument("Duplicated rules");
+            throw std::invalid_argument("Duplicated rules");
         }
-//            cout << "collect rules" << endl;
-        state.parts_buffer_size = 0;
+            // std::cout << "collect rules" << std::endl;
+        state.buffer.clear();
         state.collect_rules = true;
     } else if (part == "groups") {
         if (state.collect_groups) {
-            throw invalid_argument("Duplicated groups");
+            throw std::invalid_argument("Duplicated groups");
         }
-//            cout << "collect groups" << endl;
-        state.parts_buffer_size = 0;
+            // std::cout << "collect groups" << std::endl;
+        state.buffer.clear();
         state.collect_groups = true;
     } else if (state.collect_rules) {
         consume_rule_part(schema, state, part);
@@ -337,12 +303,25 @@ void consume_part(Schema& schema, ParseState& state, string_view part) {
 }
 
 
-Schema parse_schema(string_view text) {
+Schema parse_schema(std::string_view text) {
     Schema schema;
+    schema.groups.emplace_back();
     ParseState state;
 
-    split(text, [&state, &schema](string_view part){consume_part(schema, state, part);});
+    split(text, [&state, &schema](std::string_view part){consume_part(schema, state, part);});
     return schema;
+}
+
+
+void replace(std::string &text, std::string_view from, std::string_view to) {
+    if (from.empty()) {
+        return;
+    }
+    size_t start_pos = 0;
+    while ((start_pos = text.find(from, start_pos)) != std::string::npos) {
+        text.replace(start_pos, from.length(), to);
+        start_pos += to.length();
+    }
 }
 
 
@@ -351,13 +330,20 @@ int main(int argc, char** argv) {
         return 1;
     }
     if (!strcmp(argv[1], "dump")) {
-        string filename = argv[2];
-        string raw_schema = argv[3];
+        std::string filename = argv[2];
+        std::string raw_schema = argv[3];
+        while (raw_schema.find("],[],[") != std::string::npos) {
+            raw_schema = std::regex_replace(raw_schema, std::regex(R"(\],\[\],\[)"), "],[ ],[");
+        }
+        while (raw_schema.find("],[]]") != std::string::npos) {
+            raw_schema = std::regex_replace(raw_schema, std::regex(R"(\],\[\]\])"), "],[ ]]");
+        }
+        // std::cout << "after: " << raw_schema << std::endl;
         auto schema = parse_schema(raw_schema);
         dump(filename, schema);
     } else if (!strcmp(argv[1], "check")) {
-        string filename = argv[2];
-        int user = stoul(argv[3]);
+        std::string filename = argv[2];
+        unsigned int user = std::stoul(argv[3]);
         Schema schema;
         load(filename, schema);
         if (check(schema, user)) {

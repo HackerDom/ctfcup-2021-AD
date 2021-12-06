@@ -6,7 +6,7 @@
     Requires=docker.service
 
 [Service]
-    ExecStart=/home/ctfcup/{{ service_name }}/run.sh
+    ExecStart=docker-compose up
     WorkingDirectory=/home/ctfcup/{{ service_name }}
     User=ctfcup
     Group=ctfcup

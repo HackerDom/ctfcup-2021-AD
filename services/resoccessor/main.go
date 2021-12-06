@@ -14,12 +14,13 @@ import (
 )
 
 type Env struct {
-	us          *server.UserStorage
-	sm          *server.SessionManager
-	userIdMap   *common.RedisStorage
-	uuid2owners *common.RedisStorage
-	resources   *common.FileStorage
-	schema      *schema.Schema
+	us           *server.UserStorage
+	sm           *server.SessionManager
+	userIdMap    *common.RedisStorage
+	uuid2owners  *common.RedisStorage
+	token2owners *common.RedisStorage
+	resources    *common.FileStorage
+	schema       *schema.Schema
 }
 
 func (env *Env) Init() {
@@ -34,6 +35,9 @@ func (env *Env) Init() {
 
 	env.uuid2owners = &common.RedisStorage{}
 	env.uuid2owners.Init(2, "uuid2owners")
+
+	env.token2owners = &common.RedisStorage{}
+	env.token2owners.Init(2, "token2owners")
 
 	env.resources = &common.FileStorage{}
 	env.resources.Init("resources")
@@ -146,6 +150,12 @@ func handleGenToken(env *Env, w http.ResponseWriter, r *http.Request, username s
 		return
 	}
 
+	if err := env.token2owners.Set(token, username); err != nil {
+		log.Println("can not gen token due to error: " + err.Error())
+		w.WriteHeader(500)
+		return
+	}
+
 	data, err := json.Marshal(TokenResponse{
 		token,
 		count,
@@ -209,6 +219,60 @@ func handleSetSchema(env *Env, w http.ResponseWriter, r *http.Request, username 
 	}
 }
 
+func handleGetResource(env *Env, w http.ResponseWriter, r *http.Request) {
+	resourceUuid := r.URL.Path[len("/get_resource/"):]
+
+	token := r.URL.Query().Get("token")
+	if len(token) != 32 {
+		log.Println("Invalid token")
+		w.WriteHeader(400)
+		return
+	}
+	username, err := env.token2owners.Get(token)
+	if err != nil {
+		log.Println("Can not get resource due error: " + err.Error())
+		w.WriteHeader(400)
+		return
+	}
+	if username == nil {
+		log.Println("Can not get resource, username doesnt contains in token2owners")
+		w.WriteHeader(400)
+		return
+	}
+	rawUserId, err := env.userIdMap.Get(*username + "/" + token)
+	if err != nil {
+		log.Println("Can not get resource due error: " + err.Error())
+		w.WriteHeader(400)
+		return
+	}
+
+	userId, err := strconv.ParseUint(*rawUserId, 10, 64)
+	if err != nil {
+		log.Println("Can not get resource due error: " + err.Error())
+		w.WriteHeader(400)
+		return
+	}
+
+	if ok := env.schema.Validate(*username, resourceUuid, userId); !ok {
+		log.Printf("User %d has no access to resource %s\n", userId, resourceUuid)
+		w.WriteHeader(404)
+		return
+	}
+
+	data, err := env.resources.Get(*username, resourceUuid)
+	if err != nil {
+		log.Println("Can not get resource due error: " + err.Error())
+		w.WriteHeader(400)
+		return
+	}
+
+	if _, err := w.Write(data); err != nil {
+		log.Println("Can not get resource due error: " + err.Error())
+		w.WriteHeader(400)
+		return
+	}
+}
+
 func handleListResources(env *Env, w http.ResponseWriter, r *http.Request, username string) {
 	resources, err := env.resources.List(username)
 	if err != nil {
@@ -263,5 +327,6 @@ func main() {
 	http.HandleFunc("/upload_resource", wrapper(env, checkAuth(handleUploadResource)))
 	http.HandleFunc("/list_resources", wrapper(env, checkAuth(handleListResources)))
 	http.HandleFunc("/set_schema/", wrapper(env, checkAuth(handleSetSchema)))
+	http.HandleFunc("/get_resource/", wrapper(env, handleGetResource))
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", "127.0.0.1", 8080), nil))
 }

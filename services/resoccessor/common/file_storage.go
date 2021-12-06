@@ -19,7 +19,7 @@ func isDirExists(path string) bool {
 	return fileInfo.IsDir()
 }
 
-func (fs *FileStorage) ensureDir(path string) {
+func (fs *FileStorage) EnsureDir(path string) {
 	if !isDirExists(path) {
 		if err := os.MkdirAll(path, os.ModePerm); err != nil {
 			panic(err)
@@ -27,22 +27,22 @@ func (fs *FileStorage) ensureDir(path string) {
 	}
 }
 
-func (fs *FileStorage) ensureSubdir(subdir string) {
-	fs.ensureDir(path.Join(fs.dir, subdir))
+func (fs *FileStorage) EnsureSubdir(subdir string) {
+	fs.EnsureDir(path.Join(fs.dir, subdir))
 }
 
 func (fs *FileStorage) Init(dir string) {
-	fs.ensureDir(dir)
+	fs.EnsureDir(dir)
 	fs.dir = dir
 }
 
 func (fs *FileStorage) Put(subdir, filename string, value []byte) error {
-	fs.ensureSubdir(subdir)
+	fs.EnsureSubdir(subdir)
 	return ioutil.WriteFile(path.Join(fs.dir, subdir, filename), value, 0644)
 }
 
 func (fs *FileStorage) Get(subdir, filename string) ([]byte, error) {
-	fs.ensureSubdir(subdir)
+	fs.EnsureSubdir(subdir)
 
 	data, err := ioutil.ReadFile(path.Join(fs.dir, subdir, filename))
 	if err != nil {
@@ -52,12 +52,12 @@ func (fs *FileStorage) Get(subdir, filename string) ([]byte, error) {
 }
 
 func (fs *FileStorage) Exists(subdir, filename string) bool {
-	fs.ensureSubdir(subdir)
-	return isFileExists(path.Join(fs.dir, subdir, filename))
+	fs.EnsureSubdir(subdir)
+	return IsFileExists(path.Join(fs.dir, subdir, filename))
 }
 
 func (fs *FileStorage) List(subdir string) ([]string, error) {
-	fs.ensureSubdir(subdir)
+	fs.EnsureSubdir(subdir)
 
 	files, err := ioutil.ReadDir(path.Join(fs.dir, subdir))
 	if err != nil {
