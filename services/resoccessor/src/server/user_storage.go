@@ -9,9 +9,9 @@ type UserStorage struct {
 	redisStorage *common.RedisStorage
 }
 
-func (us *UserStorage) Init() {
+func (us *UserStorage) Init(redisHostname string) {
 	us.redisStorage = &common.RedisStorage{}
-	us.redisStorage.Init(1, "user")
+	us.redisStorage.Init(redisHostname, 1, "user")
 }
 
 func (us *UserStorage) Register(username, password string) error {

@@ -13,14 +13,14 @@ type RedisStorage struct {
 	prefix    string
 }
 
-func (rs *RedisStorage) Init(number int, prefix string) {
+func (rs *RedisStorage) Init(hostname string, number int, prefix string) {
 	log.Println("Init redis store with prefix: " + prefix + " and number: " + strconv.Itoa(number))
 	rs.prefix = prefix
 	rs.redisPool = &redis.Pool{
 		MaxIdle:   80,
 		MaxActive: 12000,
 		Dial: func() (redis.Conn, error) {
-			conn, err := redis.Dial("tcp", "localhost:6379", redis.DialDatabase(number))
+			conn, err := redis.Dial("tcp", hostname+":6379", redis.DialDatabase(number))
 			if err != nil {
 				log.Printf("ERROR: fail Init redis pool: %s", err.Error())
 				os.Exit(1)

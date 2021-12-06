@@ -116,16 +116,16 @@ void load(const std::string& filename, Schema& schema) {
 
 
 void print_schema(Schema &schema) {
-    // std::cout << "rules: " << std::endl;
+    std::cout << "rules: " << std::endl;
     for (auto& rule: schema.rules) {
-        // std::cout << rule.trigger.group << " " << rule.trigger.includes << " " << rule.action << std::endl;
+        std::cout << rule.trigger.group << " " << rule.trigger.includes << " " << rule.action << std::endl;
     }
-    // std::cout << "groups: " << std::endl;
+    std::cout << "groups: " << std::endl;
     for (auto& group: schema.groups) {
         for (auto el: group) {
-            // std::cout << el << " ";
+            std::cout << el << " ";
         }
-        // std::cout << std::endl;
+        std::cout << std::endl;
     }
 }
 
@@ -173,9 +173,9 @@ void split(std::string_view text, T consume) {
     int last_index = 0;
     char last_is_w = get_char_type(text[last_index]);
     for (int i = 1; i < text.size(); ++i) {
-// std::cout << "Compare '" << text[last_index] << "' and '" << text[i] << "'" << std::endl;
+std::cout << "Compare '" << text[last_index] << "' and '" << text[i] << "'" << std::endl;
         if (last_is_w != get_char_type(text[i])) {
-// std::cout << "set: " << i << " " << text[last_index] << std::endl;
+std::cout << "set: " << i << " " << text[last_index] << std::endl;
             if (!isspace(text[last_index])) {
                 consume(text.substr(last_index, i - last_index));
             }
@@ -223,16 +223,16 @@ bool is_end(std::string_view part) {
 
 void consume_rule_part(Schema& schema, ParseState& state, std::string_view part) {
     if (part != ":[[" && part != "," && part != "],[" && part != "\"" && !is_end(part)) {
-        // std::cout << "Add num: " << part << std::endl;
+        std::cout << "Add num: " << part << std::endl;
         if (state.buffer.size == 3) {
-            throw std::invalid_argument("Invalid rules array size");
+            exit(1);
         }
         state.buffer.add(std::stoul(part.data()));
 
     } else if (part == "],[" || is_end(part)) {
-// std::cout << "flush rules: " << state.buffer.size << std::endl;
+std::cout << "flush rules: " << state.buffer.size << std::endl;
         if (state.buffer.size != 3) {
-            throw std::invalid_argument("Invalid rules array size at the end");
+            exit(1);
         }
 
         schema.rules.push_back({
@@ -251,29 +251,29 @@ void consume_rule_part(Schema& schema, ParseState& state, std::string_view part)
 
 
 void consume_group_part(Schema& schema, ParseState& state, std::string_view part) {
-// std::cout << "!" << part << "!" << std::endl;
+std::cout << "!" << part << "!" << std::endl;
     if (part != ":[[" && part != ":[[],[" && part != "," && part != "],[" && part != "\"" && !is_end(part)) {
-        // std::cout << "add part: " << part << " to index " << state.buffer.size << std::endl;
+        std::cout << "add part: " << part << " to index " << state.buffer.size << std::endl;
         auto int_part = std::stoul(part.data());
-        // std::cout << "parts_buffer_size: " << state.buffer.size << std::endl;
+        std::cout << "parts_buffer_size: " << state.buffer.size << std::endl;
         state.buffer.add(int_part);
-        // std::cout << "parts_buffer_size: " << state.buffer.size << " -> " << state.buffer.size + 1 << std::endl;
+        std::cout << "parts_buffer_size: " << state.buffer.size << " -> " << state.buffer.size + 1 << std::endl;
 
-        // std::cout << "new part!: " << part << std::endl;
+        std::cout << "new part!: " << part << std::endl;
     } else if (part == "],[" || is_end(part)) {
-// std::cout << "flush parts, buffer size = " << state.buffer.size << std::endl;
+std::cout << "flush parts, buffer size = " << state.buffer.size << std::endl;
         std::vector<unsigned int> group;
         group.reserve(state.buffer.size);
 
         for (int i = 0; i < state.buffer.size; ++i) {
-// std::cout << "add part: " << state.buffer.data[i] << std::endl;
+std::cout << "add part: " << state.buffer.data[i] << std::endl;
             group.push_back(state.buffer.data[i]);
         }
         schema.groups.push_back(group);
         state.buffer.clear();
-        // std::cout << "new group!" << std::endl;
+        std::cout << "new group!" << std::endl;
         if (is_end(part)) {
-// std::cout << "end of group collecting" << std::endl;
+std::cout << "end of group collecting" << std::endl;
             state.collect_groups = false;
         }
     }
@@ -283,16 +283,16 @@ void consume_group_part(Schema& schema, ParseState& state, std::string_view part
 void consume_part(Schema& schema, ParseState& state, std::string_view part) {
     if (part == "rules") {
         if (state.collect_rules) {
-            throw std::invalid_argument("Duplicated rules");
+            exit(1);
         }
-            // std::cout << "collect rules" << std::endl;
+            std::cout << "collect rules" << std::endl;
         state.buffer.clear();
         state.collect_rules = true;
     } else if (part == "groups") {
         if (state.collect_groups) {
-            throw std::invalid_argument("Duplicated groups");
+            exit(1);
         }
-            // std::cout << "collect groups" << std::endl;
+            std::cout << "collect groups" << std::endl;
         state.buffer.clear();
         state.collect_groups = true;
     } else if (state.collect_rules) {
@@ -313,42 +313,47 @@ Schema parse_schema(std::string_view text) {
 }
 
 
-void replace(std::string &text, std::string_view from, std::string_view to) {
-    if (from.empty()) {
-        return;
+int process_dump(char** argv) {
+    std::string filename = argv[2];
+    std::string raw_schema = argv[3];
+    while (raw_schema.find("],[],[") != std::string::npos) {
+        raw_schema = std::regex_replace(raw_schema, std::regex(R"(\],\[\],\[)"), "],[ ],[");
     }
-    size_t start_pos = 0;
-    while ((start_pos = text.find(from, start_pos)) != std::string::npos) {
-        text.replace(start_pos, from.length(), to);
-        start_pos += to.length();
+    while (raw_schema.find("],[]]") != std::string::npos) {
+        raw_schema = std::regex_replace(raw_schema, std::regex(R"(\],\[\]\])"), "],[ ]]");
     }
+    std::cout << "after: " << raw_schema << std::endl;
+    auto schema = parse_schema(raw_schema);
+    dump(filename, schema);
+    return 0;
+}
+
+
+int process_check(char** argv) {
+    std::string filename = argv[2];
+    unsigned int user = std::stoul(argv[3]);
+    Schema schema;
+    load(filename, schema);
+    if (check(schema, user)) {
+        return 0;
+    }
+    return 1;
+
+}
+
+int process_wrong_option() {
+    return 1;
 }
 
 
 int main(int argc, char** argv) {
     if (argc < 4) {
-        return 1;
+        return process_wrong_option();
     }
     if (!strcmp(argv[1], "dump")) {
-        std::string filename = argv[2];
-        std::string raw_schema = argv[3];
-        while (raw_schema.find("],[],[") != std::string::npos) {
-            raw_schema = std::regex_replace(raw_schema, std::regex(R"(\],\[\],\[)"), "],[ ],[");
-        }
-        while (raw_schema.find("],[]]") != std::string::npos) {
-            raw_schema = std::regex_replace(raw_schema, std::regex(R"(\],\[\]\])"), "],[ ]]");
-        }
-        // std::cout << "after: " << raw_schema << std::endl;
-        auto schema = parse_schema(raw_schema);
-        dump(filename, schema);
+        return process_dump(argv);
     } else if (!strcmp(argv[1], "check")) {
-        std::string filename = argv[2];
-        unsigned int user = std::stoul(argv[3]);
-        Schema schema;
-        load(filename, schema);
-        if (check(schema, user)) {
-            return 0;
-        }
-        return 1;
+        return process_check(argv);
     }
+    return 0;
 }

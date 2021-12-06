@@ -23,21 +23,21 @@ type Env struct {
 	schema       *schema.Schema
 }
 
-func (env *Env) Init() {
+func (env *Env) Init(redisHostname string) {
 	env.us = &server.UserStorage{}
-	env.us.Init()
+	env.us.Init(redisHostname)
 
 	env.sm = &server.SessionManager{}
-	env.sm.Init()
+	env.sm.Init(redisHostname)
 
 	env.userIdMap = &common.RedisStorage{}
-	env.userIdMap.Init(2, "idmap")
+	env.userIdMap.Init(redisHostname, 2, "idmap")
 
 	env.uuid2owners = &common.RedisStorage{}
-	env.uuid2owners.Init(2, "uuid2owners")
+	env.uuid2owners.Init(redisHostname, 2, "uuid2owners")
 
 	env.token2owners = &common.RedisStorage{}
-	env.token2owners.Init(2, "token2owners")
+	env.token2owners.Init(redisHostname, 2, "token2owners")
 
 	env.resources = &common.FileStorage{}
 	env.resources.Init("resources")
@@ -78,7 +78,7 @@ func handleRegisterAdmin(env *Env, w http.ResponseWriter, r *http.Request) {
 	}
 	secret, err := env.sm.Create(userPair.Name)
 	if err != nil {
-		log.Println("can not Create session for user: " + err.Error())
+		log.Println("can not create session for user: " + err.Error())
 		w.WriteHeader(400)
 		return
 	}
@@ -319,7 +319,7 @@ func checkAuth(handler func(env *Env, w http.ResponseWriter, r *http.Request, us
 
 func main() {
 	env := &Env{}
-	env.Init()
+	env.Init("redis")
 
 	http.HandleFunc("/register", wrapper(env, handleRegisterAdmin))
 	http.HandleFunc("/login", wrapper(env, handleLoginAdmin))
@@ -328,5 +328,5 @@ func main() {
 	http.HandleFunc("/list_resources", wrapper(env, checkAuth(handleListResources)))
 	http.HandleFunc("/set_schema/", wrapper(env, checkAuth(handleSetSchema)))
 	http.HandleFunc("/get_resource/", wrapper(env, handleGetResource))
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", "127.0.0.1", 8080), nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", "0.0.0.0", 3000), nil))
 }
