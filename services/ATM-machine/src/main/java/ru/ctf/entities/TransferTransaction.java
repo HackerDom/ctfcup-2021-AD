@@ -5,11 +5,16 @@ public record TransferTransaction(
         String from,
         String to,
         double value,
-        String comment) implements Transaction {
+        String comment) implements ClearTransaction {
     private static final TransactionType TYPE = TransactionType.TRANSFER;
 
     @Override
     public TransactionType type() {
         return TYPE;
+    }
+
+    @Override
+    public String toString() {
+        return constructString();
     }
 }
