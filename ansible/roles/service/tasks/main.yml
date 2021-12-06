@@ -7,23 +7,6 @@
   debug:
     msg: "Uploading {{ service_name }}"
 
-- name: Restart service {{ service_name }}
-  systemd: name={{ service_name }} state=restarted
-
-- name: Cleanup service if needed
-  when: cleanup_docker_volumes | default('no') | bool
-  command:
-    cmd: docker-compose down --volumes --rmi local
-    chdir: "/home/ctfcup/{{ service_name }}"
-  ignore_errors: yes
-
-- name: Cleanup service if needed
-  when: cleanup_docker_volumes | default('no') | bool
-  command:
-    cmd: docker-compose down --volumes --rmi local
-    chdir: "/home/ctfcup/{{ service_name }}"
-  ignore_errors: yes
-
 - name: Copy service {{ service_name }}
   synchronize:
     src: "{{ playbook_dir }}/../services/{{ service_name }}/"
