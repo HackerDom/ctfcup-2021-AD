@@ -9,7 +9,7 @@ import traceback
 
 from gornilo import CheckRequest, Verdict, Checker, PutRequest, GetRequest
 
-from generators import gen_string, gen_user_agent
+from generators import gen_string, gen_user_agent, gen_schema, check
 
 checker = Checker()
 
@@ -110,19 +110,51 @@ class NetworkChecker:
         return True
 
 
-def main():
-    name, password = gen_string(), gen_string()
-    print(name, password)
-    hostname = "127.0.0.1"
-    session = register(hostname, name, password)
-    token, count = gen_token(hostname, session)
-    print(token, count)
-    print(upload_resource(hostname, session, b'Content!'))
-    resource_uuid = list_resources(hostname, session)[0]
-    schema = {"groups": [[0, 1, 2], [0, 1, 2], [1, 2]], "rules": [[1, 1, 1]]}
-    set_schema(hostname, session, resource_uuid, schema)
-    print(get_resource(hostname, token, resource_uuid))
+@checker.define_check
+def check_service(request: CheckRequest) -> Verdict:
+    return Verdict.OK()
+
+
+@checker.define_put(vuln_num=1, vuln_rate=1)
+def put_flag(request: PutRequest) -> Verdict:
+    with NetworkChecker() as nc:
+        username, password = gen_string(), gen_string()
+        session = register(request.hostname, username, password)
+
+        token = None
+        count = None
+        schema, user_id = gen_schema()
+        while count != user_id:
+            token, count = gen_token(request.hostname, session)
+
+        resource_uuid = upload_resource(request.hostname, session, request.flag)
+        resource_uuids = list_resources(request.hostname, session)
+
+        if len(resource_uuids) != 1:
+            raise IncorrectDataError(f"len(resource_uuids) = {resource_uuids}")
+
+        if resource_uuids[0] != resource_uuid:
+            raise IncorrectDataError(f"different resource uuids: {resource_uuids[0]} and {resource_uuid}")
+
+        set_schema(request.hostname, session, resource_uuid, schema)
+        flag_id = f"{token}:{resource_uuid}"
+
+        nc.verdict = Verdict.OK(flag_id)
+    return nc.verdict
+
+
+@checker.define_get(vuln_num=1)
+def get_flag(request: GetRequest) -> Verdict:
+    with NetworkChecker() as nc:
+        token, resource_uuid = request.flag_id.strip().split(":")
+        real_flag = get_resource(request.hostname, token, resource_uuid)
+
+        if request.flag != real_flag:
+            print(f"Different flags, expected: {request.flag}, real: {real_flag}")
+            return Verdict.CORRUPT("Corrupt flag")
+        nc.verdict = Verdict.OK()
+    return nc.verdict
 
 
 if __name__ == '__main__':
-    main()
+    checker.run()
