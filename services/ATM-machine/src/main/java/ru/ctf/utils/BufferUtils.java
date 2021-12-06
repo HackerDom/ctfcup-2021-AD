@@ -14,7 +14,7 @@ public class BufferUtils {
         byte[] arr = buffer.array();
         for (int i = arr.length - 1; i >= 0; i--) {
             if (arr[i] != 0) {
-                return i;
+                return i + 1;
             }
         }
         return 0;

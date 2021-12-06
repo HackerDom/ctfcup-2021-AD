@@ -117,7 +117,8 @@ class Client:
 
             if r.status_code >= 400:
                 print(f"Request to {relative_url} failed with status code {r.status_code}. See more:\r\n{r.__dict__}")
-                raise HttpError(Verdict.MUMBLE(f"Request to {relative_url} failed with status code {r.status_code}"))
+                verdict = Verdict.DOWN if r.status_code in [502, 503] else Verdict.MUMBLE
+                raise HttpError(verdict(f"Request to {relative_url} failed with status code {r.status_code}"))
 
             return r
 

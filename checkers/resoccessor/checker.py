@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.9
 import functools
 import json
 import re
@@ -14,7 +14,7 @@ from generators import gen_string, gen_user_agent, gen_schema, check
 checker = Checker()
 
 
-PORT = 8080
+PORT = 3000
 
 
 REGISTER_URL = "http://{hostname}:{port}/register"

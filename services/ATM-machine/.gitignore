@@ -10,5 +10,7 @@ gradle-app.setting
 
 # Cache of project
 .gradletasknamecache
-
+./checker/__pycache__
 /.idea
+src/main/resources/
+gradle
