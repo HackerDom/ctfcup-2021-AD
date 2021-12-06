@@ -60,5 +60,5 @@ jobs:
     #  run: if [ -f services/ctfland/before_image_build.sh ]; then (cd ./services/ctfland && ./before_image_build.sh); fi
 
     - name: deploy ctfland
-      run: cd ./ansible && ansible-playbook --extra-vars cleanup_docker_volumes=${{ github.event.inputs.cleanup_before_deploy }} -t ctfland deploy-services.yml)
+      run: cd ./ansible && ansible-playbook --extra-vars cleanup_docker_volumes=${{ github.event.inputs.cleanup_before_deploy }} -t ctfland deploy-services.yml
 
