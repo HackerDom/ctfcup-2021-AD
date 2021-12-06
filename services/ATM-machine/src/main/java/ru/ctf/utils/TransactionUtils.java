@@ -20,8 +20,8 @@ public class TransactionUtils {
         return new EncryptedTransaction(transaction.id(), transaction.type(), encryptBody);
     }
 
-    public static boolean checkTransaction(String massage) {
-        byte[] decryptBody = cryptoService.makeAes(massage.getBytes(), Cipher.DECRYPT_MODE);
+    public static boolean checkTransaction(byte[] byteMsg) {
+        byte[] decryptBody = cryptoService.makeAes(byteMsg, Cipher.DECRYPT_MODE);
         return decryptBody != null;
     }
 }
