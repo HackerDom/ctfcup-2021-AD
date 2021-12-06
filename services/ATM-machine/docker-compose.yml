@@ -2,7 +2,7 @@ services:
   app:
     build: .
     ports:
-      - "5051:8080"
+      - 5051:8080
     restart: always
     depends_on:
       - postgres
