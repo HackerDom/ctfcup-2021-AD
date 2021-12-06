@@ -1,10 +1,24 @@
 ---
+- name: Cleanup service if needed
+  import_tasks: cleanup.yml
+  when: cleanup_service | default('no') | bool
+
 - name: Uploading service {{ service_name }}
   debug:
     msg: "Uploading {{ service_name }}"
 
-- name: Cleanup volumes if needed
-  when: cleanup_docker_volumes is defined and cleanup_docker_volumes
+- name: Restart service {{ service_name }}
+  systemd: name={{ service_name }} state=restarted
+
+- name: Cleanup service if needed
+  when: cleanup_docker_volumes | default('no') | bool
+  command:
+    cmd: docker-compose down --volumes --rmi local
+    chdir: "/home/ctfcup/{{ service_name }}"
+  ignore_errors: yes
+
+- name: Cleanup service if needed
+  when: cleanup_docker_volumes | default('no') | bool
   command:
     cmd: docker-compose down --volumes --rmi local
     chdir: "/home/ctfcup/{{ service_name }}"

@@ -23,8 +23,8 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v2
 
-    #- name: Run prebuilt hook
-    #  run: if [ -f services/ctfland/before_image_build.sh ]; then (cd ./services/ctfland && ./before_image_build.sh); fi
+    - name: Run prebuilt hook
+      run: if [ -f services/ctfland/before_image_build.sh ]; then (cd ./services/ctfland && ./before_image_build.sh); fi
 
     - name: Setup ctfland
       run: (cd ./services/ctfland && docker-compose pull && docker-compose build && docker-compose up --build -d)
@@ -56,9 +56,12 @@ jobs:
     - name: change permission for ssh key
       run: chmod 0600 ./teams/for_devs.ssh_key
 
-    #- name: Run prebuilt hook
-    #  run: if [ -f services/ctfland/before_image_build.sh ]; then (cd ./services/ctfland && ./before_image_build.sh); fi
+    - name: Run prebuilt hook
+      run: if [ -f services/ctfland/before_image_build.sh ]; then (cd ./services/ctfland && ./before_image_build.sh); fi
+
+    - name: update checkers
+      run: cd ./ansible && ansible-playbook cs-checkers.yml
 
     - name: deploy ctfland
-      run: cd ./ansible && ansible-playbook --extra-vars cleanup_docker_volumes=${{ github.event.inputs.cleanup_before_deploy }} -t ctfland deploy-services.yml
+      run: cd ./ansible && ansible-playbook --extra-vars cleanup_service=${{ github.event.inputs.cleanup_before_deploy }} -t ctfland deploy-services.yml
 
