@@ -12,7 +12,7 @@ class Connector:
             resp = self.sock.recv(1488)
         except Exception:   
             return
-    
+
         return resp.strip(b"\x00")
 
     def close_connection(self):

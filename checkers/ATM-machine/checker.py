@@ -32,20 +32,19 @@ async def check_service(request: CheckRequest) -> Verdict:
         if not res:
             return Verdict.DOWN("connection error")
         try:
-            res = res.split(b"\n")
-            id = res[0].decode("utf-8")
-            encoded = res[1]
+            id = res[:res.find(b"\n")].decode("utf-8")
+            encoded = res[res.find(b"\n") + 1:]
         except Exception:
-            return Verdict.MUMBLE("incorrect answer")
+            return Verdict.MUMBLE("incorrect transfer")
         res = connect.send_message(b"check " + encoded)
         if not res:
             return Verdict.DOWN("connection error")
         try:
             res = res.decode("utf-8")
         except Exception:
-            return Verdict.MUMBLE("incorrect answer")
+            return Verdict.MUMBLE("incorrect transfer")
         if res != "ok":
-            return Verdict.MUMBLE("incorrect answer")
+            return Verdict.MUMBLE("incorrect transfer")
         res = connect.send_message(f"checkid {id}".encode())
         if not res:
             return Verdict.DOWN("connection error")
@@ -53,21 +52,23 @@ async def check_service(request: CheckRequest) -> Verdict:
             res = res.decode("utf-8")
             res = json.loads(res)
         except Exception:
-            return Verdict.MUMBLE("incorrect answer")
+            return Verdict.MUMBLE("incorrect checkid")
         if res.get("comment") != comment:
-            return Verdict.MUMBLE("incorrect answer")
+            return Verdict.MUMBLE("incorrect checkid")
         res = connect.send_message("show 0 10".encode())
+        print(res)
         if not res:
             return Verdict.DOWN("connection error")
         try:
-            res = res.split(b"\n")
+            res = res.split(b"separator")
         except Exception:
-            return Verdict.MUMBLE("incorrect answer")
+            return Verdict.MUMBLE("incorrect show")
         if encoded not in res:
-            return Verdict.MUMBLE("incorrect answer")
+            return Verdict.MUMBLE("incorrect show")
         res = connect.send_message(f"show {random.randint(0, 10)} 20".encode())
+        print(res)
         if not res:
-            return Verdict.DOWN("connection error")
+            return Verdict.DOWN("connection error after sec show")
         return Verdict.OK()
     finally:
         connect.close_connection()
@@ -89,7 +90,7 @@ async def put(request: PutRequest) -> Verdict:
             res = res.split(b"\n")
             id = res[0].decode("utf-8")
         except Exception:
-            Verdict.MUMBLE("incorrect answer")
+            Verdict.MUMBLE("incorrect put")
         return Verdict.OK(id)
     finally:
         connect.close_connection()
@@ -107,7 +108,7 @@ async def get(request: GetRequest) -> Verdict:
             res = res.decode("utf-8")
             res = json.loads(res)
         except Exception:
-            return Verdict.MUMBLE("incorrect answer")
+            return Verdict.MUMBLE("incorrect checkid")
         if res.get("comment") != request.flag:
             return Verdict.CORRUPT("invald flag")
         return Verdict.OK()

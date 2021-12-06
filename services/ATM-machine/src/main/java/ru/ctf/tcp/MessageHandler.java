@@ -82,7 +82,7 @@ public class MessageHandler {
                 .map(TransactionPair::encryptedTransaction)
                 .toList();
 
-        return concatWithDelimiter((byte) '\n', encryptedTransactions);
+        return concatWithDelimiter("separator".getBytes(), encryptedTransactions);
     }
 
     private TransferTransaction getTransaction(String[] messageParts) {
@@ -99,7 +99,7 @@ public class MessageHandler {
         return new TransferTransaction(id, from, to, value, comment);
     }
 
-    public static byte[] concatWithDelimiter(byte delimiter, List<EncryptedTransaction> transactions) {
+    public static byte[] concatWithDelimiter(byte[] delimiter, List<EncryptedTransaction> transactions) {
         byte[] concatenated = new byte[calculateConcatenationLength(transactions)];
         int currentIndex = 0;
         for (int i = 0; i < transactions.size(); i++) {
@@ -108,7 +108,9 @@ public class MessageHandler {
                 concatenated[currentIndex++] = b;
             }
             if (i != transactions.size() - 1) {
-                concatenated[currentIndex++] = delimiter;
+                for (byte byt : delimiter) {
+                    concatenated[currentIndex++] = byt;
+                }
             }
         }
 
@@ -118,7 +120,7 @@ public class MessageHandler {
     private static int calculateConcatenationLength(List<EncryptedTransaction> transactions) {
         return transactions.stream()
                 .map(EncryptedTransaction::encryptedBody)
-                .mapToInt(arr -> arr.length + 1).sum() - 1;
+                .mapToInt(arr -> arr.length + 9).sum() - 9;
     }
 
     private static class MessageValidator {
