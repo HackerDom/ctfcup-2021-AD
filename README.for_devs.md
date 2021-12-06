@@ -13,6 +13,9 @@
 
 **Important:** нужно указать именно 3.9, ибо там несколько python'ов на тачке с чексистемом... исправим когда-нибудь.
 
+**Important:**  чекер должен уметь запускаться из произвольной директории. **НЕ ИСПОЛЬЗУЙТЕ ОТНОСИТЕЛЬНЫЕ ПУТИ**
+https://stackoverflow.com/questions/3430372/how-do-i-get-the-full-path-of-the-current-files-directory вам в помощь.
+
 ### 2. Docker-compose
 
 * Использовать `version` не более 3.7
