@@ -1,13 +1,13 @@
 import socket
 
 class Connector:
-    def __init__(self, host: str):
+    def __init__(self, address: str):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.addr = (host, 5051)
+        self.addr = address
         self.sock.connect(self.addr)
 
     def send_message(self, message: str):
-        self.sock.sendall(message.encode())
+        self.sock.sendall(message)
         try:
             resp = self.sock.recv(1488)
         except Exception:   
