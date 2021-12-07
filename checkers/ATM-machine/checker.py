@@ -58,7 +58,6 @@ async def check_service(request: CheckRequest) -> Verdict:
         if res.get("comment") != comment:
             return Verdict.MUMBLE("incorrect checkid")
         res = connect.send_message("show 0 10".encode())
-        print(res)
         if not res:
             return Verdict.DOWN("connection error")
         try:
@@ -68,7 +67,6 @@ async def check_service(request: CheckRequest) -> Verdict:
         if encoded not in res:
             return Verdict.MUMBLE("incorrect show")
         res = connect.send_message(f"show {random.randint(0, 10)} 20".encode())
-        print(res)
         if not res:
             return Verdict.DOWN("connection error after sec show")
         return Verdict.OK()
