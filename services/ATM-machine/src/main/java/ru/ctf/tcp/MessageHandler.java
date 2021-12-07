@@ -7,8 +7,11 @@ import ru.ctf.entities.TransactionPair;
 import ru.ctf.entities.TransferTransaction;
 import ru.ctf.utils.TransactionUtils;
 
+import java.io.Console;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.sound.midi.Track;
 
 public class MessageHandler {
     private final DAO<Long, TransactionPair> dao = new TransactionPairDAO();
@@ -27,10 +30,14 @@ public class MessageHandler {
             }
             case SHOW -> {
                 if (messageValidator.validateShow(messageParts)) {
-                    return getTransactionsBytes(
+                    System.out.println("I am in show!!");
+                    byte[] transactions = getTransactionsBytes(
                             Integer.parseInt(messageParts[1]),
                             Integer.parseInt(messageParts[2])
                     );
+                    System.out.println("I am after getting transactions!!");
+                    System.out.println(transactions.length);
+                    return transactions.length > 0 ? transactions : "empty".getBytes();
                 }
                 throw new RuntimeException();
             }
@@ -81,7 +88,7 @@ public class MessageHandler {
         List<EncryptedTransaction> encryptedTransactions = dao.getAll(offset, limit).stream()
                 .map(TransactionPair::encryptedTransaction)
                 .toList();
-
+        System.out.println("got transactions");
         return concatWithDelimiter("separator".getBytes(), encryptedTransactions);
     }
 
@@ -101,6 +108,7 @@ public class MessageHandler {
 
     public static byte[] concatWithDelimiter(byte[] delimiter, List<EncryptedTransaction> transactions) {
         byte[] concatenated = new byte[calculateConcatenationLength(transactions)];
+        System.out.println("counted length");
         int currentIndex = 0;
         for (int i = 0; i < transactions.size(); i++) {
             byte[] arr = transactions.get(i).encryptedBody();
@@ -118,7 +126,7 @@ public class MessageHandler {
     }
 
     private static int calculateConcatenationLength(List<EncryptedTransaction> transactions) {
-        return transactions.stream()
+        return transactions.isEmpty() ? 0 : transactions.stream()
                 .map(EncryptedTransaction::encryptedBody)
                 .mapToInt(arr -> arr.length + 9).sum() - 9;
     }
