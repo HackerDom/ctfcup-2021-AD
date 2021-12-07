@@ -22,7 +22,7 @@ variable "main_resources" {
     cores = 2
     memory = 4
     core_fraction = 50
-    preemtible = true
+    preemtible = false
   }
 }
 

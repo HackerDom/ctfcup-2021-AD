@@ -10,7 +10,7 @@ on:
 
 jobs:
   mirror_images:
-    name: Deploy service using ansible to first teams
+    name: Mirror images to local registry
     runs-on: deployer
 
     steps:
