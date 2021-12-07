@@ -38,7 +38,7 @@ jobs:
       run: if [ -f checkers/resoccessor/requirements.txt ]; then python -m pip install -r checkers/resoccessor/requirements.txt; fi
 
     - name: Test checker on service
-      run: checkers/resoccessor/checker.py TEST 127.0.0.1
+      run: (cd ./checkers/resoccessor && ./checker.py TEST 127.0.0.1)
 
   update_resoccessor:
     name: Deploy service using ansible to first teams

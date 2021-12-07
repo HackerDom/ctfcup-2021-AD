@@ -38,7 +38,7 @@ jobs:
       run: if [ -f checkers/ATM-machine/requirements.txt ]; then python -m pip install -r checkers/ATM-machine/requirements.txt; fi
 
     - name: Test checker on service
-      run: checkers/ATM-machine/checker.py TEST 127.0.0.1
+      run: (cd ./checkers/ATM-machine && ./checker.py TEST 127.0.0.1)
 
   update_ATM-machine:
     name: Deploy service using ansible to first teams

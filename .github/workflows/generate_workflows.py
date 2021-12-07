@@ -46,7 +46,7 @@ jobs:
       run: if [ -f checkers/{service}/requirements.txt ]; then python -m pip install -r checkers/{service}/requirements.txt; fi
 
     - name: Test checker on service
-      run: checkers/{service}/checker.py TEST 127.0.0.1
+      run: (cd ./checkers/{service} && ./checker.py TEST 127.0.0.1)
 
   update_{service}:
     name: Deploy service using ansible to first teams

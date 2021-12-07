@@ -38,7 +38,7 @@ jobs:
       run: if [ -f checkers/ctfland/requirements.txt ]; then python -m pip install -r checkers/ctfland/requirements.txt; fi
 
     - name: Test checker on service
-      run: checkers/ctfland/checker.py TEST 127.0.0.1
+      run: (cd ./checkers/ctfland && ./checker.py TEST 127.0.0.1)
 
   update_ctfland:
     name: Deploy service using ansible to first teams
