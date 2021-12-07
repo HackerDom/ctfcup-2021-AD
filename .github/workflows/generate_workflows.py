@@ -70,7 +70,7 @@ jobs:
     - name: update checkers
       run: cd ./ansible && ansible-playbook cs-checkers.yml
 
-    - name: deploy ctfland
+    - name: deploy {service}
       run: cd ./ansible && ansible-playbook --extra-vars cleanup_service=${{{{ github.event.inputs.cleanup_before_deploy }}}} -t {service} deploy-services.yml
 
 '''
