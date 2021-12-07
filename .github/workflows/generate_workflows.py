@@ -71,10 +71,10 @@ jobs:
       run: cd ./ansible && ansible-playbook cs-checkers.yml
 
     - name: deploy {service}
-      run: cd ./ansible && ansible-playbook --extra-vars cleanup_service=${{{{ github.event.inputs.cleanup_before_deploy }}}} -t {service} deploy-services.yml
+      run: cd ./ansible && ansible-playbook --extra-vars cleanup_service=${{{{ github.event.inputs.cleanup_before_deploy }}}} -t {service_lower} -l {service_lower} deploy-services.yml
 
 '''
 
 for s in SERVICES:
     with open('check_{}.yml'.format(s), 'w') as f:
-        f.write(TEMPLATE.format(service=s))
+        f.write(TEMPLATE.format(service=s, service_lower=s.lower()))
