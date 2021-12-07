@@ -225,14 +225,14 @@ void consume_rule_part(Schema& schema, ParseState& state, std::string_view part)
     if (part != ":[[" && part != "," && part != "],[" && part != "\"" && !is_end(part)) {
         // std::cout << "Add num: " << part << std::endl;
         if (state.buffer.size == 3) {
-            throw std::invalid_argument("Invalid rules array size");
+            exit(1);
         }
         state.buffer.add(std::stoul(part.data()));
 
     } else if (part == "],[" || is_end(part)) {
 // std::cout << "flush rules: " << state.buffer.size << std::endl;
         if (state.buffer.size != 3) {
-            throw std::invalid_argument("Invalid rules array size at the end");
+            exit(1);
         }
 
         schema.rules.push_back({
@@ -283,14 +283,14 @@ void consume_group_part(Schema& schema, ParseState& state, std::string_view part
 void consume_part(Schema& schema, ParseState& state, std::string_view part) {
     if (part == "rules") {
         if (state.collect_rules) {
-            throw std::invalid_argument("Duplicated rules");
+            exit(1);
         }
             // std::cout << "collect rules" << std::endl;
         state.buffer.clear();
         state.collect_rules = true;
     } else if (part == "groups") {
         if (state.collect_groups) {
-            throw std::invalid_argument("Duplicated groups");
+            exit(1);
         }
             // std::cout << "collect groups" << std::endl;
         state.buffer.clear();
@@ -313,42 +313,47 @@ Schema parse_schema(std::string_view text) {
 }
 
 
-void replace(std::string &text, std::string_view from, std::string_view to) {
-    if (from.empty()) {
-        return;
+int process_dump(char** argv) {
+    std::string filename = argv[2];
+    std::string raw_schema = argv[3];
+    while (raw_schema.find("],[],[") != std::string::npos) {
+        raw_schema = std::regex_replace(raw_schema, std::regex(R"(\],\[\],\[)"), "],[ ],[");
     }
-    size_t start_pos = 0;
-    while ((start_pos = text.find(from, start_pos)) != std::string::npos) {
-        text.replace(start_pos, from.length(), to);
-        start_pos += to.length();
+    while (raw_schema.find("],[]]") != std::string::npos) {
+        raw_schema = std::regex_replace(raw_schema, std::regex(R"(\],\[\]\])"), "],[ ]]");
     }
+    // std::cout << "after: " << raw_schema << std::endl;
+    auto schema = parse_schema(raw_schema);
+    dump(filename, schema);
+    return 0;
+}
+
+
+int process_check(char** argv) {
+    std::string filename = argv[2];
+    unsigned int user = std::stoul(argv[3]);
+    Schema schema;
+    load(filename, schema);
+    if (check(schema, user)) {
+        return 0;
+    }
+    return 1;
+
+}
+
+int process_wrong_option() {
+    return 1;
 }
 
 
 int main(int argc, char** argv) {
     if (argc < 4) {
-        return 1;
+        return process_wrong_option();
     }
     if (!strcmp(argv[1], "dump")) {
-        std::string filename = argv[2];
-        std::string raw_schema = argv[3];
-        while (raw_schema.find("],[],[") != std::string::npos) {
-            raw_schema = std::regex_replace(raw_schema, std::regex(R"(\],\[\],\[)"), "],[ ],[");
-        }
-        while (raw_schema.find("],[]]") != std::string::npos) {
-            raw_schema = std::regex_replace(raw_schema, std::regex(R"(\],\[\]\])"), "],[ ]]");
-        }
-        // std::cout << "after: " << raw_schema << std::endl;
-        auto schema = parse_schema(raw_schema);
-        dump(filename, schema);
+        return process_dump(argv);
     } else if (!strcmp(argv[1], "check")) {
-        std::string filename = argv[2];
-        unsigned int user = std::stoul(argv[3]);
-        Schema schema;
-        load(filename, schema);
-        if (check(schema, user)) {
-            return 0;
-        }
-        return 1;
+        return process_check(argv);
     }
+    return 0;
 }

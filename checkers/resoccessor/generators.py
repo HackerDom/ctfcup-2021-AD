@@ -3,7 +3,7 @@ import string
 
 ALPHA = string.ascii_lowercase + string.digits
 
-with open('user-agents') as fin:
+with open('checkers/resoccessor/user-agents') as fin:
     USER_AGENTS = [line.strip() for line in fin]
 
 

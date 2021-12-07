@@ -19,9 +19,9 @@ type SessionManager struct {
 	redisStorage *common.RedisStorage
 }
 
-func (sm *SessionManager) Init() {
+func (sm *SessionManager) Init(redisHostname string) {
 	sm.redisStorage = &common.RedisStorage{}
-	sm.redisStorage.Init(0, "session")
+	sm.redisStorage.Init(redisHostname, 0, "session")
 }
 
 func (sm *SessionManager) Create(username string) (string, error) {

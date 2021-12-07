@@ -1,6 +1,5 @@
 package schema
 
-import "C"
 import (
 	"log"
 	"os/exec"
