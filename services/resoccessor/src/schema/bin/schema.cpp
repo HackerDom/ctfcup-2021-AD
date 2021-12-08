@@ -192,7 +192,7 @@ void split(std::string_view text, T consume) {
 template<typename T>
 struct Buffer {
     unsigned int size = 0;
-    T data[3] = {};
+    T data[100] = {};
 
     void add(T element) {
         data[size] = element;
@@ -250,7 +250,7 @@ void consume_rule_part(Schema& schema, ParseState& state, std::string_view part)
 }
 
 
-void consume_group_part(Schema& schema, ParseState& state, std::string_view part) {
+void consume_group_part(Schema& schema, ParseState& state, std::string_view part, std::vector<unsigned int>& group) {
 // std::cout << "!" << part << "!" << std::endl;
     if (part != ":[[" && part != ":[[],[" && part != "," && part != "],[" && part != "\"" && !is_end(part)) {
         // std::cout << "add part: " << part << " to index " << state.buffer.size << std::endl;
@@ -262,11 +262,10 @@ void consume_group_part(Schema& schema, ParseState& state, std::string_view part
         // std::cout << "new part!: " << part << std::endl;
     } else if (part == "],[" || is_end(part)) {
 // std::cout << "flush parts, buffer size = " << state.buffer.size << std::endl;
-        std::vector<unsigned int> group;
-        group.reserve(state.buffer.size);
 
         for (int i = 0; i < state.buffer.size; ++i) {
 // std::cout << "add part: " << state.buffer.data[i] << std::endl;
+            group.resize(0);
             group.push_back(state.buffer.data[i]);
         }
         schema.groups.push_back(group);
@@ -280,7 +279,7 @@ void consume_group_part(Schema& schema, ParseState& state, std::string_view part
 }
 
 
-void consume_part(Schema& schema, ParseState& state, std::string_view part) {
+void consume_part(Schema& schema, ParseState& state, std::string_view part, std::vector<unsigned int>& group) {
     if (part == "rules") {
         if (state.collect_rules) {
             exit(1);
@@ -298,7 +297,7 @@ void consume_part(Schema& schema, ParseState& state, std::string_view part) {
     } else if (state.collect_rules) {
         consume_rule_part(schema, state, part);
     } else if (state.collect_groups) {
-        consume_group_part(schema, state, part);
+        consume_group_part(schema, state, part, group);
     }
 }
 
@@ -307,8 +306,10 @@ Schema parse_schema(std::string_view text) {
     Schema schema;
     schema.groups.emplace_back();
     ParseState state;
+    std::vector<unsigned int> group;
+    group.reserve(100);
 
-    split(text, [&state, &schema](std::string_view part){consume_part(schema, state, part);});
+    split(text, [&state, &schema, &group](std::string_view part){consume_part(schema, state, part, group);});
     return schema;
 }
 
