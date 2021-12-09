@@ -95,7 +95,6 @@ class IncorrectDataError(Exception):
     pass
 
 
-
 DOWN_ERRORS = {requests.exceptions.ConnectionError, ConnectionError, ConnectionAbortedError, ConnectionRefusedError, ConnectionResetError}
 INCORRECT_HTTP_ERRORS = {requests.exceptions.HTTPError}
 INCORRECT_DATA_ERRORS = {IncorrectDataError, UnicodeError, json.JSONDecodeError}
