@@ -119,8 +119,10 @@ class PrettyClient:
             attractions_ids=attractions_ids,
         )
 
-    def buy_ticket(self, attraction_id, user_id) -> User:
-        self._client.buy_ticket(attraction_id)
+    def buy_ticket(self, attraction_id, user_id) -> User or None:
+        r = self._client.buy_ticket(attraction_id)
+        if r is None:
+            return None
         return self.get_profile(user_id)
 
     def _parse_parks_list(self, text) -> ParksList:

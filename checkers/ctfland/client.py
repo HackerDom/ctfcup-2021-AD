@@ -101,10 +101,10 @@ class Client:
 
     def _send(self, method, relative_url, **kwargs):
         url = self._get_address() + relative_url
-        print(f"Sending '{method.__name__}' method to '{url}'")
+        print(f"Sending '{method.__name__}' method to '{relative_url}'")
 
         for i in range(self.retries_count):
-            print(f"Attempt #{i+1}")
+            print(f"Attempt #{i+1}/{self.retries_count}")
             try:
                 r = method(url, allow_redirects=True, **kwargs)
             except requests.RequestException as e:
@@ -122,5 +122,4 @@ class Client:
 
             return r
 
-        print("All attempts are failed!")
-        return None
+        raise HttpError(Verdict.DOWN(f"Request to {relative_url} rejected by throttling too many times."))
