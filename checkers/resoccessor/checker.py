@@ -95,6 +95,13 @@ class IncorrectDataError(Exception):
     pass
 
 
+
+DOWN_ERRORS = {requests.exceptions.ConnectionError, ConnectionError, ConnectionAbortedError, ConnectionRefusedError, ConnectionResetError}
+INCORRECT_HTTP_ERRORS = {requests.exceptions.HTTPError}
+INCORRECT_DATA_ERRORS = {IncorrectDataError, UnicodeError, json.JSONDecodeError}
+KNOWN_ERRORS = DOWN_ERRORS | INCORRECT_HTTP_ERRORS | INCORRECT_DATA_ERRORS
+
+
 class NetworkChecker:
     def __init__(self):
         self.verdict = Verdict.OK()
@@ -103,18 +110,20 @@ class NetworkChecker:
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        if exc_type in {requests.exceptions.ConnectionError, ConnectionError, ConnectionAbortedError, ConnectionRefusedError, ConnectionResetError}:
+        if exc_type in DOWN_ERRORS:
             self.verdict = Verdict.DOWN("Service is down")
-        if exc_type in {requests.exceptions.HTTPError}:
+        if exc_type in INCORRECT_HTTP_ERRORS:
             self.verdict = Verdict.MUMBLE(f"Incorrect http code")
-        if exc_type in {IncorrectDataError, UnicodeError, json.JSONDecodeError}:
+        if exc_type in INCORRECT_DATA_ERRORS:
             self.verdict = Verdict.MUMBLE(f"Incorrect data format")
 
         if exc_type:
-            self.verdict = Verdict.CHECKER_ERROR("checker error")
             print(exc_type)
             print(exc_value.__dict__)
             traceback.print_tb(exc_traceback, file=sys.stdout)
+
+        if exc_type not in KNOWN_ERRORS:
+            self.verdict = Verdict.CHECKER_ERROR("Checker error")
         return True
 
 
