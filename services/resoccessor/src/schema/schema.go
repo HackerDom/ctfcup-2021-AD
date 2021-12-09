@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"fmt"
 	"log"
 	"os/exec"
 	"path"
@@ -23,6 +24,7 @@ func getSchemaPath(subdir, filename string) string {
 
 func (s *Schema) Save(subdir, filename, rawSchema string) error {
 	s.storage.EnsureSubdir(subdir)
+	fmt.Printf("%s %s %s %s\n", "schema/bin/schema", "dump", path.Join("schemas", subdir, filename+".bin"), common.RemoveWhitespaces(rawSchema))
 	cmd := exec.Command("schema/bin/schema", "dump", path.Join("schemas", subdir, filename+".bin"), common.RemoveWhitespaces(rawSchema))
 	return cmd.Run()
 }

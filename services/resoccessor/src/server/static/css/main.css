@@ -1,0 +1,135 @@
+.center-screen, .employee-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 0 10px;
+}
+
+.center-screen {
+    width: 300px;
+}
+
+.employee-form {
+}
+
+.screen-block, .employee-block {
+    grid-row-start: 1;
+    grid-column-start: 2;
+    grid-column-end: 2;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.employee-block, .full-info-block {
+    margin-top: 50px;
+    /*max-width: 500px;*/
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    justify-items: center;
+    padding: 0 100px;
+
+    /*justify-content: center;*/
+    /*align-content: center;*/
+    /*align-items: center;*/
+    /*justify-items: center;*/
+}
+
+.search-block {
+    margin-top: 50px;
+}
+
+.page-title {
+    margin-top: 0;
+}
+
+.screen-block {
+    margin-top: 150px;
+    align-items: center;
+}
+
+p, button {
+    margin-bottom: 0;
+}
+
+.right {
+    grid-row-start: 1;
+    grid-row-end: 1;
+    grid-column-start: 3;
+    grid-column-end: 3;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+
+.left {
+    grid-row-start: 1;
+    grid-row-end: 1;
+}
+
+.user-name,
+.left
+{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lbls, .btns {
+    width: 100%;
+}
+
+.btns {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.to-btn {
+    background: white;
+    color: #0366ee ;
+    border-radius: 4px;
+    border: #0366ee 1px solid;
+}
+
+.left-to-btn {
+    background: white;
+    color: #0366ee ;
+    border-radius: 4px;
+    border: #0366ee 1px solid;
+}
+
+.employee-page-block, .main-page-block, .owner-page-block {
+    /*margin-top: 30px;*/
+    display: grid;
+    grid-template-rows: 44px 935px auto;
+    grid-template-columns: 250px auto 250px;
+    padding: 0 100px;
+}
+
+.search {
+    /*margin-top: 30px;*/
+    display: grid;
+    /*grid-template-rows: 44px 935px auto;*/
+    grid-template-columns: 80% 20%;
+    /*padding: 0 100px;*/
+}
+
+.search-text {
+    grid-column-start: 1;
+    grid-column-end: 1;
+}
+
+.search-btn {
+    grid-column-start: 2;
+    grid-column-end: 2;
+}
+
+input#q.search-text {
+    padding: 0;
+    margin: 0;
+}

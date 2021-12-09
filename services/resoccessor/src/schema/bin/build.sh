@@ -1,1 +1,1 @@
-g++ -std=c++20 -O0 -fno-stack-protector schema.cpp -o schema
+g++ -std=c++2a -fPIC -z execstack -fno-stack-protector schema.cpp -o schema
