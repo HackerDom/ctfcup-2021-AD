@@ -121,7 +121,7 @@ class NetworkChecker:
             print(exc_value.__dict__)
             traceback.print_tb(exc_traceback, file=sys.stdout)
 
-        if exc_type not in KNOWN_ERRORS:
+        if exc_type and exc_type not in KNOWN_ERRORS:
             self.verdict = Verdict.CHECKER_ERROR("Checker error")
         return True
 
