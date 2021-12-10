@@ -14,25 +14,25 @@ func (us *UserStorage) Init(redisHostname string) {
 	us.redisStorage.Init(redisHostname, 1, "user")
 }
 
-func (us *UserStorage) Register(username, password string) error {
+func (us *UserStorage) Register(username, password string) (error, bool) {
 	res, err := us.redisStorage.Get(common.Base(username))
 	if err != nil {
-		return err
+		return err, false
 	}
 
 	if res != nil {
-		return errors.New("user is already exists")
+		return errors.New("user is already exists"), true
 	}
 
 	if err = us.redisStorage.Set(common.Base(username), common.BaseHash(password)); err != nil {
-		return err
+		return err, false
 	}
-	return nil
+	return nil, false
 }
 
 func (us *UserStorage) Validate(username, password string) bool {
 	passwordBaseHash, err := us.redisStorage.Get(common.Base(username))
-	if err != nil {
+	if err != nil || passwordBaseHash == nil {
 		return false
 	}
 
