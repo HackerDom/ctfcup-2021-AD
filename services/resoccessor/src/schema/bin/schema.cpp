@@ -266,14 +266,18 @@ void consume_group_part(Schema& schema, ParseState& state, std::string_view part
     } else if (part == "],[" || is_end(part)) {
 // std::cout << "flush parts, buffer size = " << state.buffer.size << std::endl;
 
+        group.resize(0);
         for (int i = 0; i < state.buffer.size; ++i) {
 // std::cout << "add part: " << state.buffer.data[i] << std::endl;
-            group.resize(0);
             group.push_back(state.buffer.data[i]);
         }
         schema.groups.push_back(group);
         state.buffer.clear();
         // std::cout << "new group!" << std::endl;
+//        for (auto x: group) {
+            // std::cout << x << " ";
+//        }
+        // std::cout << std::endl;
         if (is_end(part)) {
 // std::cout << "end of group collecting" << std::endl;
             state.collect_groups = false;
@@ -328,6 +332,7 @@ int process_dump(char** argv) {
     }
     // std::cout << "after: " << raw_schema << std::endl;
     auto schema = parse_schema(raw_schema);
+    print_schema(schema);
     dump(filename, schema);
     return 0;
 }
