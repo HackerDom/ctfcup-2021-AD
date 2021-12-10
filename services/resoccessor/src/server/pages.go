@@ -126,9 +126,6 @@ func HandleIndexPage(env *Env, w http.ResponseWriter, r *http.Request, tmpl *tem
 		table[i].Token = tokens[i]
 		table[i].UserId = count
 	}
-	for i := 0; i < len(resourceUuids); i++ {
-		table[i].ResourceUUID = resourceUuids[i]
-	}
 	sort.Slice(table, func(i, j int) bool {
 		if table[j].UserId == 0 {
 			return true
@@ -140,6 +137,9 @@ func HandleIndexPage(env *Env, w http.ResponseWriter, r *http.Request, tmpl *tem
 	})
 	for i := 0; i < len(table); i++ {
 		table[i].Index = i
+	}
+	for i := 0; i < len(resourceUuids); i++ {
+		table[i].ResourceUUID = resourceUuids[i]
 	}
 
 	tableHeight := Max(len(tokens), len(resourceUuids))
