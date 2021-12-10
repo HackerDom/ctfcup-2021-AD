@@ -10,10 +10,9 @@ class Connector:
         self.sock.sendall(message)
         try:
             resp = self.sock.recv(1488)
-        except Exception:   
+        except Exception:
             print(f"ololo {message}")
             return
-
         return resp.strip(b"\x00")
 
     def close_connection(self):

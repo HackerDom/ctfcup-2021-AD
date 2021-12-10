@@ -31,7 +31,9 @@ class PadBuster(PaddingOracle):
 
 def get_codes(host):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((host, 5051))
+    print("try to connect")
+    sock.connect((host, 1101))
+    print("connected")
     sock.sendall("show 0 10".encode())
     res = sock.recv(1488).strip(b"\x00")
     sock.close()
