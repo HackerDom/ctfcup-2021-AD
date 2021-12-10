@@ -30,5 +30,5 @@ func main() {
 	fs := http.FileServer(http.Dir("./server/static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", "127.0.0.1", 3000), nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", "0.0.0.0", 3000), nil))
 }
