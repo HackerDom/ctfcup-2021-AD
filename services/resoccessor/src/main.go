@@ -13,7 +13,7 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 
 	env := &server.Env{}
-	env.Init("localhost")
+	env.Init("redis")
 
 	http.HandleFunc("/register", server.Wrapper(env, server.HandleRegisterAdmin))
 	http.HandleFunc("/login", server.Wrapper(env, server.HandleLoginAdmin))
