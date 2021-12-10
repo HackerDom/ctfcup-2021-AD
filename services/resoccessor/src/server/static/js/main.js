@@ -74,19 +74,13 @@ function setHandlers() {
         });
     });
 
-    //
-    // $("#logout-btn").on('click', function (e) {
-    //     logout();
-    // });
-    //
-    // $("#ane-btn").on('click', function (e) {
-    //     createEmployee();
-    // });
+    $("#logout-btn").on('click', function (e) {
+        logout();
+    });
 
+    bindLink("#to-res-btn", "/get_resource_page");
     bindLink("#to-reg-btn", "/register_page");
     bindLink("#to-log-btn", "/login_page");
-    // bindLink("#to-home-btn", "/");
-    // bindLink("#to-new-empl-btn", "/add_employee_page");
 
     $("#add-token-btn").on('click', function (e) {
         addToken();
@@ -94,23 +88,14 @@ function setHandlers() {
 
     $("#rl-sel").on("change", function (e) {
         let v = $("#rl-sel").val();
-        let condSel = $("#cond-sel");
-        let actSel = $("#act-sel");
-        let userIdInp = $("#usr-i");
         if (v === "action") {
             ruleType = v;
-            userIdInp.addClass("hide");
-            condSel.addClass("show");
-            actSel.addClass("show");
-            condSel.removeClass("hide");
-            actSel.removeClass("hide");
+            $(".user-rule").hide();
+            $(".group-rule").show();
         } else if (v === "group") {
             ruleType = v;
-            userIdInp.addClass("show");
-            condSel.removeClass("show");
-            actSel.removeClass("show");
-            condSel.addClass("hide");
-            actSel.addClass("hide");
+            $(".user-rule").show();
+            $(".group-rule").hide();
         }
     });
     $("#add-rule-btn").on("click", addRule);
@@ -140,12 +125,12 @@ function getRuleText() {
             groups[userId] = [];
         }
         groups[userId].push(groupId);
-        return `${userId} in ${groupId}`
+        return `user(${userId}) ∈ group(${groupId})`
     } else if (ruleType === "action") {
         let cond = $("#cond-sel").val();
         let action = $("#act-sel").val();
         rules.push([groupId, cond === "includes" ? 1 : 0, action === "allow" ? 1 : 0]);
-        return `(in ${groupId} == ${cond}) -> ${action}`;
+        return `(user ∈ group(${groupId}) == ${cond}) → ${action}`;
     }
 }
 
@@ -188,7 +173,7 @@ function addToken() {
     genToken(function (rawData) {
         let data = JSON.parse(rawData);
         if (tokensHeight === tableHeight) {
-            $("#tokens").append(`<tr><td id="t-0-${tokensHeight}">${data["token"]} -> ${data["count"]}</td><td id="t-1-${tokensHeight}">Maria Anders</td><td id="t-2-${tokensHeight}">Germany</td></tr>`);
+            $("#tokens").append(`<tr><td id="t-0-${tokensHeight}">${data["token"]} → ${data["count"]}</td><td id="t-1-${tokensHeight}"></td><td id="t-2-${tokensHeight}"></td></tr>`);
             tableHeight++;
         } else {
             $(`#t-0-${tokensHeight}`).text(`${data["token"]} -> ${data["count"]}`);

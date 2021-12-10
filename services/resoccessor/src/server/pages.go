@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -30,6 +31,12 @@ func HandleRegisterAdminPage(env *Env, w http.ResponseWriter, r *http.Request, t
 	}
 }
 
+const redirectHtml = `<html><head><script>location.href="%s";</script></head><body></body></html>`
+
+func redirect(w http.ResponseWriter, url string) {
+	_, _ = w.Write([]byte(fmt.Sprintf(redirectHtml, url)))
+}
+
 func WithTemplate(
 	templateName string,
 	handler func(env *Env, w http.ResponseWriter, r *http.Request, tmpl *template.Template),
@@ -52,19 +59,19 @@ func CheckPageAuth(
 		secretCookie, err := r.Cookie("secret")
 		if err != nil {
 			log.Println("can not get secret: " + err.Error())
-			http.Redirect(w, r, "/login_page", 302)
+			redirect(w, "/login_page")
 			return
 		}
 		usernameCookie, err := r.Cookie("username")
 		if err != nil {
 			log.Println("can not get username: " + err.Error())
-			w.WriteHeader(400)
+			redirect(w, "/login_page")
 			return
 		}
 
 		if !env.sm.Validate(usernameCookie.Value, secretCookie.Value) {
 			log.Println("bad auth")
-			w.WriteHeader(400)
+			redirect(w, "/login_page")
 			return
 		}
 		handler(env, w, r, tmpl, usernameCookie.Value)
@@ -123,6 +130,12 @@ func HandleIndexPage(env *Env, w http.ResponseWriter, r *http.Request, tmpl *tem
 		table[i].ResourceUUID = resourceUuids[i]
 	}
 	sort.Slice(table, func(i, j int) bool {
+		if table[j].UserId == 0 {
+			return true
+		}
+		if table[i].UserId == 0 {
+			return false
+		}
 		return table[i].UserId < table[j].UserId
 	})
 	for i := 0; i < len(table); i++ {
@@ -138,6 +151,12 @@ func HandleIndexPage(env *Env, w http.ResponseWriter, r *http.Request, tmpl *tem
 		len(tokens),
 		len(resourceUuids),
 	}); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func HandleGetResourcePage(env *Env, w http.ResponseWriter, r *http.Request, tmpl *template.Template) {
+	if err := tmpl.Execute(w, nil); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
