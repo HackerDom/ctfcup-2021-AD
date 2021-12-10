@@ -13,7 +13,7 @@ services:
     stop_grace_period: 1s
 
   redis:
-    image: 'redis:6.2.6-alpine'
+    image: 'cr.yandex/crpogk7287k25tqmrogj/redis:6.2.6-alpine'
     restart: always
     volumes:
       - ./data/redis:/data
