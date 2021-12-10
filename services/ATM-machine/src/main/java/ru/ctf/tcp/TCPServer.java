@@ -132,8 +132,8 @@ public class TCPServer {
     private void sendBadMessage(SocketChannel clientSocket, ByteBuffer buffer) throws IOException {
         BufferUtils.clearBuffer(buffer);
         buffer.put("some problems".getBytes());
-        clientSocket.write(buffer);
         buffer.clear();
+        clientSocket.write(buffer);
         clientToBuffer.remove(clientSocket);
         connectionTime.remove(clientSocket);
         clientSocket.close();
