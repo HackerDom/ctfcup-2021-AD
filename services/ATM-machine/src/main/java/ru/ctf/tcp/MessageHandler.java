@@ -49,7 +49,7 @@ public class MessageHandler {
                 throw new RuntimeException();
             }
             case CHECK -> { return getCheckBytes(byteMsg); }
-            case ClOSE -> { return new byte[1488]; }
+            case ClOSE -> { return new byte[1000]; }
             default -> throw new RuntimeException();
         }
     }

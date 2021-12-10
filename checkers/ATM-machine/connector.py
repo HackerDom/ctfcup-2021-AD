@@ -7,12 +7,12 @@ class Connector:
         self.sock.connect(self.addr)
 
     def send_message(self, message):
-        print(message)
         self.sock.sendall(message)
         try:
             resp = self.sock.recv(1488)
         except Exception:
             return
+        print(len(resp))
         return resp.strip(b"\x00")
 
     def close_connection(self):
