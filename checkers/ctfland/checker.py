@@ -34,12 +34,11 @@ def handle_exception(request_type):
 
 def get_client(hostname: str):
     parts = hostname.split(":", 2)
-    return PrettyClient(Client(parts[0], parts[1] if len(parts) > 1 else 7777))
+    return PrettyClient(Client(parts[0], int(parts[1]) if len(parts) > 1 else 7777))
 
 
 def create_random_user(client: PrettyClient):
-    user_id = client.register_and_login(get_register_request())
-    return user_id
+    return client.register_and_login(get_register_request())
 
 
 @checker.define_check
@@ -47,65 +46,40 @@ def create_random_user(client: PrettyClient):
 def check_service(request: CheckRequest) -> Verdict:
     client = get_client(request.hostname)
 
-    def check_moderator():
-        user_id = create_random_user(client)
-        if user_id is None:
-            return Verdict.MUMBLE("Failed to register and login")
+    user_id = create_random_user(client)
+    if user_id is None:
+        return Verdict.MUMBLE("Failed to register and login")
 
-        park_request = get_park_request(True)
-        park_id = client.create_park(park_request)
-        if park_id is None:
-            return Verdict.MUMBLE(f"Failed to create park {park_request}")
+    park_request = get_park_request(True)
+    park_id = client.create_park(park_request)
+    if park_id is None:
+        return Verdict.MUMBLE(f"Failed to create park")
 
-        last_parks = client.get_last_parks()
-        created_park = [park for park in last_parks.parks if park.id == park_id and park.user_id == user_id]
-        if len(created_park) != 1:
-            return Verdict.MUMBLE("Failed to find created park in last parks list")
+    last_parks = client.get_last_parks()
+    created_parks = [park for park in last_parks.parks if park.id == park_id and park.user_id == user_id]
+    if len(created_parks) != 1:
+        return Verdict.MUMBLE("Failed to find created park in last parks list")
 
-        my_parks = client.get_my_parks()
-        created_park = [park for park in my_parks.parks if park.id == park_id]
-        if len(created_park) != 1:
-            return Verdict.MUMBLE("Failed to find created park in my parks list")
+    my_parks = client.get_my_parks()
+    created_parks = [park for park in my_parks.parks if park.id == park_id]
+    if len(created_parks) != 1:
+        return Verdict.MUMBLE("Failed to find created park in my parks list")
 
-        (park, attraction) = client.add_attraction(created_park[0].id, get_attraction_request())
-        if created_park[0].attractions_count + 1 != park.attractions_count:
-            return Verdict.MUMBLE(f"Failed to add attraction to park {park}")
+    attraction_request = get_attraction_request()
+    attraction_request.cost = random.randint(15, 100)
+    attraction_response = client.add_attraction(created_parks[0].id, attraction_request)
+    if attraction_response is None:
+        return Verdict.MUMBLE(f"Failed to add attraction to park")
+    (park, attraction) = attraction_response
+    if attraction_response is None or created_parks[0].attractions_count + 1 != park.attractions_count:
+        return Verdict.MUMBLE(f"Failed to add attraction to park")
 
-        client.logout()
-        return None
+    user_info = client.buy_ticket(attraction.id, user_id)
+    if user_info is None:
+        return Verdict.MUMBLE("Failed to buy ticket")
 
-    def check_visitor():
-        user_id = create_random_user(client)
-        if user_id is None:
-            return Verdict.MUMBLE("Failed to register and login")
-
-        park_request = get_park_request(True)
-        park_id = client.create_park(park_request)
-        if park_id is None:
-            return Verdict.MUMBLE(f"Failed to create park {park_request}")
-        attraction_request = get_attraction_request()
-        attraction_request.cost = 15
-        client.add_attraction(park_id, attraction_request)
-
-        last_parks = client.get_last_parks()
-        created_parks = [park for park in last_parks.parks if park.id == park_id]
-        if not any(created_parks):
-            return Verdict.MUMBLE("Failed to find created park in last parks")
-        park = client.get_park(park_id)
-
-        user_info = client.buy_ticket(park.attractions_ids[0], user_id)
-        if not any([x for x in user_info.purchasesInfo.purchases if x.name == attraction_request.name and x.ticket == attraction_request.ticket]):
-            return Verdict.MUMBLE("Failed to find bought ticket")
-
-        return None
-
-    verdict_maybe = check_moderator()
-    if verdict_maybe is not None:
-        return verdict_maybe
-
-    verdict_maybe = check_visitor()
-    if verdict_maybe is not None:
-        return verdict_maybe
+    if not any([x for x in user_info.purchasesInfo.purchases if x.name == attraction_request.name and x.ticket == attraction_request.ticket]):
+        return Verdict.MUMBLE("Failed to find bought ticket")
 
     return Verdict.OK()
 

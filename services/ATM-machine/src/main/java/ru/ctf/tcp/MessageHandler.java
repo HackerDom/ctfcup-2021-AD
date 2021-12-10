@@ -11,6 +11,7 @@ import java.io.Console;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.crypto.BadPaddingException;
 import javax.sound.midi.Track;
 
 public class MessageHandler {
@@ -33,7 +34,7 @@ public class MessageHandler {
                     System.out.println("I am in show!!");
                     byte[] transactions = getTransactionsBytes(
                             Integer.parseInt(messageParts[1]),
-                            Integer.parseInt(messageParts[2])
+                            Math.min(Integer.parseInt(messageParts[2]), 20)
                     );
                     System.out.println("I am after getting transactions!!");
                     System.out.println(transactions.length);
@@ -48,17 +49,24 @@ public class MessageHandler {
                 throw new RuntimeException();
             }
             case CHECK -> { return getCheckBytes(byteMsg); }
-            case ClOSE -> { return new byte[1488]; }
+            case ClOSE -> { return new byte[1000]; }
             default -> throw new RuntimeException();
         }
     }
 
     private byte[] getCheckBytes(byte[] byteMsg) {
-        int commandLen = "check ".getBytes().length;
-        if (TransactionUtils.checkTransaction(Arrays.copyOfRange(byteMsg, commandLen, byteMsg.length))) {
-            return "ok".getBytes();
+        try {
+            int commandLen = "check ".getBytes().length;
+            long id = TransactionUtils.getId(Arrays.copyOfRange(byteMsg, commandLen, byteMsg.length));
+            TransactionPair pair = dao.get(id);
+            if (pair == null) {
+                return "not found".getBytes();
+            } else {
+                return "ok".getBytes();
+            }
+        } catch (BadPaddingException badPaddingException) {
+            return "error".getBytes();
         }
-        return "error".getBytes();
     }
 
     private byte[] getOriginTransaction(String[] messageParts) {
@@ -166,10 +174,7 @@ public class MessageHandler {
         private boolean validateShow(String[] messageParts) {
             if (messageParts.length == 3) {
                 try {
-                    Integer.parseInt(messageParts[1]);
-                    Integer.parseInt(messageParts[2]);
-
-                    return true;
+                    return Integer.parseInt(messageParts[1]) >= 0 && Integer.parseInt(messageParts[2]) >= 0;
                 } catch (NumberFormatException nfe) {
                     return false;
                 }

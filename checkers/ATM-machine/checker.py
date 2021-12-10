@@ -31,7 +31,7 @@ async def check_service(request: CheckRequest) -> Verdict:
     comment = get_random_str()
     try:
         res = connect.send_message(f"transfer {sender} {reciever} {value} {comment}".encode())
-        if not res:
+        if res is None:
             return Verdict.DOWN("connection error")
         try:
             id = res[:res.find(b"\n")].decode("utf-8")
@@ -39,7 +39,7 @@ async def check_service(request: CheckRequest) -> Verdict:
         except Exception:
             return Verdict.MUMBLE("incorrect transfer")
         res = connect.send_message(b"check " + encoded)
-        if not res:
+        if res is None:
             return Verdict.DOWN("connection error")
         try:
             res = res.decode("utf-8")
@@ -48,7 +48,7 @@ async def check_service(request: CheckRequest) -> Verdict:
         if res != "ok":
             return Verdict.MUMBLE("incorrect transfer")
         res = connect.send_message(f"checkid {id}".encode())
-        if not res:
+        if res is None:
             return Verdict.DOWN("connection error")
         try:
             res = res.decode("utf-8")
@@ -58,7 +58,7 @@ async def check_service(request: CheckRequest) -> Verdict:
         if res.get("comment") != comment:
             return Verdict.MUMBLE("incorrect checkid")
         res = connect.send_message("show 0 10".encode())
-        if not res:
+        if res is None:
             return Verdict.DOWN("connection error")
         try:
             res = res.split(b"separator")
@@ -67,7 +67,7 @@ async def check_service(request: CheckRequest) -> Verdict:
         if encoded not in res:
             return Verdict.MUMBLE("incorrect show")
         res = connect.send_message(f"show {random.randint(0, 10)} 20".encode())
-        if not res:
+        if res is None:
             return Verdict.DOWN("connection error after sec show")
         return Verdict.OK()
     finally:
@@ -84,7 +84,7 @@ async def put(request: PutRequest) -> Verdict:
     comment = request.flag
     try:
         res = connect.send_message(f"{action} {sender} {reciever} {value} {comment}".encode())
-        if not res:
+        if res is None:
             return Verdict.DOWN("connection error")
         try:
             res = res.split(b"\n")
@@ -102,7 +102,7 @@ async def get(request: GetRequest) -> Verdict:
     id = request.flag_id.strip()
     try:
         res = connect.send_message(f"{action} {id}".encode())
-        if not res:
+        if res is None:
             return Verdict.DOWN("connection error")
         try:
             res = res.decode("utf-8")

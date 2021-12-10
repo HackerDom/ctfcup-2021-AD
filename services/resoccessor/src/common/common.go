@@ -3,10 +3,13 @@ package common
 import (
 	"crypto/md5"
 	b64 "encoding/base64"
+	"math/rand"
 	"os"
 	"strings"
 	"unicode"
 )
+
+const alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 type UserPair struct {
 	Name     string `json:"name"`
@@ -22,7 +25,7 @@ func Base(s string) string {
 	return b64.StdEncoding.EncodeToString([]byte(s))
 }
 
-func IsValidUser(userPair *UserPair) bool {
+func IsValidUserPair(userPair *UserPair) bool {
 	return len(userPair.Name) > 3 && len(userPair.Name) < 25 && len(userPair.Password) > 3 && len(userPair.Password) < 25
 }
 
@@ -40,4 +43,12 @@ func RemoveWhitespaces(str string) string {
 func IsFileExists(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
+}
+
+func GenString(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = alpha[rand.Intn(len(alpha))]
+	}
+	return string(b)
 }

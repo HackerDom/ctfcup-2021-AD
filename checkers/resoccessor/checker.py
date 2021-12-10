@@ -1,7 +1,6 @@
 #!/usr/bin/env python3.9
 import functools
 import json
-import re
 import sys
 
 import requests
@@ -9,12 +8,9 @@ import traceback
 
 from gornilo import CheckRequest, Verdict, Checker, PutRequest, GetRequest
 
-from generators import gen_string, gen_user_agent, gen_schema, check
+from generators import gen_string, gen_user_agent, gen_schema
 
 checker = Checker()
-
-
-PORT = 3000
 
 
 REGISTER_URL = "http://{hostname}:{port}/register"
@@ -26,9 +22,16 @@ SET_SCHEMA_URL = "http://{hostname}:{port}/set_schema/{resource_uuid}"
 GET_RESOURCE_URL = "http://{hostname}:{port}/get_resource/{resource_uuid}?token={token}"
 
 
-def get_creds(url_template, hostname, username, password):
+def patch_hostport(func):
+    def res_func(hostport, *args):
+        host, port = hostport.split(":")
+        return func(host, port, *args)
+    return res_func
+
+
+def get_creds(url_template, hostname, port, username, password):
     session = requests.Session()
-    url = url_template.format(hostname=hostname, port=PORT)
+    url = url_template.format(hostname=hostname, port=port)
     data = {
         "name": username,
         "password": password,
@@ -38,12 +41,12 @@ def get_creds(url_template, hostname, username, password):
     return session
 
 
-login = functools.partial(get_creds, LOGIN_URL)
-register = functools.partial(get_creds, REGISTER_URL)
+register = patch_hostport(functools.partial(get_creds, REGISTER_URL))
 
 
-def gen_token(hostname, session):
-    url = GEN_TOKEN_URL.format(hostname=hostname, port=PORT)
+@patch_hostport
+def gen_token(hostname, port, session):
+    url = GEN_TOKEN_URL.format(hostname=hostname, port=port)
     r = session.post(url, headers={'User-Agent': gen_user_agent()})
     r.raise_for_status()
     data = json.loads(r.content)
@@ -54,15 +57,17 @@ def gen_token(hostname, session):
     return data['token'], data['count']
 
 
-def upload_resource(hostname, session, data):
-    url = UPLOAD_RESOURCE_URL.format(hostname=hostname, port=PORT)
+@patch_hostport
+def upload_resource(hostname, port, session, data):
+    url = UPLOAD_RESOURCE_URL.format(hostname=hostname, port=port)
     r = session.post(url, headers={'User-Agent': gen_user_agent()}, data=data)
     r.raise_for_status()
     return r.content.decode()
 
 
-def list_resources(hostname, session):
-    url = LIST_RESOURCES_URL.format(hostname=hostname, port=PORT)
+@patch_hostport
+def list_resources(hostname, port, session):
+    url = LIST_RESOURCES_URL.format(hostname=hostname, port=port)
     r = session.post(url, headers={'User-Agent': gen_user_agent()})
     r.raise_for_status()
     resources = json.loads(r.content.decode())
@@ -71,14 +76,16 @@ def list_resources(hostname, session):
     return resources
 
 
-def set_schema(hostname, session, resource_uuid, schema):
-    url = SET_SCHEMA_URL.format(hostname=hostname, port=PORT, resource_uuid=resource_uuid)
+@patch_hostport
+def set_schema(hostname, port, session, resource_uuid, schema):
+    url = SET_SCHEMA_URL.format(hostname=hostname, port=port, resource_uuid=resource_uuid)
     r = session.post(url, headers={'User-Agent': gen_user_agent()}, json=schema)
     r.raise_for_status()
 
 
-def get_resource(hostname, token, resource_uuid):
-    url = GET_RESOURCE_URL.format(hostname=hostname, port=PORT, resource_uuid=resource_uuid, token=token)
+@patch_hostport
+def get_resource(hostname, port, token, resource_uuid):
+    url = GET_RESOURCE_URL.format(hostname=hostname, port=port, resource_uuid=resource_uuid, token=token)
     r = requests.get(url, headers={'User-Agent': gen_user_agent()})
     r.raise_for_status()
     return r.content.decode()
@@ -86,6 +93,12 @@ def get_resource(hostname, token, resource_uuid):
 
 class IncorrectDataError(Exception):
     pass
+
+
+DOWN_ERRORS = {requests.exceptions.ConnectionError, ConnectionError, ConnectionAbortedError, ConnectionRefusedError, ConnectionResetError}
+INCORRECT_HTTP_ERRORS = {requests.exceptions.HTTPError}
+INCORRECT_DATA_ERRORS = {IncorrectDataError, UnicodeError, json.JSONDecodeError}
+KNOWN_ERRORS = DOWN_ERRORS | INCORRECT_HTTP_ERRORS | INCORRECT_DATA_ERRORS
 
 
 class NetworkChecker:
@@ -96,17 +109,20 @@ class NetworkChecker:
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        if exc_type in {requests.exceptions.ConnectionError, ConnectionError, ConnectionAbortedError, ConnectionRefusedError, ConnectionResetError}:
+        if exc_type in DOWN_ERRORS:
             self.verdict = Verdict.DOWN("Service is down")
-        if exc_type in {requests.exceptions.HTTPError}:
+        if exc_type in INCORRECT_HTTP_ERRORS:
             self.verdict = Verdict.MUMBLE(f"Incorrect http code")
-        if exc_type in {IncorrectDataError, UnicodeError, json.JSONDecodeError}:
+        if exc_type in INCORRECT_DATA_ERRORS:
             self.verdict = Verdict.MUMBLE(f"Incorrect data format")
 
         if exc_type:
             print(exc_type)
             print(exc_value.__dict__)
             traceback.print_tb(exc_traceback, file=sys.stdout)
+
+        if exc_type and exc_type not in KNOWN_ERRORS:
+            self.verdict = Verdict.CHECKER_ERROR("Checker error")
         return True
 
 
