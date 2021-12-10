@@ -133,6 +133,7 @@ public class TCPServer {
         BufferUtils.clearBuffer(buffer);
         buffer.put("some problems".getBytes());
         clientSocket.write(buffer);
+        buffer.clear();
         clientToBuffer.remove(clientSocket);
         connectionTime.remove(clientSocket);
         clientSocket.close();

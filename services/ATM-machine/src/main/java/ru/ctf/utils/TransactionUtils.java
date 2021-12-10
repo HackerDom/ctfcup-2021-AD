@@ -5,6 +5,7 @@ import ru.ctf.crypto.CryptoServiceImpl;
 import ru.ctf.entities.EncryptedTransaction;
 import ru.ctf.entities.TransferTransaction;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import java.util.UUID;
 
@@ -15,13 +16,17 @@ public class TransactionUtils {
     }
 
     public static EncryptedTransaction encryptTransaction(TransferTransaction transaction) {
-        String stringBody = transaction.from() + transaction.to() + transaction.value() + transaction.comment();
-        byte[] encryptBody = cryptoService.makeAes(stringBody.getBytes(), Cipher.ENCRYPT_MODE);
-        return new EncryptedTransaction(transaction.id(), transaction.type(), encryptBody);
+        try {
+            String stringBody = transaction.id() + ":" + transaction.from() + ":" + transaction.to() +
+                    ":" + transaction.value() + ":" + transaction.comment();
+            byte[] encryptBody = cryptoService.makeAes(stringBody.getBytes(), Cipher.ENCRYPT_MODE);
+            return new EncryptedTransaction(transaction.id(), transaction.type(), encryptBody);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
-    public static boolean checkTransaction(byte[] byteMsg) {
-        byte[] decryptBody = cryptoService.makeAes(byteMsg, Cipher.DECRYPT_MODE);
-        return decryptBody != null;
+    public static long getId(byte[] byteMsg) throws BadPaddingException {
+        return Long.parseLong(new String(cryptoService.makeAes(byteMsg, Cipher.DECRYPT_MODE)).split(":")[0]);
     }
 }
