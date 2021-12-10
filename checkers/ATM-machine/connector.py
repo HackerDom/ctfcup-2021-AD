@@ -7,11 +7,11 @@ class Connector:
         self.sock.connect(self.addr)
 
     def send_message(self, message):
+        print(message)
         self.sock.sendall(message)
         try:
             resp = self.sock.recv(1488)
         except Exception:
-            print(f"ololo {message}")
             return
         return resp.strip(b"\x00")
 

@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 public class TCPServer {
     private static final Logger LOG = Logger.getLogger(TCPServer.class.getName());
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private static final int BUFFER_SIZE = 1488;
+    private static final int BUFFER_SIZE = 1000;
 
     private final InetSocketAddress address = new InetSocketAddress("0.0.0.0", 8080);
     private final Map<SocketChannel, ByteBuffer> clientToBuffer = new ConcurrentHashMap<>();
