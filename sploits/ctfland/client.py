@@ -96,23 +96,25 @@ class Client:
 
     def _send(self, method, relative_url, **kwargs):
         url = self._get_address() + relative_url
-        print(f"Sending '{method.__name__}' method to '{url}'")
+        print(f"Sending '{method.__name__}' method to '{relative_url}'")
 
         for i in range(self.retries_count):
-            print(f"Attempt #{i+1}")
+            print(f"Attempt #{i+1}/{self.retries_count}")
             try:
                 r = method(url, allow_redirects=True, **kwargs)
             except requests.RequestException as e:
-                raise HttpError(Verdict.DOWN(str(e)))
+                print(e)
+                raise HttpError(Verdict.DOWN(f"Failed to send request to {relative_url}"))
 
             if r.status_code == THROTTLING_RESPONSE_CODE:
                 print(f"Rejected by throttling. Will try again.")
                 continue
 
             if r.status_code >= 400:
-                raise HttpError(Verdict.MUMBLE(f"Failed! See more:\r\n {r.__dict__}"))
+                print(f"Request to {relative_url} failed with status code {r.status_code}. See more:\r\n{r.__dict__}")
+                verdict = Verdict.DOWN if r.status_code in [502, 503] else Verdict.MUMBLE
+                raise HttpError(verdict(f"Request to {relative_url} failed with status code {r.status_code}"))
 
             return r
 
-        print("All attempts are failed!")
-        return None
+        raise HttpError(Verdict.DOWN(f"Request to {relative_url} rejected by throttling too many times."))
