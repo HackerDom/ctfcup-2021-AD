@@ -1,145 +1,116 @@
-.center-screen, .employee-form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    padding: 0 10px;
+html, body {
+    height: 100%;
 }
-
-.center-screen {
-    width: 300px;
-}
-
-.employee-form {
-}
-
-.screen-block, .employee-block {
-    grid-row-start: 1;
-    grid-column-start: 2;
-    grid-column-end: 2;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-.employee-block, .full-info-block {
-    margin-top: 50px;
-    /*max-width: 500px;*/
-    justify-content: center;
-    align-content: center;
-    align-items: center;
-    justify-items: center;
-    padding: 0 100px;
-
-    /*justify-content: center;*/
-    /*align-content: center;*/
-    /*align-items: center;*/
-    /*justify-items: center;*/
-}
-
-.search-block {
-    margin-top: 50px;
-}
-
-.page-title {
-    margin-top: 0;
-}
-
-.screen-block {
-    margin-top: 150px;
-    align-items: center;
-}
-
-p, button {
-    margin-bottom: 0;
-}
-
-.right {
-    grid-row-start: 1;
-    grid-row-end: 1;
-    grid-column-start: 3;
-    grid-column-end: 3;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-}
-
-
-.left {
-    grid-row-start: 1;
-    grid-row-end: 1;
-}
-
-.user-name,
-.left
-{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.lbls, .btns {
-    width: 100%;
-}
-
-.btns {
-    margin-top: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.to-btn {
-    background: white;
-    color: #0366ee ;
-    border-radius: 4px;
-    border: #0366ee 1px solid;
-}
-
-.left-to-btn {
-    background: white;
-    color: #0366ee ;
-    border-radius: 4px;
-    border: #0366ee 1px solid;
-}
-
-.employee-page-block, .main-page-block, .owner-page-block {
-    /*margin-top: 30px;*/
-    display: grid;
-    grid-template-rows: 44px 935px auto;
-    grid-template-columns: 250px auto 250px;
-    padding: 0 100px;
-}
-
-.search {
-    /*margin-top: 30px;*/
-    display: grid;
-    /*grid-template-rows: 44px 935px auto;*/
-    grid-template-columns: 80% 20%;
-    /*padding: 0 100px;*/
-}
-
-.search-text {
-    grid-column-start: 1;
-    grid-column-end: 1;
-}
-
-.search-btn {
-    grid-column-start: 2;
-    grid-column-end: 2;
-}
-
-input#q.search-text {
-    padding: 0;
+body {
     margin: 0;
+    background: linear-gradient(45deg,#333333,#222222);
+    font-family: sans-serif;
+    font-weight: 100;
+}
+.container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+th, td {
+    padding: 15px;
+    background-color: rgba(255,255,255,0.1);
+    color: #fff;
+}
+tbody td {
+    position: relative;
 }
 
-.hide {
-    display: none;
-    visibility: hidden;
+
+.everything {
+    background-color: #9a9a9a;
+    border-radius: 8px;
+    border-width: 0;
+    color: #333333;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    list-style: none;
+    margin: 0;
+    padding: 10px 12px;
+    text-align: center;
+    transition: all 200ms;
+    vertical-align: baseline;
+    white-space: nowrap;
+    user-select: none;
 }
 
-.show {
-    display: block;
-    visibility: visible;
+#logout-btn {
+    margin-left: 15px;
+    margin-top: 6px;
+}
+
+
+.ceil {
+    color: white;
+    float: left;
+}
+
+.center-res {
+    align-content: center;
+    margin: 0 auto;
+}
+
+
+.res-container {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    width: 400px;
+}
+
+
+.res-form {
+    color: #eeeeee;
+    font-size: 24px;
+}
+
+.res-form-inp {
+    width: 91%;
+    background-color: #eeeeee;
+    padding: 10px 12px;
+    margin: 7px;
+    font-size: 14px;
+    border-radius: 3px;
+    line-height: 20px;
+    border-width: 0;
+    color: #333333;
+}
+
+.res-form > .lbt {
+    margin: 7px 30px 7px 7px;
+}
+.res-form > .mbt {
+    margin: 7px 7px 7px 7px;
+}
+.res-form > .rbt {
+    margin: 7px 7px 7px 7px;
+    float: right;
+}
+
+
+
+input {
+    color: white;
+}
+
+textarea:focus, input:focus, input[type]:focus, .uneditable-input:focus {
+    border-color: #eeeeee;
+    box-shadow: 0 1px 1px #333333 inset, 0 0 2px #eeeeee;
+    outline: 0 none;
 }

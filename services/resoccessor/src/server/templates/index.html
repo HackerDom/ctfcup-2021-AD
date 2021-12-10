@@ -14,47 +14,60 @@
     </script>
 </head>
 <body>
-<p>Hello, {{.Username}}!</p>
+<div class="ceil">
+    <p style="float:left;">Hello, {{.Username}}!</p>
+    <button id="logout-btn" class="everything" role="button">Logout</button>
+</div>
+
 <table>
     <colgroup>
         <col style="width:30%">
-        <col style="width:40%">
-        <col style="width:30%">
+        <col style="width:35%">
+        <col style="width:35%">
     </colgroup>
     <tbody id="tokens">
     <tr>
-        <th>Company</th>
-        <th>Contact</th>
-        <th>Country</th>
+        <th>Token → user_id</th>
+        <th>Rule chain</th>
+        <th>Resources</th>
     </tr>
     <tr>
-        <td><button id="add-token-btn">Add token</button></td>
+        <td><button id="add-token-btn" class="everything" role="button">Gen new user token</button></td>
         <td>
-            <button id="add-rule-btn">Add rule</button>
-            <select id="rl-sel" style="width: 50px">
+            <button id="add-rule-btn" class="everything">Add rule to chain</button>
+            <nobr>:</nobr>
+            <select id="rl-sel" class="everything">
                 <option id="grp-opt" style="width: 50px">group</option>
                 <option id="act-opt" style="width: 50px">action</option>
             </select>
-            <input id="usr-i" type="number" placeholder="user" style="width: 50px" value="1">
-            <input id="grp-i" type="number" placeholder="group" style="width: 50px" value="1">
-            <select id="cond-sel" style="width: 50px">
+            <nobr class="user-rule">user</nobr>
+
+            <input id="usr-i" type="number" placeholder="user" style="width: 50px" value="1" class="everything user-rule">
+            <nobr class="user-rule">belongs to group</nobr>
+            <input id="grp-i" type="number" placeholder="group" style="width: 50px" value="1" class="everything">
+            <select id="cond-sel" style="width: 50px; display: none" class="everything group-rule">
                 <option id="incl-opt" style="width: 50px">includes</option>
                 <option id="excl-opt" style="width: 50px">excludes</option>
             </select>
-            <select id="act-sel" style="width: 100px" class="hide">
+            <select id="act-sel" style="width: 100px; display: none" class="everything group-rule">
                 <option id="allw-opt" style="width: 50px">allow</option>
                 <option id="deny-opt" style="width: 50px">deny</option>
             </select>
         </td>
         <td>
-            <button id="bnd-schema">Bind schema to resource</button>
-            <input id="file" type="file" name="myFile" />
+            <button id="bnd-schema" class="everything">Bind rule chain to new resource</button>
+            <input id="file" type="file" name="myFile" class="everything" />
         </td>
     </tr>
     {{range .Table}}
     <tr>
-        <td id="t-0-{{.Index}}">{{.Token}} -> {{.UserId}}</td>
-        <td id="t-1-{{.Index}}">empty</td>
+        {{if .UserId}}
+        <td id="t-0-{{.Index}}">{{.Token}} → {{.UserId}}</td>
+        {{else}}
+        <td id="t-0-{{.Index}}"></td>
+        {{end}}
+
+        <td id="t-1-{{.Index}}"></td>
         <td id="t-2-{{.Index}}">{{.ResourceUUID}}</td>
     </tr>
     {{end}}

@@ -52,7 +52,7 @@ def get_flags(hostname, port):
 
 
 def main():
-    host = "10.118.103.13"
+    host = "10.118.101.13"
     port = 3000
     session = register(host, port, ''.join(random.choice(string.ascii_letters) for _ in range(10)), "password")
     uuid = upload_resource(host, port, session, '')

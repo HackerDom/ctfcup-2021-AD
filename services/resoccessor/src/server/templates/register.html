@@ -3,23 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>Register Page</title>
-    <link rel="stylesheet" href="/static/css/mini.css">
     <link rel="stylesheet" href="/static/css/main.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="/static/js/main.js" type="text/javascript"></script>
 </head>
 <body>
-<div class="screen-block">
-    <div class="center-screen">
-        <div class="lbls">
-            <h1>Sign Up</h1>
-            <label for="login">Username</label><input id="login" type="text">
-            <label for="password">Password</label><input id="password" type="password">
-        </div>
-        <div class="btns">
-            <button id="reg-btn">Register</button>
-            <button id="to-log-btn" class="to-btn">To login page</button>
-        </div>
+<div class="res-container">
+    <div class="res-form">
+        <h2>Sign Up</h2>
+        <input id="login" type="text" placeholder="Username" class="res-form-inp"><br>
+        <input id="password" type="text" placeholder="Password" class="res-form-inp"><br>
+        <input id="reg-btn" type="button" value="Register" class="everything lbt">
+        <input id="to-res-btn" type="button" value="To resource page" class="everything mbt">
+        <input id="to-log-btn" type="button" value="To login page" class="everything rbt">
     </div>
 </div>
 </body>
