@@ -1,7 +1,7 @@
 ### teams stuff
 
 variable "team_count" {
-  default = 4
+  default = 10
 }
 
 variable "services" {

@@ -21,7 +21,7 @@ variable "main_resources" {
   default = {
     cores = 2
     memory = 4
-    core_fraction = 50
+    core_fraction = 100
     preemtible = false
   }
 }
