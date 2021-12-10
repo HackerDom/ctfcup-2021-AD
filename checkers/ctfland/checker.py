@@ -34,7 +34,7 @@ def handle_exception(request_type):
 
 def get_client(hostname: str):
     parts = hostname.split(":", 2)
-    return PrettyClient(Client(parts[0], parts[1] if len(parts) > 1 else 7777))
+    return PrettyClient(Client(parts[0], int(parts[1]) if len(parts) > 1 else 7777))
 
 
 def create_random_user(client: PrettyClient):
