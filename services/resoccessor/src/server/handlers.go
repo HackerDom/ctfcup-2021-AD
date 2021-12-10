@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/google/uuid"
 	"io"
 	"log"
@@ -114,7 +115,8 @@ func HandleGenToken(env *Env, w http.ResponseWriter, r *http.Request, username s
 		w.WriteHeader(500)
 		return
 	}
-	if err := env.userIdMap.Set(username+"/"+token, strconv.FormatUint(count, 10)); err != nil {
+
+	if err := env.owner2tokens.Put(username, token, []byte(strconv.FormatUint(count, 10))); err != nil {
 		log.Println("can not gen token due to error: " + err.Error())
 		w.WriteHeader(500)
 		return
@@ -174,6 +176,8 @@ func HandleSetSchema(env *Env, w http.ResponseWriter, r *http.Request, username 
 		w.WriteHeader(400)
 		return
 	}
+	fmt.Println("data")
+	fmt.Println(data)
 	resourceUuid := r.URL.Path[len("/set_schema/"):]
 
 	if !env.resources.Exists(username, resourceUuid) {
@@ -209,14 +213,15 @@ func HandleGetResource(env *Env, w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
-	rawUserId, err := env.userIdMap.Get(*username + "/" + token)
+
+	rawUserId, err := env.owner2tokens.Get(*username, token)
 	if err != nil {
 		log.Println("Can not get resource due error: " + err.Error())
 		w.WriteHeader(400)
 		return
 	}
 
-	userId, err := strconv.ParseUint(*rawUserId, 10, 64)
+	userId, err := strconv.ParseUint(string(rawUserId), 10, 64)
 	if err != nil {
 		log.Println("Can not get resource due error: " + err.Error())
 		w.WriteHeader(400)

@@ -133,3 +133,13 @@ input#q.search-text {
     padding: 0;
     margin: 0;
 }
+
+.hide {
+    display: none;
+    visibility: hidden;
+}
+
+.show {
+    display: block;
+    visibility: visible;
+}

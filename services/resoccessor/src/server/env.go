@@ -17,6 +17,7 @@ type Env struct {
 	userIdMap    *common.RedisStorage
 	uuid2owners  *common.RedisStorage
 	token2owners *common.RedisStorage
+	owner2tokens *common.FileStorage
 	resources    *common.FileStorage
 	schema       *schema.Schema
 }
@@ -39,6 +40,9 @@ func (env *Env) Init(redisHostname string) {
 
 	env.resources = &common.FileStorage{}
 	env.resources.Init("resources")
+
+	env.owner2tokens = &common.FileStorage{}
+	env.owner2tokens.Init("tokens")
 
 	env.schema = &schema.Schema{}
 	env.schema.Init("schemas")

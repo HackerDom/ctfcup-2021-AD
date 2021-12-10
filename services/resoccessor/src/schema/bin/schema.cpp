@@ -217,22 +217,25 @@ struct ParseState {
 
 
 bool is_end(std::string_view part) {
-    return part == "]]," || part == "]]}";
+    return part == "]]," || part == "]]}" || part == ":[]}" || part == ":[[]],";
 }
 
 
 void consume_rule_part(Schema& schema, ParseState& state, std::string_view part) {
-    if (part != ":[[" && part != "," && part != "],[" && part != "\"" && !is_end(part)) {
+    if (part != ":[[" && part != "," && part != "],[" && part != "\"" && part != "[]" && !is_end(part)) {
         // std::cout << "Add num: " << part << std::endl;
         if (state.buffer.size == 3) {
-            exit(1);
+            exit(6);
         }
         state.buffer.add(std::stoul(part.data()));
 
     } else if (part == "],[" || is_end(part)) {
 // std::cout << "flush rules: " << state.buffer.size << std::endl;
+        if (!state.buffer.size) {
+            return;
+        }
         if (state.buffer.size != 3) {
-            exit(1);
+            exit(7);
         }
 
         schema.rules.push_back({
@@ -282,14 +285,14 @@ void consume_group_part(Schema& schema, ParseState& state, std::string_view part
 void consume_part(Schema& schema, ParseState& state, std::string_view part, std::vector<unsigned int>& group) {
     if (part == "rules") {
         if (state.collect_rules) {
-            exit(1);
+            exit(4);
         }
             // std::cout << "collect rules" << std::endl;
         state.buffer.clear();
         state.collect_rules = true;
     } else if (part == "groups") {
         if (state.collect_groups) {
-            exit(1);
+            exit(5);
         }
             // std::cout << "collect groups" << std::endl;
         state.buffer.clear();
@@ -338,12 +341,12 @@ int process_check(char** argv) {
     if (check(schema, user)) {
         return 0;
     }
-    return 1;
+    return 3;
 
 }
 
 int process_wrong_option() {
-    return 1;
+    return 2;
 }
 
 

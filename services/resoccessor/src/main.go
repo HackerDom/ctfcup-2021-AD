@@ -3,11 +3,15 @@ package main
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"resoccessor/server"
+	"time"
 )
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
+
 	env := &server.Env{}
 	env.Init("localhost")
 

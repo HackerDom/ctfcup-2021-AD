@@ -5,10 +5,23 @@ import (
 	"log"
 	"net/http"
 	"path"
+	"sort"
+	"strconv"
 )
 
-type PageState struct {
-	Username string
+type TableRow struct {
+	Index        int
+	Token        string
+	UserId       uint64
+	ResourceUUID string
+}
+
+type IndexState struct {
+	Username        string
+	Table           []TableRow
+	TableHeight     int
+	TokensHeight    int
+	ResourcesHeight int
 }
 
 func HandleRegisterAdminPage(env *Env, w http.ResponseWriter, r *http.Request, tmpl *template.Template) {
@@ -58,9 +71,72 @@ func CheckPageAuth(
 	}
 }
 
+func Max(x, y int) int {
+	if x < y {
+		return y
+	}
+	return x
+}
+
+func UIntMax(x, y int) int {
+	if x < y {
+		return y
+	}
+	return x
+}
+
 func HandleIndexPage(env *Env, w http.ResponseWriter, r *http.Request, tmpl *template.Template, username string) {
-	if err := tmpl.Execute(w, &PageState{
+	tokens, err := env.owner2tokens.List(username)
+	if err != nil {
+		log.Println("Can not render index page due to tokens listing error: " + err.Error())
+		w.WriteHeader(400)
+		return
+	}
+
+	resourceUuids, err := env.resources.List(username)
+	if err != nil {
+		log.Println("Can not render index page due to resources listing error: " + err.Error())
+		w.WriteHeader(400)
+		return
+	}
+
+	table := make([]TableRow, Max(len(tokens), len(resourceUuids)))
+	for i := 0; i < len(tokens); i++ {
+		rawCount, err := env.owner2tokens.Get(username, tokens[i])
+		if err != nil {
+			log.Println("Can not render index page due to token reading error: " + err.Error())
+			w.WriteHeader(400)
+			return
+		}
+
+		count, err := strconv.ParseUint(string(rawCount), 10, 64)
+		if err != nil {
+			log.Println("Can not render index page due to count parsing error: " + err.Error())
+			w.WriteHeader(400)
+			return
+		}
+
+		table[i].Token = tokens[i]
+		table[i].UserId = count
+	}
+	for i := 0; i < len(resourceUuids); i++ {
+		table[i].ResourceUUID = resourceUuids[i]
+	}
+	sort.Slice(table, func(i, j int) bool {
+		return table[i].UserId < table[j].UserId
+	})
+	for i := 0; i < len(table); i++ {
+		table[i].Index = i
+	}
+
+	tableHeight := Max(len(tokens), len(resourceUuids))
+
+	if err := tmpl.Execute(w, &IndexState{
 		username,
+		table,
+		tableHeight,
+		len(tokens),
+		len(resourceUuids),
 	}); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
