@@ -8,14 +8,14 @@ services:
     depends_on:
       - postgres
     stop_grace_period: 3s
-    mem_limit: 3G
+    mem_limit: 2G
     pids_limit: 100
 
   postgres:
     image: cr.yandex/crpogk7287k25tqmrogj/postgres:14.1-alpine
     restart: always
-    mem_limit: 3G
-    memswap_limit: 3G
+    mem_limit: 2G
+    memswap_limit: 2G
     pids_limit: 100
     volumes:
         - data:/var/lib/postgresql/data/
