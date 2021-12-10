@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/google/uuid"
 	"io"
 	"log"
@@ -176,8 +175,6 @@ func HandleSetSchema(env *Env, w http.ResponseWriter, r *http.Request, username 
 		w.WriteHeader(400)
 		return
 	}
-	fmt.Println("data")
-	fmt.Println(data)
 	resourceUuid := r.URL.Path[len("/set_schema/"):]
 
 	if !env.resources.Exists(username, resourceUuid) {
