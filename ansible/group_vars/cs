@@ -43,10 +43,16 @@ cs_checkers_hostname_cb: |
   sub { my ($team, $service) = @_; "10.118.0.20:$service->{port_prefix}$team->{team_id}" }
 
 teams: |
-  {name => 'Команда Лучкиных Вячеславов', network => '10.118.101.0/24', host => '10.118.101.0', team_id => '101', token => '961bad80437d6140ce70', logo => '/data/logos/101'},
-  {name => 'C4T BuT S4D', network => '10.118.102.0/24', host => '10.118.102.0', team_id => '102', token => 'cab4496c1e740638b49d', logo => '/data/logos/102'},
-  {name => 'SPRUSH', network => '10.118.103.0/24', host => '10.118.103.0', team_id => '103', token => 'f6026a06def986fde14c', logo => '/data/logos/103'},
-  {name => '♿️🅵🅰️🅺🅰️🅿️🅿️🅰️♿️', network => '10.118.104.0/24', host => '10.118.104.0', team_id => '104', token => '8d705220eefea5d7a157', logo => '/data/logos/104'},
+  {name => 'C4T BuT S4D', network => '10.118.101.0/24', host => '10.118.101.0', team_id => '101', token => '759b3fead2144806de8b', logo => '/data/logos/101'},
+  {name => 's3qu3nc3', network => '10.118.102.0/24', host => '10.118.102.0', team_id => '102', token => 'b41f8e063283050f6a56', logo => '/data/logos/102'},
+  {name => 'SPRUSH', network => '10.118.103.0/24', host => '10.118.103.0', team_id => '103', token => 'aa695967090ac372726e', logo => '/data/logos/103'},
+  {name => 'FaKappa', network => '10.118.104.0/24', host => '10.118.104.0', team_id => '104', token => 'dabb5029e3881429a4f5', logo => '/data/logos/104'},
+  {name => 'Которую нельзя называть', network => '10.118.105.0/24', host => '10.118.105.0', team_id => '105', token => '8e28d14947c1ef08396f', logo => '/data/logos/105'},
+  {name => 'WebSpiders', network => '10.118.106.0/24', host => '10.118.106.0', team_id => '106', token => '3b5ffca2819e1686311d', logo => '/data/logos/106'},
+  {name => 'Red Cadets', network => '10.118.107.0/24', host => '10.118.107.0', team_id => '107', token => 'fb62db35fbe277d2da83', logo => '/data/logos/107'},
+  {name => 'TherelsNoInfoRoma', network => '10.118.108.0/24', host => '10.118.108.0', team_id => '108', token => 'ce217a5ba8ebd7a2774b', logo => '/data/logos/108'},
+  {name => 'N_K_N', network => '10.118.109.0/24', host => '10.118.109.0', team_id => '109', token => 'f1395de1024e108965f6', logo => '/data/logos/109'},
+  {name => 'm17m0', network => '10.118.110.0/24', host => '10.118.110.0', team_id => '110', token => '5067a984a26b8c6125e7', logo => '/data/logos/110'},
 
 
 services: |
