@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Main</title>
-<!--    <link rel="stylesheet" href="/static/css/mini.css">-->
     <link rel="stylesheet" href="/static/css/main.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="/static/js/main.js" type="text/javascript"></script>
@@ -22,8 +21,8 @@
 <table>
     <colgroup>
         <col style="width:30%">
-        <col style="width:35%">
-        <col style="width:35%">
+        <col style="width:40%">
+        <col style="width:30%">
     </colgroup>
     <tbody id="tokens">
     <tr>
@@ -34,21 +33,24 @@
     <tr>
         <td><button id="add-token-btn" class="everything" role="button">Gen new user token</button></td>
         <td>
-            <button id="add-rule-btn" class="everything">Add rule to chain</button>
-            <nobr>:</nobr>
             <select id="rl-sel" class="everything">
                 <option id="grp-opt" style="width: 50px">group</option>
                 <option id="act-opt" style="width: 50px">action</option>
             </select>
+            <button id="add-rule-btn" class="everything">Add rule to chain</button>
+            <nobr>:</nobr>
             <nobr class="user-rule">user</nobr>
 
             <input id="usr-i" type="number" placeholder="user" style="width: 50px" value="1" class="everything user-rule">
-            <nobr class="user-rule">belongs to group</nobr>
+            <nobr class="user-rule">∈ group</nobr>
+            <nobr class="group-rule" style="display: none">if user ∈ </nobr>
             <input id="grp-i" type="number" placeholder="group" style="width: 50px" value="1" class="everything">
-            <select id="cond-sel" style="width: 50px; display: none" class="everything group-rule">
+            <nobr class="group-rule" style="display: none">==</nobr>
+            <select id="cond-sel" style="display: none" class="everything group-rule">
                 <option id="incl-opt" style="width: 50px">includes</option>
                 <option id="excl-opt" style="width: 50px">excludes</option>
             </select>
+            <nobr class="group-rule" style="display: none">→</nobr>
             <select id="act-sel" style="width: 100px; display: none" class="everything group-rule">
                 <option id="allw-opt" style="width: 50px">allow</option>
                 <option id="deny-opt" style="width: 50px">deny</option>
@@ -56,7 +58,10 @@
         </td>
         <td>
             <button id="bnd-schema" class="everything">Bind rule chain to new resource</button>
-            <input id="file" type="file" name="myFile" class="everything" />
+            <label for="file" class="file-upload">
+                <i class="fa fa-cloud-upload"></i>Upload
+            </label>
+            <input id="file" type="file" name="file" class="file-upload"/>
         </td>
     </tr>
     {{range .Table}}
