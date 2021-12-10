@@ -26,6 +26,7 @@ func main() {
 	http.HandleFunc("/", server.Wrapper(env, server.WithTemplate("index.html", server.CheckPageAuth(server.HandleIndexPage))))
 	http.HandleFunc("/register_page", server.Wrapper(env, server.WithTemplate("register.html", server.HandleRegisterAdminPage)))
 	http.HandleFunc("/login_page", server.Wrapper(env, server.WithTemplate("login.html", server.HandleRegisterAdminPage)))
+	http.HandleFunc("/get_resource_page", server.Wrapper(env, server.WithTemplate("resource.html", server.HandleGetResourcePage)))
 
 	fs := http.FileServer(http.Dir("./server/static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
