@@ -18,7 +18,7 @@ variable "services" {
     },
     {
       "name": "resoccessor",
-      "template": "setup_empty.sh",
+      "template": "setup_aslr.sh",
       "id": 3,
     },
   ]
