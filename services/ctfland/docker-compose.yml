@@ -16,7 +16,7 @@ services:
     pids_limit: 40
     cpus: 1.5
     mem_limit: 2G
-    memswap_limit: 1G
+    memswap_limit: 2G
 
 
   db:
