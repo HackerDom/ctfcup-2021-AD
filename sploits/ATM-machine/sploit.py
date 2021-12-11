@@ -49,7 +49,7 @@ if __name__ == '__main__':
     padbuster = PadBuster(address=address)
     for code in encoded:
         start = time.time()
-        result = padbuster.decrypt(code, block_size=16)
+        result = padbuster.decrypt(code[32:], block_size=16)
         print("=====================")
         print(result)
         print("=====================")
