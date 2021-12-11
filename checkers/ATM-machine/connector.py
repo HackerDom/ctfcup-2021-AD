@@ -7,8 +7,8 @@ class Connector:
         self.sock.connect(self.addr)
 
     def send_message(self, message):
-        self.sock.sendall(message)
-        try:
+        try:    
+            self.sock.sendall(message)
             resp = self.sock.recv(1488)
         except Exception:
             return
