@@ -11,7 +11,7 @@
   synchronize:
     src: "{{ playbook_dir }}/../services/{{ service_name }}/"
     dest: "/home/ctfcup/{{ service_name }}/"
-    rsync_opts: ["--exclude=.rsync-filter"]
+    rsync_opts: ["--exclude=.rsync-filter", "--exclude=before_image_build.sh"]
 
 - name: Check permissions
   file:
@@ -31,18 +31,6 @@
   args:
     chdir: "/home/ctfcup/{{ service_name }}/"
     warn: no
-
-- name: Check that the before_image_build.sh exists
-  stat:
-    path: /home/ctfcup/{{ service_name }}/before_image_build.sh
-  register: stat_result
-
-- name: Run prebuilt hook for {{ service_name }}
-  command: ./before_image_build.sh
-  args:
-    chdir: "/home/ctfcup/{{ service_name }}/"
-    warn: no
-  when: stat_result.stat.exists
 
 - name: Build docker images for {{ service_name }}
   command: docker-compose build
