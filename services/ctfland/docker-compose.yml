@@ -1,4 +1,4 @@
-version: '3.7'
+version: '2.2'
 services:
   ctfland:
     image: ctfland
@@ -13,6 +13,11 @@ services:
       - ./variables.env
       
     stop_grace_period: 1s
+    pids_limit: 40
+    cpus: 1.5
+    mem_limit: 2G
+    memswap_limit: 1G
+
 
   db:
     image: 'cr.yandex/crpogk7287k25tqmrogj/postgres:latest'
