@@ -2,7 +2,7 @@ FROM golang:1.17.4-alpine3.15 AS build
 
 COPY src/ /src
 WORKDIR /src
-RUN go build && apk add g++ && cd /src/schema/bin && ./build.sh
+RUN go build && apk add g++
 
 FROM alpine
 WORKDIR /app

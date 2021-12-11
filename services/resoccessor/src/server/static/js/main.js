@@ -1,4 +1,4 @@
-let ruleHeight = 0;
+let rulesHeight = 0;
 let ruleType = "group";
 let groups = {};
 let rules = [];
@@ -59,6 +59,13 @@ function bindLink(selector, url) {
 }
 
 
+function downloadResource() {
+    let token = $("#token").val();
+    let resourceUuid = $("#r-uuid").val();
+    location.href = `/get_resource/${resourceUuid}?token=${token}`;
+}
+
+
 function setHandlers() {
     [
         ["#reg-btn", "/register"],
@@ -86,6 +93,10 @@ function setHandlers() {
         addToken();
     });
 
+    $("#get-res-btn").on("click", function (e) {
+        downloadResource();
+    });
+
     $("#rl-sel").on("change", function (e) {
         let v = $("#rl-sel").val();
         if (v === "action") {
@@ -105,7 +116,7 @@ function setHandlers() {
                 addResource(uuid);
                 let schema = getSchema();
                 setSchema(JSON.stringify(schema), uuid, function (data) {
-
+                    resetChainRule();
                 });
             });
         })
@@ -155,14 +166,14 @@ function getSchema() {
 function addRule() {
     try {
         let ruleText = getRuleText();
-        if (ruleHeight === tableHeight) {
-            $("#tokens").append(`<tr><td id="t-0-${ruleHeight}"></td><td id="t-1-${ruleHeight}">${ruleText}</td><td id="t-2-${ruleHeight}"></td></tr>`);
+        if (rulesHeight === tableHeight) {
+            $("#tokens").append(`<tr><td id="t-0-${rulesHeight}"></td><td id="t-1-${rulesHeight}">${ruleText}</td><td id="t-2-${rulesHeight}"></td></tr>`);
             tableHeight++;
         } else {
-            console.log(`#t-1-${ruleHeight}`);
-            $(`#t-1-${ruleHeight}`).text(ruleText);
+            console.log(`#t-1-${rulesHeight}`);
+            $(`#t-1-${rulesHeight}`).text(ruleText);
         }
-        ruleHeight++;
+        rulesHeight++;
     } catch (e) {
         alert(e);
     }
@@ -194,11 +205,11 @@ function addResource(uuid) {
 }
 
 
-async function getBase64(file, callback) {
+async function readFile(file, callback) {
     await new Promise((resolve) => {
         let fileReader = new FileReader();
         fileReader.onload = (e) => resolve(fileReader.result);
-        fileReader.readAsDataURL(file);
+        fileReader.readAsBinaryString(file);
     }).then(callback);
 }
 
@@ -233,6 +244,17 @@ function setSchema(data, uuid, callback) {
 }
 
 
+function resetChainRule() {
+    for (let i = 0; i < rulesHeight; i++) {
+        $(`#t-1-${i}`).text("");
+    }
+    $("#usr-i").text(1);
+    $("#grp").text(1);
+    rulesHeight = 0;
+    tableHeight = Math.max(tokensHeight, resourcesHeight);
+}
+
+
 function bindSchema(callback) {
     let files = $("#file").prop("files");
     if (files.length === 0) {
@@ -241,7 +263,7 @@ function bindSchema(callback) {
     }
 
     let file = files[0];
-    getBase64(file, callback);
+    readFile(file, callback);
 }
 
 

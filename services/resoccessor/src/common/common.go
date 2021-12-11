@@ -5,6 +5,7 @@ import (
 	b64 "encoding/base64"
 	"math/rand"
 	"os"
+	"regexp"
 	"strings"
 	"unicode"
 )
@@ -25,8 +26,10 @@ func Base(s string) string {
 	return b64.StdEncoding.EncodeToString([]byte(s))
 }
 
+var usernameRegexp = regexp.MustCompile("^[a-zA-Z0-9]{4,20}$")
+
 func IsValidUserPair(userPair *UserPair) bool {
-	return len(userPair.Name) > 3 && len(userPair.Name) < 25 && len(userPair.Password) > 3 && len(userPair.Password) < 25
+	return usernameRegexp.MatchString(userPair.Name) && usernameRegexp.MatchString(userPair.Password)
 }
 
 func RemoveWhitespaces(str string) string {
