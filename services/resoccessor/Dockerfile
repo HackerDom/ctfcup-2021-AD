@@ -1,17 +1,17 @@
-FROM golang:1.17.4-alpine3.15 AS build
+FROM golang:1.17.5-stretch AS build
 
 COPY src/ /src
 WORKDIR /src
-RUN go build && apk add g++
+RUN go build && apt update && apt install g++ -y
 
-FROM alpine
+FROM ubuntu
 WORKDIR /app
 
 COPY --from=build /src/resoccessor /app/
 COPY --from=build /src/schema/bin/schema /app/schema/bin/
 COPY --from=build /src/server/static /app/server/static/
 COPY --from=build /src/server/templates /app/server/templates/
-RUN apk add g++
+RUN apt update && apt install g++ -y
 
 CMD ["./resoccessor"]
 
