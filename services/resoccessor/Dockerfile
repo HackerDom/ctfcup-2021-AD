@@ -2,7 +2,7 @@ FROM golang:1.17.5-stretch AS build
 
 COPY src/ /src
 WORKDIR /src
-RUN go build && apk add g++
+RUN go build && apt update && apt install g++ -y
 
 FROM ubuntu
 WORKDIR /app
