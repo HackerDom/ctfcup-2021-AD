@@ -23,18 +23,17 @@ namespace CtfLand.Service.Providers
     public class LandingTemplateProvider : ILandingTemplateProvider
     {
         private const string LandingTemplateFilePath = "Views/ParkLandingTemplate.cshtml";
-        private const string AttractionPrefix = "@attraction.";
 
         private static readonly Dictionary<string, string> AllowedDescVariables = new()
         {
-            ["$userLogin"] = "@userProvider.GetUser(Model.UserId).Login",
+            ["$userLogin"] = "@(userProvider.GetUser(Model.UserId).Login)",
         };
 
         private static readonly Dictionary<string, string> AllowedAttractionVariables = new()
         {
-            ["$name"] = $"{AttractionPrefix}{nameof(Attraction.Name)}",
-            ["$desc"] = $"{AttractionPrefix}{nameof(Attraction.Description)}",
-            ["$cost"] = $"{AttractionPrefix}{nameof(Attraction.Cost)}",
+            ["$name"] = $"@(attraction.{nameof(Attraction.Name)})",
+            ["$desc"] = $"@(attraction.{nameof(Attraction.Description)})",
+            ["$cost"] = $"@(attraction.{nameof(Attraction.Cost)})",
         };
 
         private readonly TemplateRenderer templateRenderer;
