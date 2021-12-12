@@ -12,6 +12,7 @@ namespace CtfLand.Service.Models
         public string Description { get; set; }
 
         [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Стоимость аттракциона должна быть положительным числом")]
         public int Cost { get; set; }
         
         [Required]
