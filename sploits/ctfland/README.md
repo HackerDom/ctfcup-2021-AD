@@ -2,7 +2,7 @@
 
 SSTI в генерируемом шаблоне для лендинга парка - есть возможность передавать команды через [поле email](https://github.com/HackerDom/ctfcup-2021-AD/blob/f489b5b92102d18527c9557db9ebe1be46e3bfb0/services/ctfland/src/Service/Models/CreateParkRequestModel.cs). 
 
-На поле навешана валидация с помощью общего регулярного выражения и проверки через [MailAddress](https://docs.microsoft.com/ru-ru/dotnet/api/system.net.mail.mailaddress?view=netframework-4.8). Данный класс допускает строки вижа `"display name"<user@domain(comment)>`, а значит мы можем вызывать функции с помощью шаблонизатора. 
+На поле навешана валидация с помощью общего регулярного выражения и проверки через [MailAddress](https://docs.microsoft.com/ru-ru/dotnet/api/system.net.mail.mailaddress?view=netframework-4.8). Данный класс допускает строки вида `"display name"<user@domain(comment)>`, а значит мы можем вызывать функции с помощью шаблонизатора. 
 
 В [класс базового шаблона](https://github.com/HackerDom/ctfcup-2021-AD/blob/f489b5b92102d18527c9557db9ebe1be46e3bfb0/services/ctfland/src/Service/Views/ParkLandingTemplate.cshtml) видно, что к нему импортируется класс `userProvider`, который можно использовать для получения информации о пользователе по его идентификатору, в том числе паспортных данных (в них хранится первая часть флагов). 
 
@@ -28,5 +28,5 @@ SSTI в генерируемом шаблоне для лендинга парк
 
 ## Unintended
 
-1. Возможность создать аттракцион с отрицательной стоиомтью
+1. Возможность создать аттракцион с отрицательной стоимостью. Это позволяет "накручивать" себе баланс для покупки недоступных изначально билетов.
 2. SSTI в $userLogin. Можно дописывать в конец преобразования. Например `$userLogin.Replace("a", "b")`.
